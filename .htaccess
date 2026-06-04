@@ -1,12 +1,23 @@
 Options -MultiViews
 RewriteEngine On
+RewriteBase /
 
-# Supprimer .php des URLs
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^([^\.]+)$ $1.php [NC,L]
-
-# Rediriger .php vers URL propre
-RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
+# Rediriger les accès directs .php vers URL propre (hors admin/)
+RewriteCond %{THE_REQUEST} \s/(?!admin/)([^.]+)\.php[\s?] [NC]
 RewriteRule ^ /%1 [R=301,L]
+
+# Réécrire les URLs propres vers .php (liste explicite)
+RewriteRule ^boutique$ boutique.php [NC,L]
+RewriteRule ^produit$ produit.php [NC,L]
+RewriteRule ^panier$ panier.php [NC,L]
+RewriteRule ^commande$ commande.php [NC,L]
+RewriteRule ^confirmation$ confirmation.php [NC,L]
+RewriteRule ^suivi$ suivi.php [NC,L]
+RewriteRule ^sur-mesure$ sur-mesure.php [NC,L]
+RewriteRule ^login$ login.php [NC,L]
+RewriteRule ^logout$ logout.php [NC,L]
+RewriteRule ^register$ register.php [NC,L]
+RewriteRule ^compte$ compte.php [NC,L]
+RewriteRule ^stripe-checkout$ stripe-checkout.php [NC,L]
+RewriteRule ^stripe-success$ stripe-success.php [NC,L]
+RewriteRule ^cart-action$ cart-action.php [NC,L]

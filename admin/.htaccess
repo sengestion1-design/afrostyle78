@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# Réécrire les URLs sans .php vers les fichiers .php (sans redirection 301)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
