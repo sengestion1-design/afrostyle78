@@ -72,6 +72,10 @@ if (!empty($_SESSION['customer_id'])) {
     }
 }
 if (!$detectedCountry) $detectedCountry = detectCountryByIp();
+// Toujours prioritiser le pays du profil client s'il est connecté
+if (!empty($_SESSION['customer_id']) && !empty($prefill['country'])) {
+    $detectedCountry = $prefill['country'];
+}
 $_SESSION['detected_country'] = $detectedCountry;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
