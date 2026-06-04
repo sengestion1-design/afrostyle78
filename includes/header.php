@@ -97,6 +97,21 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name")->fetchAll();
     </div>
 </nav>
 
+<!-- BARRE AUTH MOBILE (visible uniquement sur mobile si non connecté) -->
+<?php if (empty($_SESSION['customer_id'])): ?>
+<div class="mobile-auth-bar" id="mobileAuthBar">
+    <a href="<?= SITE_URL ?>/login.php" class="mobile-auth-connexion">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="15" height="15"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Connexion
+    </a>
+    <span class="mobile-auth-divider"></span>
+    <a href="<?= SITE_URL ?>/register.php" class="mobile-auth-register">
+        Créer un compte
+    </a>
+</div>
+<?php endif; ?>
+
+
 <!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
     <button class="mobile-close" onclick="toggleMobileMenu()">✕</button>
@@ -109,6 +124,12 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name")->fetchAll();
         <li><a href="<?= SITE_URL ?>/sur-mesure.php">Sur-Mesure</a></li>
         <li><a href="<?= SITE_URL ?>/suivi.php">Suivi commande</a></li>
         <li><a href="<?= SITE_URL ?>/panier.php">Panier (<?= $cartCount ?>)</a></li>
+        <?php if (!empty($_SESSION['customer_id'])): ?>
+        <li><a href="<?= SITE_URL ?>/compte.php">Mon compte</a></li>
+        <?php else: ?>
+        <li><a href="<?= SITE_URL ?>/login.php">Connexion</a></li>
+        <li><a href="<?= SITE_URL ?>/register.php" style="color:var(--gold);">Créer un compte</a></li>
+        <?php endif; ?>
     </ul>
 </div>
 

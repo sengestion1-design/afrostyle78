@@ -26,13 +26,19 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; font-size: 16px; }
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  overflow-x: hidden;
+  max-width: 100%;
+}
 
 body {
   font-family: 'Syne', sans-serif;
   background: var(--cream);
   color: var(--text);
   overflow-x: hidden;
+  max-width: 100%;
   min-height: 100vh;
 }
 
@@ -439,7 +445,7 @@ body {
   grid-column: 2;
   grid-row: 1;
 }
-.hero-text { /* single col */ }
+
 .hero-visual { display: none; } /* removed — stats shown inline below */
 .hero-visual-card { display: none; }
 .hero-stat-grid {
@@ -830,6 +836,7 @@ body {
   margin-top: 36px;
   overflow: hidden;
   cursor: grab;
+  max-width: 100%;
 }
 .cat-slider-wrap:active { cursor: grabbing; }
 .cat-slider {
@@ -1607,12 +1614,29 @@ body {
 
 /* Mobile */
 @media (max-width: 768px) {
-  /* Navbar */
+  /* Navbar — logo + panier + hamburger SEULEMENT dans la barre principale */
+  .nav-inner {
+    height: 64px;
+    padding: 0 16px;
+    gap: 0;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+  }
   .nav-links { display: none; }
   .nav-search-btn { display: none; }
+  .nav-auth-links { display: none !important; }
+  .nav-auth-sep { display: none; }
+  .nav-account-label { display: none; }
+  .nav-actions { gap: 10px; flex-shrink: 0; }
+  .logo-img { height: 50px; width: 50px; }
+  .cart-inner { padding: 6px 10px 6px 8px; gap: 5px; }
+  .cart-icon { width: 15px; height: 15px; }
+  .cart-count { font-size: 0.72rem; }
   .hamburger { display: flex; }
-  .nav-inner { height: 80px; }
-  .logo-img { height: 72px; width: 72px; }
+  .hamburger span { width: 24px; height: 2px; background: var(--dark); }
+  /* Bouton hero sur 1 ligne */
+  .hero-actions .btn { font-size: 0.78rem; padding: 12px 18px; letter-spacing: 0.08em; white-space: nowrap; }
 
   /* Hero — photo de fond sur mobile */
   .hero {
@@ -1693,7 +1717,18 @@ body {
   .cat-card { width: 120px; height: 140px; }
 
   /* Products */
-  .products-grid { grid-template-columns: 1fr; gap: 8px; }
+  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .product-info { padding: 10px 8px; }
+  .product-category { font-size: 0.7rem; margin-bottom: 4px; }
+  .product-name { font-size: 0.9rem; margin-bottom: 6px; line-height: 1.2; }
+  .product-price { flex-wrap: wrap; gap: 4px; }
+  .price-current { font-size: 0.85rem; }
+  .price-old { font-size: 0.78rem; }
+  .product-price .tag { font-size: 0.62rem; padding: 2px 5px; white-space: nowrap; }
+  .product-actions { padding: 4px 6px; bottom: 0 !important; background: none; }
+  .product-actions .btn { font-size: 0.6rem; padding: 5px 4px; letter-spacing: 0.05em; white-space: nowrap; line-height: 1; }
+  .product-badge { display: none; }
+  .product-badge { font-size: 0.62rem; padding: 4px 8px; }
   .section-header { margin-bottom: 32px; }
 
   /* Checkout */
@@ -2304,4 +2339,271 @@ body {
   .mariage-cta-inner { flex-direction: column; align-items: flex-start; }
   .mariage-cta-actions { width: 100%; }
   .mariage-cta-actions .btn { flex: 1; justify-content: center; }
+}
+
+/* ============================================
+   MOBILE PERFECTIONNEMENT — corrections globales
+   ============================================ */
+
+/* ============================================
+   CORRECTIONS MOBILE FINALES — afrostyle78.com
+   Synthèse 3 agents — override tout ce qui précède
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* ---- NAVBAR : auth masqué dans la barre principale ---- */
+  .navbar .nav-auth-links,
+  .nav-auth-links {
+    display: none !important;
+  }
+
+  /* ---- BARRE AUTH COLLANTE SOUS LA NAVBAR ---- */
+  .mobile-auth-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    background: var(--dark, #1a1209) !important;
+    padding: 10px 16px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    position: sticky !important;
+    top: 64px !important;
+    z-index: 998 !important;
+    border-bottom: 1px solid rgba(200,146,26,0.25) !important;
+  }
+  .mobile-auth-connexion {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    color: rgba(253,246,236,0.9) !important;
+    text-decoration: none !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    padding: 6px 16px !important;
+  }
+  .mobile-auth-connexion:hover { color: var(--gold, #c8921a) !important; }
+  .mobile-auth-divider {
+    width: 1px !important;
+    height: 18px !important;
+    background: rgba(200,146,26,0.35) !important;
+    flex-shrink: 0 !important;
+  }
+  .mobile-auth-register {
+    display: flex !important;
+    align-items: center !important;
+    background: var(--gold, #c8921a) !important;
+    color: var(--dark, #1a1209) !important;
+    text-decoration: none !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    padding: 7px 18px !important;
+    margin-left: 12px !important;
+  }
+  .mobile-auth-register:hover { background: #b8820f !important; }
+
+  /* ---- BOUTONS CTA HERO : côte à côte, même largeur ---- */
+  .hero-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-top: 28px !important;
+  }
+  .hero-actions .btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    max-width: 50% !important;
+    font-size: 0.78rem !important;
+    padding: 12px 10px !important;
+    letter-spacing: 0.08em !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  /* ---- STATS HERO : 3 colonnes horizontales ---- */
+  .hero-stat-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+  }
+  .hero-stat-num { font-size: 1.6rem !important; }
+  .hero-stat-label { font-size: 0.68rem !important; }
+}
+
+/* --- Compte client : sidebar & contenu --- */
+@media (max-width: 768px) {
+  .compte-container { grid-template-columns: 1fr; }
+  .compte-sidebar {
+    position: static;
+    height: auto;
+    padding: 24px 16px;
+  }
+  .compte-main { padding: 20px 16px; }
+  .compte-tab.active { padding: 24px 16px; }
+  .compte-nav { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .compte-nav-item { padding: 8px 12px; font-size: 0.85rem; gap: 6px; }
+  .compte-nav-item svg { display: none; }
+  .compte-section-title { font-size: 1.4rem; }
+  .auth-row { grid-template-columns: 1fr; }
+}
+
+/* --- Order cards : empilage propre --- */
+@media (max-width: 600px) {
+  .order-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 14px 16px;
+  }
+  .order-number { font-size: 1rem; }
+  .order-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 12px 16px;
+  }
+  .order-meta { font-size: 0.9rem; flex-wrap: wrap; }
+  .order-total { font-size: 1.1rem; }
+  .order-card-footer { padding: 12px 16px; }
+  .order-card-footer .btn-outline { width: 100%; text-align: center; justify-content: center; padding: 12px; }
+}
+
+/* --- Cart page : table mobile --- */
+@media (max-width: 768px) {
+  .cart-table { font-size: 0.9rem; }
+  .cart-table th:nth-child(3),
+  .cart-table td:nth-child(3) { display: none; }
+  .cart-table th:nth-child(4),
+  .cart-table td:nth-child(4) { display: none; }
+  .cart-item-img { width: 60px; height: 70px; }
+  .cart-summary { position: static; }
+}
+
+/* --- Section mariages/occasions : textes mobiles --- */
+@media (max-width: 640px) {
+  .mariage-intro { font-size: 1rem; }
+  .occasion-card p { font-size: 0.95rem; }
+  .process-step { padding: 0 12px; }
+  .mariage-cta-text h3 { font-size: 1.5rem; }
+  .mariage-cta-text p { font-size: 0.95rem; }
+}
+
+/* --- Produit détail : galerie mobile --- */
+@media (max-width: 768px) {
+  .product-detail-grid { grid-template-columns: 1fr; gap: 24px; }
+  .product-gallery { gap: 8px; }
+  .product-info-section { padding: 0; }
+  .product-title { font-size: clamp(1.6rem, 5vw, 2rem); }
+  .product-price-block { flex-wrap: wrap; gap: 8px; }
+  .size-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* --- Panier : bouton checkout plein largeur --- */
+@media (max-width: 480px) {
+  .qty-cart { flex-direction: column; gap: 10px; }
+  .qty-cart .btn { width: 100%; justify-content: center; }
+  .cart-subtotal-row { flex-direction: column; gap: 4px; }
+  .checkout-grid { gap: 20px; }
+  .pay-bank-details div { flex-direction: column; gap: 2px; }
+}
+
+/* --- Commande / checkout : formulaire --- */
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .measure-grid { grid-template-columns: repeat(2, 1fr); }
+  .delivery-options { grid-template-columns: 1fr; }
+  .payment-option label { padding: 14px 12px; gap: 12px; }
+  .pay-icon { font-size: 1.3rem; }
+}
+
+/* --- Footer : espacement mobile --- */
+@media (max-width: 480px) {
+  .footer-inner { padding: 32px 16px; gap: 28px; }
+  .footer-bottom { font-size: 0.8rem; flex-direction: column; gap: 8px; text-align: center; }
+  .footer-logo { font-size: 1.5rem; }
+}
+
+/* --- Typo & espacement globaux mobiles --- */
+@media (max-width: 480px) {
+  .container { padding: 0 14px; }
+  .section { padding: 36px 0; }
+  .section-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .section-header { margin-bottom: 24px; }
+  .confirmation-box { padding: 32px 16px; margin: 24px 12px; }
+  .btn { font-size: 0.9rem; padding: 12px 20px; }
+  .whatsapp-float { bottom: 16px; right: 16px; }
+}
+
+/* --- Correction overflow horizontal --- */
+@media (max-width: 768px) {
+  body { overflow-x: hidden; }
+  .section, .container, .hero { max-width: 100vw; overflow-x: hidden; }
+  img { max-width: 100%; height: auto; }
+}
+
+/* Mobile très petit : auth links compacts */
+@media (max-width: 400px) {
+  .nav-auth-link:not(.nav-auth-register) { display: none; }
+  .nav-auth-register { font-size: 0.72rem; padding: 5px 8px; }
+}
+
+/* ============================================
+   BARRE AUTH MOBILE — sous la navbar
+   ============================================ */
+.mobile-auth-bar {
+  display: none; /* caché sur desktop */
+}
+
+@media (max-width: 768px) {
+  .mobile-auth-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    background: var(--dark);
+    padding: 10px 16px;
+    position: sticky;
+    top: 64px;
+    z-index: 998;
+    border-bottom: 1px solid rgba(200,146,26,0.2);
+  }
+  .mobile-auth-connexion {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(253,246,236,0.85);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 6px 16px;
+    transition: color 0.2s;
+  }
+  .mobile-auth-connexion:hover { color: var(--gold); }
+  .mobile-auth-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(200,146,26,0.3);
+    flex-shrink: 0;
+  }
+  .mobile-auth-register {
+    display: flex;
+    align-items: center;
+    color: var(--dark);
+    background: var(--gold);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 6px 18px;
+    margin-left: 12px;
+    transition: background 0.2s;
+  }
+  .mobile-auth-register:hover { background: #b8820f; }
 }
