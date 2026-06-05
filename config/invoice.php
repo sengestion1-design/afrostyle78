@@ -25,7 +25,7 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
         'mode'          => 'utf-8',
         'format'        => 'A4',
         'margin_top'    => 0,
-        'margin_bottom' => 0,
+        'margin_bottom' => 20,
         'margin_left'   => 0,
         'margin_right'  => 0,
         'tempDir'       => $tmpDir,
@@ -235,19 +235,20 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
   </tr>
 </table>
 
-<!-- ═══ PIED DE PAGE ═══ -->
-<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:40px; border-top:2px solid #c8921a;">
-  <tr>
-    <td style="padding:24px 48px; text-align:center; background:#1a1008;">
-      <div style="color:#c8921a; font-size:14px; font-style:italic; letter-spacing:1px;">Merci pour votre confiance — AfroStyle78</div>
-      <div style="color:rgba(245,240,232,0.5); font-size:11px; margin-top:8px;">Guyancourt, Yvelines (78) &nbsp;|&nbsp; sengestion1@gmail.com</div>
-    </td>
-  </tr>
-</table>
-
 </body>
 </html>';
 
+    $footerHtml = '
+<table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #c8921a;">
+  <tr>
+    <td style="padding:16px 48px; text-align:center; background:#1a1008;">
+      <div style="color:#c8921a; font-size:13px; font-style:italic; letter-spacing:1px;">Merci pour votre confiance — AfroStyle78</div>
+      <div style="color:rgba(245,240,232,0.5); font-size:10px; margin-top:6px;">Guyancourt, Yvelines (78) &nbsp;|&nbsp; sengestion1@gmail.com</div>
+    </td>
+  </tr>
+</table>';
+
+    $mpdf->SetHTMLFooter($footerHtml);
     $mpdf->WriteHTML($html);
     return $mpdf->Output('', 'S'); // 'S' = retourner comme chaîne
 }
