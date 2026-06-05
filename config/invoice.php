@@ -38,9 +38,7 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
     $logoPath = __DIR__ . '/../logo.jpg';
     $logoTag  = '';
     if (file_exists($logoPath)) {
-        $logoData   = base64_encode(file_get_contents($logoPath));
-        $logoMime   = 'image/jpeg';
-        $logoTag    = '<img src="data:' . $logoMime . ';base64,' . $logoData . '" style="height:80px;width:80px;border-radius:50%;object-fit:cover;" />';
+        $logoTag = '<img src="' . realpath($logoPath) . '" style="height:80px;width:80px;border-radius:50%;object-fit:cover;" />';
     } else {
         $logoTag = '<span style="font-size:28px;font-weight:bold;color:#c8921a;">A</span>';
     }
@@ -100,15 +98,8 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
                 $imgPath = $basePath . $imgFile;
                 error_log('[Invoice] trying path: ' . $imgPath);
                 if (file_exists($imgPath)) {
-                    $ext     = strtolower(pathinfo($imgPath, PATHINFO_EXTENSION));
-                    $mimeMap = ['jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png','webp'=>'image/webp','gif'=>'image/gif'];
-                    $mime    = $mimeMap[$ext] ?? 'image/jpeg';
-                    $imgData = base64_encode(file_get_contents($imgPath));
-                    $imgHtml = '<img src="data:' . $mime . ';base64,' . $imgData . '" style="width:52px;height:52px;object-fit:cover;border:1px solid #e0d8cc;" />';
-                    error_log('[Invoice] image loaded OK: ' . $imgPath);
+                    $imgHtml = '<img src="' . $imgPath . '" style="width:52px;height:52px;object-fit:cover;border:1px solid #e0d8cc;" />';
                     break 2;
-                } else {
-                    error_log('[Invoice] file NOT found: ' . $imgPath);
                 }
             }
         }
