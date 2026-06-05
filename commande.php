@@ -283,6 +283,7 @@ $total = $subtotal + $delivery;
                                 <?php if($z['description']): ?><br><small style="color:var(--text-muted)"><?= htmlspecialchars($z['description']) ?></small><?php endif; ?>
                             </span>
                         </label>
+                        <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
                     </div>
                     <?php endforeach; ?>
                     </div>
@@ -327,6 +328,7 @@ $total = $subtotal + $delivery;
                                     <small>Mobile Money — Instantané</small>
                                 </span>
                             </label>
+                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
                         </div>
                         <div class="payment-option">
                             <input type="radio" name="payment_method" id="pay_orange" value="orange_money">
@@ -337,6 +339,7 @@ $total = $subtotal + $delivery;
                                     <small>Mobile Money Orange</small>
                                 </span>
                             </label>
+                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
                         </div>
                         <div class="payment-option">
                             <input type="radio" name="payment_method" id="pay_carte" value="carte">
@@ -347,6 +350,7 @@ $total = $subtotal + $delivery;
                                     <small>Visa, Mastercard, Amex — Sécurisé</small>
                                 </span>
                             </label>
+                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
                         </div>
                         <div class="payment-option">
                             <input type="radio" name="payment_method" id="pay_cash" value="cash">
@@ -357,6 +361,7 @@ $total = $subtotal + $delivery;
                                     <small>Paiement à la réception</small>
                                 </span>
                             </label>
+                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
                         </div>
                     </div>
                 </div>
@@ -460,13 +465,42 @@ function filterShippingZones(countryCode) {
     document.getElementById('no-shipping').style.display = visible === 0 ? 'block' : 'none';
 }
 
+function highlightSelected(name) {
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+        const opt = r.closest('.delivery-option, .payment-option');
+        if (!opt) return;
+        const check = opt.querySelector('.check-icon');
+        if (r.checked) {
+            opt.style.borderColor = '#38a169';
+            opt.style.background  = 'rgba(56,161,105,0.06)';
+            if (check) check.style.display = 'flex';
+        } else {
+            opt.style.borderColor = '';
+            opt.style.background  = '';
+            if (check) check.style.display = 'none';
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const countrySelect = document.getElementById('country_select');
     filterShippingZones(countrySelect.value);
     countrySelect.addEventListener('change', () => filterShippingZones(countrySelect.value));
+
     document.querySelectorAll('.shipping-opt input[type=radio]').forEach(r => {
-        r.addEventListener('change', () => updateDeliveryPrice(r.value));
+        r.addEventListener('change', () => {
+            updateDeliveryPrice(r.value);
+            highlightSelected('shipping_zone_id');
+        });
     });
+
+    document.querySelectorAll('input[name="payment_method"]').forEach(r => {
+        r.addEventListener('change', () => highlightSelected('payment_method'));
+    });
+
+    // Init au chargement
+    highlightSelected('shipping_zone_id');
+    highlightSelected('payment_method');
 });
 </script>
 
