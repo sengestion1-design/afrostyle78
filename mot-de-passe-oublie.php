@@ -2,6 +2,7 @@
 ob_start();
 $pageTitle = 'Mot de passe oublié';
 require_once 'includes/header.php';
+require_once 'config/mailer.php';
 
 $errors   = [];
 $success  = '';
