@@ -34,8 +34,10 @@ if (empty($_SESSION['csrf_token'])) {
 $confirmMsg   = '';
 $confirmError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_payment']) && $order) {
-    // Vérification propriété commande
-    if (empty($_SESSION['customer_id']) || (int)$order['customer_id'] !== (int)$_SESSION['customer_id']) {
+    // Vérification propriété commande (client connecté OU commande accessible via URL avec le bon numéro)
+    $isOwner = !empty($_SESSION['customer_id']) && (int)$order['customer_id'] === (int)$_SESSION['customer_id'];
+    $isGuest = empty($_SESSION['customer_id']) && !empty($orderNumber) && $order['order_number'] === $orderNumber;
+    if (!$isOwner && !$isGuest) {
         http_response_code(403);
         exit('Accès refusé.');
     }
