@@ -4,7 +4,7 @@ require_once '../config/mailer.php';
 $db = getDB();
 
 $id = (int)($_GET['id'] ?? 0);
-$order = $db->prepare("SELECT o.*, c.first_name, c.last_name, c.email, c.phone, c.address, c.city FROM orders o JOIN customers c ON o.customer_id=c.id WHERE o.id=?");
+$order = $db->prepare("SELECT o.*, c.first_name, c.last_name, c.email, c.phone AS customer_phone, c.address AS customer_address, c.city AS customer_city FROM orders o JOIN customers c ON o.customer_id=c.id WHERE o.id=?");
 $order->execute([$id]);
 $order = $order->fetch();
 if (!$order) { header('Location: commandes.php'); exit; }
@@ -177,8 +177,8 @@ require_once 'includes/admin_header.php';
             <div style="display:flex; flex-direction:column; gap:10px; font-size:1.1rem;">
                 <div><strong><?= htmlspecialchars($order['first_name'] . ' ' . $order['last_name']) ?></strong></div>
                 <div style="color:var(--muted);">📧 <?= htmlspecialchars($order['email']) ?></div>
-                <div style="color:var(--muted);">📞 <?= htmlspecialchars($order['phone']) ?></div>
-                <div style="color:var(--muted);">📍 <?= htmlspecialchars($order['address']) ?>, <?= htmlspecialchars($order['city']) ?></div>
+                <div style="color:var(--muted);">📞 <?= htmlspecialchars($order['customer_phone']) ?></div>
+                <div style="color:var(--muted);">📍 <?= htmlspecialchars($order['customer_address']) ?>, <?= htmlspecialchars($order['customer_city']) ?></div>
             </div>
         </div>
         <div class="admin-card">
@@ -197,9 +197,17 @@ require_once 'includes/admin_header.php';
             <div style="font-size:1.1rem; display:flex; flex-direction:column; gap:8px;">
                 <div style="display:flex; justify-content:space-between;"><span>Méthode</span><strong><?= htmlspecialchars($order['payment_method']) ?></strong></div>
                 <div style="display:flex; justify-content:space-between;"><span>Statut</span>
-                    <span class="status-badge <?= $order['payment_status']==='paid' ? 'status-delivered' : 'status-pending' ?>"><?= $order['payment_status'] === 'paid' ? '✓ Payé' : '⏳ En attente' ?></span>
+                    <span class="status-badge <?= $order['payment_status']==='paid' ? 'status-delivered' : ($order['payment_status']==='pending_verification' ? 'status-shipped' : 'status-pending') ?>">
+                        <?= $order['payment_status'] === 'paid' ? '✓ Payé' : ($order['payment_status'] === 'pending_verification' ? '🔍 À vérifier' : '⏳ En attente') ?>
+                    </span>
                 </div>
-                <?php if($order['payment_status'] === 'unpaid'): ?>
+                <?php if (!empty($order['sender_phone'])): ?>
+                <div style="display:flex; justify-content:space-between; background:#fffbf0; padding:10px 12px; border:1px solid rgba(200,146,26,0.3);">
+                    <span>📱 N° expéditeur</span>
+                    <strong style="color:#c8921a;"><?= htmlspecialchars($order['sender_phone']) ?></strong>
+                </div>
+                <?php endif; ?>
+                <?php if($order['payment_status'] === 'unpaid' || $order['payment_status'] === 'pending_verification'): ?>
                 <form method="POST" style="margin-top:8px;">
                     <input type="hidden" name="status" value="<?= $order['status'] ?>">
                     <button type="submit" name="add_tracking" class="btn-admin btn-gold" style="width:100%; justify-content:center;"
