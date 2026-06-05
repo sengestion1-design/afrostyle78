@@ -276,11 +276,10 @@ $total = $subtotal + $delivery;
                                <?= $isSelected ? 'checked' : '' ?>
                                onchange="updateDeliveryPrice(<?= $z['id'] ?>)">
                         <label for="zone_<?= $z['id'] ?>">
-                            <strong><?= $typeIcon ?> <?= htmlspecialchars($z['method']) ?></strong>
-                            <span>
-                                <?= $z['price'] > 0 ? number_format($z['price'],0,',',' ').' €' : '<strong style="color:#38a169;">Gratuit</strong>' ?>
-                                <?php if($z['delay']): ?> — <?= htmlspecialchars($z['delay']) ?><?php endif; ?>
-                                <?php if($z['description']): ?><br><small style="color:var(--text-muted)"><?= htmlspecialchars($z['description']) ?></small><?php endif; ?>
+                            <span class="pay-icon"><?= $typeIcon ?></span>
+                            <span class="pay-details">
+                                <strong><?= htmlspecialchars($z['method']) ?> — <?= $z['price'] > 0 ? number_format($z['price'],0,',',' ').' €' : '<span style="color:#38a169;">Gratuit</span>' ?><?= $z['delay'] ? ' · '.$z['delay'] : '' ?></strong>
+                                <?php if($z['description']): ?><small><?= htmlspecialchars($z['description']) ?></small><?php endif; ?>
                             </span>
                         </label>
                         <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
