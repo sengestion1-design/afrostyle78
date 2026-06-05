@@ -78,6 +78,14 @@
     </div>
     <div class="footer-bottom">
         <p>© 2026 AfroStyle78 — Tous droits réservés · Mode Africaine Sur-Mesure · Guyancourt (78)</p>
+        <p style="margin-top:8px;font-size:0.72rem;color:rgba(253,246,236,0.3);letter-spacing:0.08em;">
+            Réalisé par
+            <a href="https://www.sen-gestion.com" target="_blank" rel="noopener"
+               style="color:rgba(200,146,26,0.6);text-decoration:none;font-weight:600;letter-spacing:0.05em;transition:color 0.3s;"
+               onmouseover="this.style.color='#c8921a'" onmouseout="this.style.color='rgba(200,146,26,0.6)'">
+                M. SECK
+            </a>
+        </p>
     </div>
 </footer>
 
