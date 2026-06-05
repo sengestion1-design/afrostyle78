@@ -219,7 +219,7 @@ $relatedProducts = $related->fetchAll();
                 </div>
 
                 <!-- DELIVERY INFO -->
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:24px;">
+                <div class="delivery-info-grid">
                     <div style="padding:14px; background:var(--cream-2); font-size:0.78rem;">
                         <div style="font-weight:700; margin-bottom:4px;">🚚 Livraison</div>
                         <div style="color:var(--text-muted);">Dakar & régions disponibles</div>

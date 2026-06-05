@@ -44,9 +44,9 @@ $products = $db->query("SELECT p.*, c.name as cat_name FROM products p LEFT JOIN
         </div>
 
         <!-- HOW IT WORKS -->
-        <div style="margin-top:80px; background:var(--dark); padding:60px; position:relative; overflow:hidden;">
+        <div class="steps-section">
             <div class="section-header"><h2 class="section-title" style="color:var(--cream);">Comment ça <em>marche</em> ?</h2></div>
-            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:40px; margin-top:48px;">
+            <div class="steps-grid">
                 <?php
                 $steps = [
                     ['1','Choisissez','Sélectionnez votre article et activez l\'option Sur-Mesure'],

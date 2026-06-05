@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
 ?>
 
 <div class="container" style="padding:60px 20px; max-width:700px; margin:0 auto;">
-    <div style="background:#fff; padding:48px; box-shadow:0 4px 40px rgba(0,0,0,0.07);">
+    <div style="background:#fff; padding:clamp(20px,5vw,48px); box-shadow:0 4px 40px rgba(0,0,0,0.07);">
 
     <?php if ($isPaid): ?>
         <!-- ✅ PAIEMENT CONFIRMÉ -->
@@ -131,9 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
                 <?php else: ?>
                 <div style="background:#f0fff8; border:1px solid #9ae6b4; padding:16px 20px; margin-bottom:20px; border-radius:4px;">
                     <div style="font-size:0.85rem; color:#555; margin-bottom:4px;">Envoyez exactement :</div>
-                    <div style="font-size:2rem; font-weight:700; color:#00b464;"><?= number_format($order['total_amount'], 0, ',', ' ') ?> €</div>
+                    <div style="font-size:clamp(1.4rem,5vw,2rem); font-weight:700; color:#00b464;"><?= number_format($order['total_amount'], 0, ',', ' ') ?> €</div>
                     <div style="font-size:0.85rem; color:#555; margin-top:10px;">Au numéro Wave :</div>
-                    <div style="font-size:1.5rem; font-weight:700; color:#00b464; letter-spacing:0.05em; margin:4px 0;"><?= htmlspecialchars($waveNumber) ?></div>
+                    <div style="font-size:1.5rem; font-weight:700; color:#00b464; letter-spacing:0.05em; margin:4px 0; overflow-wrap:break-word; word-break:break-all;"><?= htmlspecialchars($waveNumber) ?></div>
                     <div style="font-size:0.8rem; color:#888;">Référence : <strong><?= htmlspecialchars($orderNumber) ?></strong></div>
                 </div>
                 <form method="POST">
@@ -163,9 +163,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
             <div style="padding:24px;">
                 <div style="background:#fff9f0; border:1px solid #fbd38d; padding:16px 20px; margin-bottom:20px; border-radius:4px;">
                     <div style="font-size:0.85rem; color:#555; margin-bottom:4px;">Envoyez exactement :</div>
-                    <div style="font-size:2rem; font-weight:700; color:#ff8c00;"><?= number_format($order['total_amount'], 0, ',', ' ') ?> €</div>
+                    <div style="font-size:clamp(1.4rem,5vw,2rem); font-weight:700; color:#ff8c00;"><?= number_format($order['total_amount'], 0, ',', ' ') ?> €</div>
                     <div style="font-size:0.85rem; color:#555; margin-top:10px;">Au numéro Orange Money :</div>
-                    <div style="font-size:1.5rem; font-weight:700; color:#ff8c00; letter-spacing:0.05em; margin:4px 0;"><?= htmlspecialchars($omNumber) ?></div>
+                    <div style="font-size:1.5rem; font-weight:700; color:#ff8c00; letter-spacing:0.05em; margin:4px 0; overflow-wrap:break-word; word-break:break-all;"><?= htmlspecialchars($omNumber) ?></div>
                     <div style="font-size:0.8rem; color:#888;">Référence : <strong><?= htmlspecialchars($orderNumber) ?></strong></div>
                 </div>
                 <form method="POST">
@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
                 <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:16px;">
                     Paiement 100% sécurisé via Stripe. Visa, Mastercard, American Express acceptés.
                 </p>
-                <div style="display:flex; gap:8px; margin-bottom:16px;">
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
                     <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">VISA</span>
                     <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Mastercard</span>
                     <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Amex</span>

@@ -1465,7 +1465,7 @@ body {
 .confirmation-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; margin: 12px 0; }
 
 /* ============ BREADCRUMB ============ */
-.breadcrumb { padding: 16px 0; display: flex; align-items: center; gap: 8px; }
+.breadcrumb { padding: 16px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .breadcrumb a { color: var(--text-muted); text-decoration: none; font-size: 1.17rem; transition: var(--transition); }
 .breadcrumb a:hover { color: var(--gold); }
 .breadcrumb span { color: var(--text-muted); font-size: 1.17rem; }
@@ -2679,10 +2679,13 @@ body {
 /* --- Commande / checkout : formulaire --- */
 @media (max-width: 768px) {
   .form-grid { grid-template-columns: 1fr; }
-  .measure-grid { grid-template-columns: repeat(2, 1fr); }
+  .measure-grid { grid-template-columns: 1fr; }
   .delivery-options { grid-template-columns: 1fr; }
   .payment-option label { padding: 14px 12px; gap: 12px; }
   .pay-icon { font-size: 1.3rem; }
+  .form-section { margin-bottom: 24px; }
+  .product-detail { padding: 32px 0; }
+  .product-gallery { position: static !important; }
 }
 
 /* --- Footer : espacement mobile --- */
@@ -2857,7 +2860,13 @@ body {
   .form-section { padding: 20px 16px !important; }
 
   /* Options livraison */
-  .delivery-option label { flex-direction: column; gap: 4px; }
+  .delivery-option label { display: flex; flex-direction: column; gap: 4px; }
+  /* Produit détail padding */
+  .product-detail { padding: 24px 0; }
+  /* Panier récapitulatif padding */
+  .cart-summary { padding: 20px; }
+  /* Auth container */
+  .auth-container { padding: 32px 20px !important; }
 
   /* Options paiement */
   .payment-option label { gap: 10px; }
@@ -2894,4 +2903,34 @@ body {
     justify-content: space-between;
     width: 100%;
   }
+}
+
+/* ============================================
+   STEPS GRID — sur-mesure.php
+   ============================================ */
+.steps-section { margin-top: 80px; background: var(--dark); padding: 60px 40px; position: relative; overflow: hidden; }
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; margin-top: 48px; }
+@media (max-width: 768px) {
+  .steps-section { padding: 40px 20px; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+}
+@media (max-width: 480px) {
+  .steps-section { padding: 28px 16px; }
+  .steps-grid { grid-template-columns: 1fr; gap: 16px; }
+}
+
+/* ============================================
+   DELIVERY INFO GRID — produit.php
+   ============================================ */
+.delivery-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+@media (max-width: 600px) {
+  .delivery-info-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================
+   PROGRESS STEPS — suivi.php
+   ============================================ */
+.progress-steps { overflow-x: auto; }
+@media (max-width: 480px) {
+  .progress-steps .step-label { display: none; }
 }

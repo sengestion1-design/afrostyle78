@@ -50,14 +50,14 @@ $statusLabels = [
 $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
 ?>
 
-<div class="container" style="max-width:800px; padding:60px 40px;">
+<div class="container" style="max-width:800px; padding:clamp(24px,5vw,60px) clamp(16px,4vw,40px);">
     <div class="section-header" style="text-align:left; margin-bottom:48px;">
         <div class="section-eyebrow">Commandes</div>
         <h1 class="section-title">Suivi de <em>commande</em></h1>
     </div>
 
     <?php if(!$order): ?>
-    <div style="background:var(--white); padding:40px; border-top:3px solid var(--gold);">
+    <div style="background:var(--white); padding:clamp(16px,4vw,40px); border-top:3px solid var(--gold);">
         <?php if($error): ?><div class="alert alert-error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
         <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:28px; line-height:1.7;">
             Entrez votre numéro de commande (format : AFS-XXXXXXXX-XXXXX) pour suivre l'avancement de votre commande.
@@ -79,7 +79,7 @@ $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
 
     <?php else: ?>
     <!-- ORDER FOUND -->
-    <div style="background:var(--white); padding:32px; border-top:3px solid var(--gold); margin-bottom:24px;">
+    <div style="background:var(--white); padding:clamp(16px,3vw,32px); border-top:3px solid var(--gold); margin-bottom:24px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
             <div>
                 <div style="font-size:0.7rem; color:var(--gold); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:4px;">Commande</div>
@@ -98,7 +98,7 @@ $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
         <!-- PROGRESS BAR -->
         <?php if($order['status'] !== 'cancelled'): ?>
         <div style="margin:32px 0;">
-            <div style="display:flex; justify-content:space-between; position:relative;">
+            <div class="progress-steps" style="display:flex; justify-content:space-between; position:relative;">
                 <div style="position:absolute; top:14px; left:0; right:0; height:2px; background:var(--cream-2); z-index:0;"></div>
                 <?php
                 $currentIdx = array_search($order['status'], $allStatuses);
@@ -111,7 +111,7 @@ $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
                     <div style="width:28px; height:28px; border-radius:50%; background:<?= $done ? $sInfo['color'] : 'var(--cream-2)' ?>; display:flex; align-items:center; justify-content:center; font-size:0.75rem; border:2px solid <?= $done ? $sInfo['color'] : 'var(--cream-2)' ?>; <?= $current ? 'box-shadow: 0 0 0 4px '.str_replace(')', ',0.2)', str_replace('rgb', 'rgba', $sInfo['color'])).'33; ' : '' ?>">
                         <?= $done ? '<span style="color:white; font-size:0.75rem;">'.$sInfo['icon'].'</span>' : '' ?>
                     </div>
-                    <div style="font-size:0.65rem; text-align:center; font-weight:<?= $current ? '700' : '400' ?>; color:<?= $done ? 'var(--dark)' : 'var(--text-muted)' ?>;"><?= $sInfo['label'] ?></div>
+                    <div class="step-label" style="font-size:0.65rem; text-align:center; font-weight:<?= $current ? '700' : '400' ?>; color:<?= $done ? 'var(--dark)' : 'var(--text-muted)' ?>;"><?= $sInfo['label'] ?></div>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -125,8 +125,8 @@ $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
         <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); margin-bottom:20px;">Historique de suivi</div>
         <?php foreach(array_reverse($tracking) as $t): ?>
         <div style="display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--cream-2);">
-            <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap;"><?= date('d/m/Y H:i', strtotime($t['created_at'])) ?></div>
-            <div>
+            <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0;"><?= date('d/m/Y H:i', strtotime($t['created_at'])) ?></div>
+            <div style="min-width:0; overflow:hidden; text-overflow:ellipsis;">
                 <div style="font-size:0.82rem; font-weight:600;"><?= htmlspecialchars($t['status']) ?></div>
                 <?php if($t['note']): ?><div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;"><?= htmlspecialchars($t['note']) ?></div><?php endif; ?>
                 <?php if($t['location']): ?><div style="font-size:0.72rem; color:var(--gold); margin-top:2px;">📍 <?= htmlspecialchars($t['location']) ?></div><?php endif; ?>
