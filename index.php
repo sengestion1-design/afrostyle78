@@ -466,14 +466,14 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
                     <a href="sur-mesure.php" class="btn btn-primary">Commander sur-mesure</a>
                 </div>
             </div>
-            <div style="position:relative;">
+            <div style="position:relative;overflow:hidden;max-height:520px;border:2px solid rgba(200,146,26,0.35);">
                 <img src="<?= SITE_URL ?>/assets/mode.PNG" alt="Mode africaine AfroStyle78"
-                     style="width:100%;height:auto;display:block;border:2px solid rgba(200,146,26,0.35);">
-                <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(10,6,2,0.85));padding:28px 24px;">
+                     style="width:100%;height:520px;object-fit:cover;object-position:center top;display:block;">
+                <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(10,6,2,0.85));padding:24px 20px;">
                     <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:rgba(253,246,232,0.9);font-style:italic;line-height:1.7;">
                         "La mode africaine est un art de vivre, un hommage à nos racines sublimé par la créativité contemporaine."
                     </div>
-                    <div style="margin-top:10px;font-size:0.68rem;color:rgba(200,146,26,0.8);letter-spacing:0.15em;text-transform:uppercase;">— AfroStyle Atelier</div>
+                    <div style="margin-top:8px;font-size:0.68rem;color:rgba(200,146,26,0.8);letter-spacing:0.15em;text-transform:uppercase;">— AfroStyle Atelier</div>
                 </div>
             </div>
         </div>
