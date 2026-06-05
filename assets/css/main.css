@@ -1449,11 +1449,11 @@ body {
 .delivery-option input { position: absolute; opacity: 0; }
 .delivery-option label {
   display: block;
-  padding: 16px;
+  padding: 10px 14px;
   flex: 1;
   cursor: pointer;
   transition: var(--transition);
-  font-size: 1.17rem;
+  font-size: 1rem;
   border: none;
 }
 .delivery-option input:checked + label { background: transparent; }
@@ -2204,8 +2204,8 @@ body {
 .payment-option label {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
+  gap: 14px;
+  padding: 12px 16px;
   flex: 1;
   cursor: pointer;
 }
