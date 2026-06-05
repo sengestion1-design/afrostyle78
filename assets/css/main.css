@@ -2941,3 +2941,16 @@ body {
 @media (max-width: 480px) {
   .progress-steps .step-label { display: none; }
 }
+
+/* Delivery options mobile — same height as payment options */
+@media (max-width: 768px) {
+  .pay-icon { width: 40px; height: 40px; font-size: 1.2rem; }
+  .delivery-option label { padding: 10px 12px; gap: 10px; }
+  .payment-option label { padding: 10px 12px; gap: 10px; }
+  .delivery-option label strong,
+  .pay-details strong { font-size: 0.88rem; }
+  .delivery-option label small,
+  .pay-details small { font-size: 0.78rem; }
+  .delivery-option img,
+  .pay-icon img { width: 40px !important; height: 40px !important; }
+}
