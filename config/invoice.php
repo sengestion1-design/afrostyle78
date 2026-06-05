@@ -75,9 +75,7 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
 
         // Chemins absolus possibles pour le répertoire uploads/products/
         $uploadsBasePaths = [
-            __DIR__ . '/../uploads/products/',                                      // chemin relatif (local + prod)
-            '/homepages/31/d971979113/htdocs/afrostyle78/uploads/products/',        // IONOS prod absolu
-            '/homepages/31/d971979113/htdocs/afrostyle/uploads/products/',          // IONOS prod absolu (ancien)
+            defined('UPLOADS_DIR') ? UPLOADS_DIR : (__DIR__ . '/../uploads/products/'),
         ];
 
         error_log('[Invoice] product_images raw: ' . $rawImages);
