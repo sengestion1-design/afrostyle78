@@ -285,8 +285,8 @@ $total = $subtotal + $delivery;
                         <label for="zone_<?= $z['id'] ?>">
                             <span class="pay-icon"><?= $typeIcon ?></span>
                             <span class="pay-details">
-                                <strong><?= htmlspecialchars($z['method']) ?> — <?= $z['price'] > 0 ? number_format($z['price'],0,',',' ').' €' : '<span style="color:#38a169;">Gratuit</span>' ?><?= $z['delay'] ? ' · '.htmlspecialchars($z['delay']) : '' ?></strong>
-                                <?php if($z['description']): ?><small><?= htmlspecialchars($z['description']) ?></small><?php endif; ?>
+                                <strong><?= htmlspecialchars($z['method']) ?></strong>
+                                <small><?= $z['price'] > 0 ? number_format($z['price'],0,',',' ').' €' : '<span style="color:#38a169;">Gratuit</span>' ?><?= $z['delay'] ? ' · '.htmlspecialchars($z['delay']) : '' ?><?= $z['description'] ? ' — '.htmlspecialchars($z['description']) : '' ?></small>
                             </span>
                         </label>
                         <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
