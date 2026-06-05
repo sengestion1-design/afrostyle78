@@ -121,15 +121,73 @@ $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
 
     <!-- TRACKING HISTORY -->
     <?php if(!empty($tracking)): ?>
+    <?php
+    // Labels publics — notes techniques masquées au client
+    $trackingLabels = [
+        'pending'       => ['icon' => '📋', 'label' => 'Commande reçue',         'color' => '#c8921a'],
+        'confirmed'     => ['icon' => '✅', 'label' => 'Commande confirmée',      'color' => '#2196F3'],
+        'in_production' => ['icon' => '🪡', 'label' => 'En cours de confection', 'color' => '#9C27B0'],
+        'shipped'       => ['icon' => '🚚', 'label' => 'Colis expédié',           'color' => '#FF9800'],
+        'delivered'     => ['icon' => '🎉', 'label' => 'Commande livrée',         'color' => '#1A7A4A'],
+        'cancelled'     => ['icon' => '❌', 'label' => 'Commande annulée',        'color' => '#C0392B'],
+    ];
+    // Notes à masquer au client (techniques)
+    $hiddenNotes = ['Paiement reçu et confirmé par l\'admin.', 'Commande reçue et en attente de validation.'];
+    ?>
     <div style="background:var(--white); padding:32px; margin-bottom:24px;">
-        <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); margin-bottom:20px;">Historique de suivi</div>
-        <?php foreach(array_reverse($tracking) as $t): ?>
-        <div style="display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--cream-2);">
-            <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0;"><?= date('d/m/Y H:i', strtotime($t['created_at'])) ?></div>
-            <div style="min-width:0; overflow:hidden; text-overflow:ellipsis;">
-                <div style="font-size:0.82rem; font-weight:600;"><?= htmlspecialchars($t['status']) ?></div>
-                <?php if($t['note']): ?><div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;"><?= htmlspecialchars($t['note']) ?></div><?php endif; ?>
-                <?php if($t['location']): ?><div style="font-size:0.72rem; color:var(--gold); margin-top:2px;">📍 <?= htmlspecialchars($t['location']) ?></div><?php endif; ?>
+        <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); margin-bottom:24px;">Historique de suivi</div>
+        <?php foreach(array_reverse($tracking) as $t):
+            $tInfo = $trackingLabels[$t['status']] ?? ['icon' => '📦', 'label' => ucfirst($t['status']), 'color' => '#c8921a'];
+            // Masquer les notes internes
+            $showNote = $t['note'] && !in_array(trim($t['note']), $hiddenNotes)
+                        && strpos($t['note'], 'numéro expéditeur') === false
+                        && strpos($t['note'], 'déclaré') === false;
+        ?>
+        <div style="display:flex; gap:16px; padding:16px 0; border-bottom:1px solid var(--cream-2); align-items:flex-start;">
+            <div style="flex-shrink:0; width:40px; height:40px; border-radius:50%; background:<?= $tInfo['color'] ?>18; border:2px solid <?= $tInfo['color'] ?>44; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+                <?= $tInfo['icon'] ?>
+            </div>
+            <div style="flex:1; min-width:0;">
+                <div style="font-size:0.9rem; font-weight:700; color:<?= $tInfo['color'] ?>; margin-bottom:2px;"><?= $tInfo['label'] ?></div>
+                <div style="font-size:0.75rem; color:var(--text-muted);"><?= date('d/m/Y à H:i', strtotime($t['created_at'])) ?></div>
+                <?php if($showNote): ?>
+                <div style="font-size:0.82rem; color:var(--dark); margin-top:6px; background:var(--cream-2); padding:8px 12px; border-left:3px solid <?= $tInfo['color'] ?>;">
+                    <?= htmlspecialchars($t['note']) ?>
+                </div>
+                <?php endif; ?>
+                <?php if($t['location']): ?>
+                <div style="font-size:0.78rem; color:var(--gold); margin-top:4px;">📍 <?= htmlspecialchars($t['location']) ?></div>
+                <?php endif; ?>
+                <?php if(!empty($t['tracking_number'])): ?>
+                <?php
+                $carrierUrls = [
+                    'Chronopost'    => 'https://www.chronopost.fr/tracking-no-cms/suivi-page?listeNumerosLT='.$t['tracking_number'],
+                    'Colissimo'     => 'https://www.laposte.fr/outils/suivre-vos-envois?code='.$t['tracking_number'],
+                    'DHL Express'   => 'https://www.dhl.com/fr-fr/home/tracking.html?tracking-id='.$t['tracking_number'],
+                    'Mondial Relay' => 'https://www.mondialrelay.fr/suivi-de-colis/?NumColis='.$t['tracking_number'],
+                    'La Poste'      => 'https://www.laposte.fr/outils/suivre-vos-envois?code='.$t['tracking_number'],
+                    'UPS'           => 'https://www.ups.com/track?tracknum='.$t['tracking_number'],
+                    'FedEx'         => 'https://www.fedex.com/fedextrack/?trknbr='.$t['tracking_number'],
+                ];
+                $trackUrl = $carrierUrls[$t['carrier']] ?? null;
+                ?>
+                <div style="margin-top:10px;">
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">
+                        🚚 <?= htmlspecialchars($t['carrier'] ?? 'Transporteur') ?> — N° <?= htmlspecialchars($t['tracking_number']) ?>
+                    </div>
+                    <?php if($trackUrl): ?>
+                    <a href="<?= htmlspecialchars($trackUrl) ?>" target="_blank"
+                       style="display:inline-block; background:#FF9800; color:#fff; text-decoration:none; font-size:0.78rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:8px 16px; border-radius:4px;">
+                        📦 Suivre mon colis →
+                    </a>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+                <?php if(!empty($t['photo'])): ?>
+                <div style="margin-top:10px;">
+                    <img src="<?= UPLOADS_URL ?>colis/<?= htmlspecialchars($t['photo']) ?>" alt="Photo colis" style="max-width:200px; max-height:150px; object-fit:cover; border:1px solid var(--cream-2);">
+                </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php endforeach; ?>
