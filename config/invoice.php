@@ -22,13 +22,14 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
     }
 
     $mpdf = new Mpdf([
-        'mode'          => 'utf-8',
-        'format'        => 'A4',
-        'margin_top'    => 0,
-        'margin_bottom' => 35,
-        'margin_left'   => 0,
-        'margin_right'  => 0,
-        'tempDir'       => $tmpDir,
+        'mode'              => 'utf-8',
+        'format'            => 'A4',
+        'margin_top'        => 0,
+        'margin_bottom'     => 0,
+        'margin_left'       => 0,
+        'margin_right'      => 0,
+        'margin_footer'     => 0,
+        'tempDir'           => $tmpDir,
     ]);
 
     $mpdf->SetTitle('Facture ' . $order['order_number']);
