@@ -69,6 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
+            <p style="text-align:right;margin:-8px 0 16px;font-size:13px;">
+                <a href="<?= SITE_URL ?>/mot-de-passe-oublie" style="color:#c8921a;">Mot de passe oublié ?</a>
+            </p>
+
             <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
 
             <p class="auth-switch">Pas encore de compte ? <a href="<?= SITE_URL ?>/register.php">Créer un compte</a></p>
