@@ -10,6 +10,31 @@ $order->execute([$id]);
 $order = $order->fetch();
 if (!$order) { header('Location: commandes.php'); exit; }
 
+// Téléchargement facture PDF
+if (isset($_GET['facture'])) {
+    $invoiceItemsStmt = $db->prepare("SELECT oi.*, p.images as product_images FROM order_items oi LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id=?");
+    $invoiceItemsStmt->execute([$id]);
+    $invoiceItems = $invoiceItemsStmt->fetchAll();
+    $invoiceCustomer = [
+        'first_name' => $order['first_name'],
+        'last_name'  => $order['last_name'],
+        'email'      => $order['email'],
+        'phone'      => $order['customer_phone'],
+        'address'    => $order['customer_address'],
+        'city'       => $order['customer_city'],
+    ];
+    try {
+        $pdfString = generateInvoicePDF($order, $invoiceItems, $invoiceCustomer);
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="Facture-' . $order['order_number'] . '.pdf"');
+        header('Content-Length: ' . strlen($pdfString));
+        echo $pdfString;
+        exit;
+    } catch (\Throwable $e) {
+        die('Erreur génération PDF : ' . htmlspecialchars($e->getMessage()));
+    }
+}
+
 // Update status
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -260,6 +285,11 @@ require_once 'includes/admin_header.php';
                     </button>
                 </form>
                 <?php endif; ?>
+                <a href="commande-detail.php?id=<?= $id ?>&facture=1"
+                   class="btn-admin btn-dark"
+                   style="width:100%; justify-content:center; margin-top:8px; text-align:center; display:flex;">
+                    📄 Télécharger la facture PDF
+                </a>
             </div>
         </div>
     </div>
