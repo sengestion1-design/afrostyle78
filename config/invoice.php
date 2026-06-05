@@ -69,21 +69,28 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
         $bg           = $rowBg[$rowIdx % 2];
         $rowIdx++;
 
-        // Image produit
-        $imgHtml = '<div style="width:52px;height:52px;background:#f0ebe0;border:1px solid #e0d8cc;text-align:center;line-height:52px;font-size:10px;color:#7a6248;">Photo</div>';
+        // Image produit — essayer plusieurs chemins possibles
+        $imgHtml = '<div style="width:52px;height:52px;background:#f0ebe0;border:1px solid #e0d8cc;text-align:center;line-height:52px;font-size:10px;color:#7a6248;">👗</div>';
         $rawImages = $item['product_images'] ?? '';
+        $candidates = [];
         if ($rawImages) {
-            $imageFiles = json_decode($rawImages, true);
-            $firstImage = is_array($imageFiles) ? ($imageFiles[0] ?? '') : $rawImages;
-            if ($firstImage) {
-                $imgPath = __DIR__ . '/../uploads/products/' . $firstImage;
-                if (file_exists($imgPath)) {
-                    $ext      = strtolower(pathinfo($imgPath, PATHINFO_EXTENSION));
-                    $mimeMap  = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp', 'gif' => 'image/gif'];
-                    $mime     = $mimeMap[$ext] ?? 'image/jpeg';
-                    $imgData  = base64_encode(file_get_contents($imgPath));
-                    $imgHtml  = '<img src="data:' . $mime . ';base64,' . $imgData . '" style="width:52px;height:52px;object-fit:cover;border:1px solid #e0d8cc;" />';
-                }
+            $decoded = json_decode($rawImages, true);
+            if (is_array($decoded)) {
+                $candidates = $decoded; // JSON array
+            } else {
+                $candidates = [$rawImages]; // single filename
+            }
+        }
+        foreach ($candidates as $imgFile) {
+            if (!$imgFile) continue;
+            $imgPath = __DIR__ . '/../uploads/products/' . $imgFile;
+            if (file_exists($imgPath)) {
+                $ext     = strtolower(pathinfo($imgPath, PATHINFO_EXTENSION));
+                $mimeMap = ['jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png','webp'=>'image/webp','gif'=>'image/gif'];
+                $mime    = $mimeMap[$ext] ?? 'image/jpeg';
+                $imgData = base64_encode(file_get_contents($imgPath));
+                $imgHtml = '<img src="data:' . $mime . ';base64,' . $imgData . '" style="width:52px;height:52px;object-fit:cover;border:1px solid #e0d8cc;" />';
+                break;
             }
         }
 
@@ -210,7 +217,7 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
           <td style="padding:10px 16px; text-align:right; font-size:13px; color:#1a1008; background:#fffbf4; border-bottom:1px solid #e8dcc8;">' . $deliveryStr . '</td>
         </tr>
         <tr>
-          <td style="padding:14px 16px; font-size:15px; font-weight:bold; color:#1a1008; background:#1a1008;">Total TTC</td>
+          <td style="padding:14px 16px; font-size:15px; font-weight:bold; color:#ffffff; background:#1a1008;">Total TTC</td>
           <td style="padding:14px 16px; text-align:right; font-size:17px; font-weight:bold; color:#c8921a; background:#1a1008;">' . number_format($totalTTC, 2, ',', ' ') . ' €</td>
         </tr>
       </table>
