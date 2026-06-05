@@ -6,7 +6,7 @@ $msg = '';
 // Sauvegarder
 $allowedKeys = [
     'site_name','site_phone','site_email','site_address',
-    'wave_number','orange_money_number','bank_name','bank_iban','bank_owner',
+    'wave_number','wave_owner_name','orange_money_number','om_owner_name','bank_name','bank_iban','bank_owner',
     'wave_api_key',
 ];
 
@@ -82,11 +82,21 @@ require_once 'includes/admin_header.php';
       <div class="admin-form">
         <div style="margin-bottom:16px;">
           <label>Numéro Wave</label>
-          <input type="text" name="wave_number" value="<?= sv($settings,'wave_number') ?>" placeholder="+33 6 44 72 87 30">
+          <input type="text" name="wave_number" value="<?= sv($settings,'wave_number') ?>" placeholder="+221 77 000 00 00">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>Nom du titulaire Wave</label>
+          <input type="text" name="wave_owner_name" value="<?= sv($settings,'wave_owner_name') ?>" placeholder="Ex: AfroStyle Atelier">
+          <small style="color:var(--muted);font-size:0.82rem;">Affiché au client lors du paiement Wave</small>
         </div>
         <div style="margin-bottom:16px;">
           <label>Numéro Orange Money</label>
-          <input type="text" name="orange_money_number" value="<?= sv($settings,'orange_money_number') ?>" placeholder="+33 6 44 72 87 30">
+          <input type="text" name="orange_money_number" value="<?= sv($settings,'orange_money_number') ?>" placeholder="+221 77 000 00 00">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>Nom du titulaire Orange Money</label>
+          <input type="text" name="om_owner_name" value="<?= sv($settings,'om_owner_name') ?>" placeholder="Ex: AfroStyle Atelier">
+          <small style="color:var(--muted);font-size:0.82rem;">Affiché au client lors du paiement Orange Money</small>
         </div>
         <div style="margin-bottom:16px;">
           <label>Banque</label>

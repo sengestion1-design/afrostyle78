@@ -15,8 +15,10 @@ if ($orderNumber) {
 }
 
 $allSettings = $db->query("SELECT setting_key, setting_value FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
-$waveNumber  = $allSettings['wave_number'] ?? '';
-$omNumber    = $allSettings['orange_money_number'] ?? '';
+$waveNumber     = $allSettings['wave_number'] ?? '';
+$waveOwner      = $allSettings['wave_owner_name'] ?? '';
+$omNumber       = $allSettings['orange_money_number'] ?? '';
+$omOwner        = $allSettings['om_owner_name'] ?? '';
 $waveApiKey  = $allSettings['wave_api_key'] ?? '';
 $stripeOk    = !empty($allSettings['stripe_secret_key']);
 
@@ -146,8 +148,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
                 <div style="background:#f0fff8; border:1px solid #9ae6b4; padding:16px 20px; margin-bottom:20px; border-radius:4px;">
                     <div style="font-size:0.85rem; color:#555; margin-bottom:4px;">Envoyez exactement :</div>
                     <div style="font-size:clamp(1.4rem,5vw,2rem); font-weight:700; color:#00b464;"><?= number_format($order['total_amount'], 0, ',', ' ') ?> €</div>
-                    <div style="font-size:0.85rem; color:#555; margin-top:10px;">Au numéro Wave :</div>
-                    <div style="font-size:1.5rem; font-weight:700; color:#00b464; letter-spacing:0.05em; margin:4px 0; overflow-wrap:break-word; word-break:break-all;"><?= htmlspecialchars($waveNumber) ?></div>
+                    <div style="height:1px; background:#d4f0e4; margin:12px 0;"></div>
+                    <div style="font-size:0.8rem; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Destinataire Wave</div>
+                    <?php if($waveOwner): ?>
+                    <div style="font-size:1rem; font-weight:700; color:#1a1a1a; margin-bottom:4px;">👤 <?= htmlspecialchars($waveOwner) ?></div>
+                    <?php endif; ?>
+                    <div style="font-size:1.4rem; font-weight:700; color:#00b464; letter-spacing:0.05em; margin-bottom:8px; overflow-wrap:break-word;"><?= htmlspecialchars($waveNumber) ?></div>
                     <div style="font-size:0.8rem; color:#888;">Référence : <strong><?= htmlspecialchars($orderNumber) ?></strong></div>
                 </div>
                 <form method="POST">
@@ -178,8 +184,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
                 <div style="background:#fff9f0; border:1px solid #fbd38d; padding:16px 20px; margin-bottom:20px; border-radius:4px;">
                     <div style="font-size:0.85rem; color:#555; margin-bottom:4px;">Envoyez exactement :</div>
                     <div style="font-size:clamp(1.4rem,5vw,2rem); font-weight:700; color:#ff8c00;"><?= number_format($order['total_amount'], 0, ',', ' ') ?> €</div>
-                    <div style="font-size:0.85rem; color:#555; margin-top:10px;">Au numéro Orange Money :</div>
-                    <div style="font-size:1.5rem; font-weight:700; color:#ff8c00; letter-spacing:0.05em; margin:4px 0; overflow-wrap:break-word; word-break:break-all;"><?= htmlspecialchars($omNumber) ?></div>
+                    <div style="height:1px; background:#fde8c8; margin:12px 0;"></div>
+                    <div style="font-size:0.8rem; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Destinataire Orange Money</div>
+                    <?php if($omOwner): ?>
+                    <div style="font-size:1rem; font-weight:700; color:#1a1a1a; margin-bottom:4px;">👤 <?= htmlspecialchars($omOwner) ?></div>
+                    <?php endif; ?>
+                    <div style="font-size:1.4rem; font-weight:700; color:#ff8c00; letter-spacing:0.05em; margin-bottom:8px; overflow-wrap:break-word;"><?= htmlspecialchars($omNumber) ?></div>
                     <div style="font-size:0.8rem; color:#888;">Référence : <strong><?= htmlspecialchars($orderNumber) ?></strong></div>
                 </div>
                 <form method="POST">
