@@ -28,8 +28,7 @@ $subtotal = 0;
 foreach ($cart as $item) {
     $subtotal += $item['price'] * $item['quantity'];
 }
-$delivery = $subtotal > 0 ? 2000 : 0;
-$total = $subtotal + $delivery;
+$total = $subtotal;
 ?>
 
 <div class="container">
@@ -169,12 +168,12 @@ $total = $subtotal + $delivery;
                     <span><?= number_format($subtotal, 0, ',', ' ') ?> <?= CURRENCY ?></span>
                 </div>
                 <div class="summary-row">
-                    <span>Livraison (Dakar)</span>
-                    <span><?= number_format($delivery, 0, ',', ' ') ?> <?= CURRENCY ?></span>
+                    <span>Livraison</span>
+                    <span style="color:#38a169; font-size:0.85rem;">Calculée à l'étape suivante</span>
                 </div>
                 <div class="summary-row summary-total" style="font-size:1.15rem; border-bottom:none; padding-top:16px; margin-top:8px; border-top:2px solid var(--dark);">
-                    <span>Total</span>
-                    <span><?= number_format($total, 0, ',', ' ') ?> <?= CURRENCY ?></span>
+                    <span>Sous-total</span>
+                    <span><?= number_format($subtotal, 0, ',', ' ') ?> <?= CURRENCY ?></span>
                 </div>
                 <a href="commande.php" class="btn btn-primary btn-lg btn-full" style="margin-top:24px;">Commander maintenant →</a>
                 <div style="margin-top:16px; font-size:0.72rem; color:var(--text-muted); text-align:center; line-height:1.7;">
