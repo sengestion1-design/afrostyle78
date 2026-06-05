@@ -40,12 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['order']) || isset($_GE
 }
 
 $statusLabels = [
-    'pending' => ['label'=>'En attente', 'color'=>'#C8921A', 'icon'=>'⏳'],
-    'confirmed' => ['label'=>'Confirmée', 'color'=>'#2196F3', 'icon'=>'✓'],
-    'in_production' => ['label'=>'En confection', 'color'=>'#9C27B0', 'icon'=>'✂️'],
-    'shipped' => ['label'=>'Expédiée', 'color'=>'#FF9800', 'icon'=>'🚚'],
-    'delivered' => ['label'=>'Livrée', 'color'=>'#1A7A4A', 'icon'=>'✅'],
-    'cancelled' => ['label'=>'Annulée', 'color'=>'#C0392B', 'icon'=>'✕'],
+    'pending'       => ['label'=>'En attente',    'color'=>'#C8921A', 'icon'=>'🕰️'],
+    'confirmed'     => ['label'=>'Confirmée',     'color'=>'#2196F3', 'icon'=>'🔷'],
+    'in_production' => ['label'=>'En confection', 'color'=>'#9C27B0', 'icon'=>'🪡'],
+    'shipped'       => ['label'=>'Expédiée',      'color'=>'#FF9800', 'icon'=>'📦'],
+    'delivered'     => ['label'=>'Livrée',        'color'=>'#1A7A4A', 'icon'=>'🏠'],
+    'cancelled'     => ['label'=>'Annulée',       'color'=>'#C0392B', 'icon'=>'✕'],
 ];
 $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
 ?>
@@ -124,11 +124,11 @@ $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
     <?php
     // Labels publics — notes techniques masquées au client
     $trackingLabels = [
-        'pending'       => ['icon' => '📋', 'label' => 'Commande reçue',         'color' => '#c8921a'],
-        'confirmed'     => ['icon' => '✅', 'label' => 'Commande confirmée',      'color' => '#2196F3'],
+        'pending'       => ['icon' => '🕰️', 'label' => 'Commande reçue',         'color' => '#c8921a'],
+        'confirmed'     => ['icon' => '🔷', 'label' => 'Commande confirmée',      'color' => '#2196F3'],
         'in_production' => ['icon' => '🪡', 'label' => 'En cours de confection', 'color' => '#9C27B0'],
-        'shipped'       => ['icon' => '🚚', 'label' => 'Colis expédié',           'color' => '#FF9800'],
-        'delivered'     => ['icon' => '🎉', 'label' => 'Commande livrée',         'color' => '#1A7A4A'],
+        'shipped'       => ['icon' => '📦', 'label' => 'Colis expédié',           'color' => '#FF9800'],
+        'delivered'     => ['icon' => '🏠', 'label' => 'Commande livrée',         'color' => '#1A7A4A'],
         'cancelled'     => ['icon' => '❌', 'label' => 'Commande annulée',        'color' => '#C0392B'],
     ];
     // Notes à masquer au client (techniques)
