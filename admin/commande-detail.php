@@ -13,15 +13,31 @@ if (!$order) { header('Location: commandes.php'); exit; }
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_status'])) {
-        $newStatus = $_POST['status'];
-        $note      = trim($_POST['tracking_note'] ?? '');
-        $location  = trim($_POST['tracking_location'] ?? '');
+        $newStatus      = $_POST['status'];
+        $note           = trim($_POST['tracking_note'] ?? '');
+        $location       = trim($_POST['tracking_location'] ?? '');
+        $trackingNumber = trim($_POST['tracking_number'] ?? '');
+        $carrier        = trim($_POST['carrier'] ?? '');
+
+        // Handle colis photo upload
+        $photoFile = '';
+        if ($newStatus === 'shipped' && !empty($_FILES['colis_photo']['tmp_name'])) {
+            $colisDir = __DIR__ . '/../uploads/colis/';
+            if (!is_dir($colisDir)) { mkdir($colisDir, 0755, true); }
+            $ext = strtolower(pathinfo($_FILES['colis_photo']['name'], PATHINFO_EXTENSION));
+            $photoFile = 'colis_' . uniqid() . '.' . $ext;
+            if (!move_uploaded_file($_FILES['colis_photo']['tmp_name'], $colisDir . $photoFile)) {
+                $photoFile = '';
+            }
+        }
+
         $db->prepare("UPDATE orders SET status=? WHERE id=?")->execute([$newStatus, $id]);
-        $db->prepare("INSERT INTO delivery_tracking (order_id, status, note, location) VALUES (?,?,?,?)")->execute([$id, $newStatus, $note ?: null, $location ?: null]);
+        $db->prepare("INSERT INTO delivery_tracking (order_id, status, note, location, tracking_number, carrier, photo) VALUES (?,?,?,?,?,?,?)")
+           ->execute([$id, $newStatus, $note ?: null, $location ?: null, $trackingNumber ?: null, $carrier ?: null, $photoFile ?: null]);
 
         // Email notification au client
         if ($order['email'] && $newStatus !== $order['status']) {
-            emailStatusUpdate($order['email'], $order['first_name'], $order, $newStatus, $note);
+            emailStatusUpdate($order['email'], $order['first_name'], $order, $newStatus, $note, $trackingNumber, $carrier, $photoFile);
         }
 
         $msg = '<div class="alert alert-success">Statut mis à jour — email envoyé au client.</div>';
@@ -132,11 +148,11 @@ require_once 'includes/admin_header.php';
             <div class="admin-card-header">
                 <div class="admin-card-title">Mettre à jour le statut</div>
             </div>
-            <form method="POST" class="admin-form">
+            <form method="POST" class="admin-form" enctype="multipart/form-data">
                 <div class="form-row">
                     <div>
                         <label>Nouveau statut</label>
-                        <select name="status">
+                        <select name="status" id="status-select">
                             <?php foreach($statusLabels as $v=>$l): ?>
                             <option value="<?= $v ?>" <?= $order['status']===$v?'selected':'' ?>><?= $l ?></option>
                             <?php endforeach; ?>
@@ -145,6 +161,32 @@ require_once 'includes/admin_header.php';
                     <div>
                         <label>Localisation (optionnel)</label>
                         <input type="text" name="tracking_location" placeholder="ex: Dépôt Dakar Plateau">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label>Numéro de suivi</label>
+                        <input type="text" name="tracking_number" placeholder="Ex: 6Q12345678901">
+                    </div>
+                    <div>
+                        <label>Transporteur</label>
+                        <select name="carrier">
+                            <option value="">— Choisir —</option>
+                            <option value="Chronopost">Chronopost</option>
+                            <option value="Colissimo">Colissimo</option>
+                            <option value="DHL Express">DHL Express</option>
+                            <option value="Mondial Relay">Mondial Relay</option>
+                            <option value="La Poste">La Poste</option>
+                            <option value="UPS">UPS</option>
+                            <option value="FedEx">FedEx</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row full" id="colis-photo-row" style="display:none;">
+                    <div>
+                        <label>Photo du colis</label>
+                        <input type="file" name="colis_photo" accept="image/*">
                     </div>
                 </div>
                 <div class="form-row full">
@@ -157,6 +199,15 @@ require_once 'includes/admin_header.php';
                 <button type="submit" name="add_tracking" class="btn-admin btn-outline" style="margin-left:8px;">+ Ajouter événement (sans changer statut)</button>
             </form>
         </div>
+        <script>
+        (function() {
+            var sel = document.getElementById('status-select');
+            var row = document.getElementById('colis-photo-row');
+            function toggle() { row.style.display = sel.value === 'shipped' ? '' : 'none'; }
+            sel.addEventListener('change', toggle);
+            toggle();
+        })();
+        </script>
 
         <!-- TRACKING HISTORY -->
         <?php if(!empty($trackingEvents)): ?>
@@ -171,6 +222,30 @@ require_once 'includes/admin_header.php';
                     <span class="status-badge status-<?= $te['status'] ?>" style="margin-bottom:4px;"><?= $statusLabels[$te['status']] ?? $te['status'] ?></span>
                     <?php if($te['note']): ?><div style="font-size:1.05rem; color:var(--muted); margin-top:4px;"><?= htmlspecialchars($te['note']) ?></div><?php endif; ?>
                     <?php if($te['location']): ?><div style="font-size:1rem; color:var(--gold); margin-top:2px;">📍 <?= htmlspecialchars($te['location']) ?></div><?php endif; ?>
+                    <?php if(!empty($te['tracking_number'])): ?>
+                    <?php
+                    $tn = htmlspecialchars($te['tracking_number']);
+                    $cr = $te['carrier'] ?? '';
+                    $trackUrls = [
+                        'Chronopost'    => 'https://www.chronopost.fr/tracking-no-cms/suivi-page?listeNumerosLT=' . $tn,
+                        'Colissimo'     => 'https://www.laposte.fr/outils/suivre-vos-envois?code=' . $tn,
+                        'DHL Express'   => 'https://www.dhl.com/fr-fr/home/tracking.html?tracking-id=' . $tn,
+                        'Mondial Relay' => 'https://www.mondialrelay.fr/suivi-de-colis/?NumColis=' . $tn,
+                        'La Poste'      => 'https://www.laposte.fr/outils/suivre-vos-envois?code=' . $tn,
+                        'UPS'           => 'https://www.ups.com/track?tracknum=' . $tn,
+                        'FedEx'         => 'https://www.fedex.com/fedextrack/?trknbr=' . $tn,
+                    ];
+                    ?>
+                    <div style="font-size:1rem; margin-top:4px;">
+                        📦 <?php if($cr): ?><strong><?= htmlspecialchars($cr) ?></strong> — <?php endif; ?>
+                        <?php if(isset($trackUrls[$cr])): ?>
+                        <a href="<?= $trackUrls[$cr] ?>" target="_blank" style="color:var(--gold);"><?= $tn ?></a>
+                        <?php else: ?><?= $tn ?><?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if(!empty($te['photo'])): ?>
+                    <div style="margin-top:6px;"><img src="../uploads/colis/<?= htmlspecialchars($te['photo']) ?>" alt="Photo colis" style="max-height:120px; border-radius:4px; border:1px solid #e0d8cc;"></div>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endforeach; ?>
