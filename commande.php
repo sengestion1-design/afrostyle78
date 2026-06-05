@@ -263,9 +263,9 @@ $total = $subtotal + $delivery;
                     <?php foreach ($shippingZones as $z):
                         // Logo transporteur ou emoji selon le nom
                         $carrierLogos = [
-                            'Colissimo'     => '<img src="'.SITE_URL.'/assets/logocolissimo.webp" alt="Colissimo" style="width:36px;height:36px;object-fit:contain;">',
-                            'Chronopost'    => '<img src="'.SITE_URL.'/assets/logochronoposte.png" alt="Chronopost" style="width:36px;height:36px;object-fit:contain;">',
-                            'Mondial Relay' => '<img src="'.SITE_URL.'/assets/logomondialrelay.png" alt="Mondial Relay" style="width:36px;height:36px;object-fit:contain;">',
+                            'Colissimo'     => '<img src="'.SITE_URL.'/assets/logocolissimo.webp" alt="Colissimo" style="width:52px;height:52px;object-fit:contain;">',
+                            'Chronopost'    => '<img src="'.SITE_URL.'/assets/logochronoposte.png" alt="Chronopost" style="width:52px;height:52px;object-fit:contain;">',
+                            'Mondial Relay' => '<img src="'.SITE_URL.'/assets/logomondialrelay.png" alt="Mondial Relay" style="width:52px;height:52px;object-fit:contain;">',
                         ];
                         $methodName = trim($z['method']);
                         $typeIcon = $carrierLogos[$methodName] ?? (['local'=>'🏪','national'=>'🚚','international'=>'✈️'][$z['zone_type']] ?? '📦');

@@ -2212,7 +2212,7 @@ body {
   flex: 1;
   cursor: pointer;
 }
-.pay-icon { font-size: 1.4rem; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.pay-icon { font-size: 1.4rem; flex-shrink: 0; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .pay-details { display: flex; flex-direction: column; gap: 2px; }
 .pay-details strong { font-size: 1rem; font-weight: 700; color: var(--dark); }
 .pay-details small { font-size: 0.88rem; color: var(--text-muted); }
