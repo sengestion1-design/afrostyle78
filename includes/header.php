@@ -74,6 +74,10 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name")->fetchAll();
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
             <?php if (!empty($_SESSION['customer_id'])): ?>
+            <a href="<?= SITE_URL ?>/compte.php#commandes" class="nav-orders-btn" title="Mes commandes">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px;"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <span>Mes commandes</span>
+            </a>
             <a href="<?= SITE_URL ?>/compte.php" class="nav-account-btn">
                 <div class="nav-avatar"><?= mb_strtoupper(mb_substr($_SESSION['customer_name'], 0, 1)) ?></div>
                 <span class="nav-account-label">Bonjour, <strong><?= htmlspecialchars($_SESSION['customer_name']) ?></strong></span>
@@ -133,6 +137,7 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name")->fetchAll();
         <li><a href="<?= SITE_URL ?>/suivi.php">Suivi commande</a></li>
         <li><a href="<?= SITE_URL ?>/panier.php">Panier (<?= $cartCount ?>)</a></li>
         <?php if (!empty($_SESSION['customer_id'])): ?>
+        <li><a href="<?= SITE_URL ?>/compte.php#commandes">Mes commandes</a></li>
         <li><a href="<?= SITE_URL ?>/compte.php">Mon compte</a></li>
         <?php else: ?>
         <li><a href="<?= SITE_URL ?>/login.php">Connexion</a></li>
