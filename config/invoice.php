@@ -70,27 +70,26 @@ function generateInvoicePDF(array $order, array $items, array $customer): string
         $rowIdx++;
 
         // Image produit — essayer plusieurs chemins possibles
-        $imgHtml = '<div style="width:52px;height:52px;background:#f0ebe0;border:1px solid #e0d8cc;text-align:center;line-height:52px;font-size:10px;color:#7a6248;">IMG</div>';
-        $rawImages = $item['product_images'] ?? '';
+        $imgHtml = '<div style="width:52px;height:52px;background:#f0ebe0;border:1px solid #e0d8cc;text-align:center;line-height:52px;font-size:10px;color:#7a6248;">—</div>';
+        $uploadsDir = realpath(__DIR__ . '/../uploads/products') . DIRECTORY_SEPARATOR;
 
-        // Chemins absolus possibles pour le répertoire uploads/products/
-        $uploadsBasePaths = [
-            realpath(__DIR__ . '/../uploads/products') . DIRECTORY_SEPARATOR,
-        ];
-
-        error_log('[Invoice] product_images raw: ' . $rawImages);
-
+        // Priorité : image principale (singulier), puis gallery (pluriel)
         $candidates = [];
-        if ($rawImages) {
+        $singleImage = trim($item['product_image'] ?? '');
+        if ($singleImage) {
+            $candidates[] = $singleImage;
+        }
+        $rawImages = $item['product_images'] ?? '';
+        if ($rawImages && $rawImages !== '[]') {
             $decoded = json_decode($rawImages, true);
-            if (is_array($decoded) && count($decoded) > 0) {
-                $candidates = array_values(array_filter($decoded)); // JSON array
-                error_log('[Invoice] decoded JSON array: ' . implode(', ', $candidates));
-            } elseif (is_string($rawImages) && $rawImages !== '') {
-                $candidates = [trim($rawImages)]; // single filename
-                error_log('[Invoice] single filename: ' . $rawImages);
+            if (is_array($decoded)) {
+                foreach ($decoded as $f) {
+                    if ($f) $candidates[] = $f;
+                }
             }
         }
+
+        $uploadsBasePaths = [$uploadsDir];
 
         foreach ($candidates as $imgFile) {
             $imgFile = trim($imgFile);

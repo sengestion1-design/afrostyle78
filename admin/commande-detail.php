@@ -12,7 +12,7 @@ if (!$order) { header('Location: commandes.php'); exit; }
 
 // Téléchargement facture PDF
 if (isset($_GET['facture'])) {
-    $invoiceItemsStmt = $db->prepare("SELECT oi.*, p.images as product_images FROM order_items oi LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id=?");
+    $invoiceItemsStmt = $db->prepare("SELECT oi.*, p.image as product_image, p.images as product_images FROM order_items oi LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id=?");
     $invoiceItemsStmt->execute([$id]);
     $invoiceItems = $invoiceItemsStmt->fetchAll();
     $invoiceCustomer = [
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db->prepare("INSERT INTO delivery_tracking (order_id, status, note) VALUES (?,?,?)")->execute([$id, 'confirmed', 'Paiement reçu et confirmé par l\'admin.']);
 
         // Charger les articles avec images produit pour la facture
-        $invoiceItemsStmt = $db->prepare("SELECT oi.*, p.images as product_images FROM order_items oi LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id=?");
+        $invoiceItemsStmt = $db->prepare("SELECT oi.*, p.image as product_image, p.images as product_images FROM order_items oi LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id=?");
         $invoiceItemsStmt->execute([$id]);
         $invoiceItems = $invoiceItemsStmt->fetchAll();
 
