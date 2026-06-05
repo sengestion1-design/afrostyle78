@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 require_once '../config/mailer.php';
+require_once '../config/invoice.php';
 $db = getDB();
 
 $id = (int)($_GET['id'] ?? 0);
@@ -30,8 +31,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['mark_paid_id'])) {
         $db->prepare("UPDATE orders SET payment_status='paid', status='confirmed' WHERE id=?")->execute([$id]);
         $db->prepare("INSERT INTO delivery_tracking (order_id, status, note) VALUES (?,?,?)")->execute([$id, 'confirmed', 'Paiement reçu et confirmé par l\'admin.']);
-        emailStatusUpdate($order['email'], $order['first_name'], $order, 'confirmed', 'Votre paiement a été reçu et confirmé.');
-        $msg = '<div class="alert alert-success">✓ Paiement marqué comme reçu — email envoyé au client.</div>';
+
+        // Charger les articles avec images produit pour la facture
+        $invoiceItemsStmt = $db->prepare("SELECT oi.*, p.images as product_images FROM order_items oi LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id=?");
+        $invoiceItemsStmt->execute([$id]);
+        $invoiceItems = $invoiceItemsStmt->fetchAll();
+
+        // Préparer les données client
+        $invoiceCustomer = [
+            'first_name'       => $order['first_name'],
+            'last_name'        => $order['last_name'],
+            'email'            => $order['email'],
+            'customer_address' => $order['customer_address'] ?? $order['delivery_address'] ?? '',
+            'customer_city'    => $order['customer_city'] ?? $order['delivery_city'] ?? '',
+        ];
+
+        // Générer et envoyer la facture PDF
+        try {
+            $pdfString = generateInvoicePDF($order, $invoiceItems, $invoiceCustomer);
+            emailPaymentConfirmedWithInvoice($order['email'], $order['first_name'], $order, $invoiceItems, $pdfString);
+        } catch (\Throwable $e) {
+            error_log('Invoice PDF error: ' . $e->getMessage());
+            // Fallback: envoyer l'email sans facture
+            emailStatusUpdate($order['email'], $order['first_name'], $order, 'confirmed', 'Votre paiement a été reçu et confirmé.');
+        }
+
+        $msg = '<div class="alert alert-success">✓ Paiement marqué comme reçu — email avec facture PDF envoyé au client.</div>';
         $order['payment_status'] = 'paid';
         $order['status'] = 'confirmed';
     }
