@@ -2785,3 +2785,86 @@ body {
   .btn-text-full { display: none; }
   .btn-text-short { display: inline; }
 }
+
+/* ============================================
+   RESPONSIVE GLOBAL MOBILE — toutes pages
+   ============================================ */
+@media (max-width: 768px) {
+  /* Panier & Commande — récapitulatif pleine largeur */
+  .checkout-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .cart-summary {
+    position: static !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Formulaire commande — champs pleine largeur */
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .form-group.full { grid-column: 1 !important; }
+
+  /* Tableau récap — pas de débordement */
+  .summary-row {
+    font-size: 0.95rem;
+  }
+
+  /* Compte client */
+  .compte-container {
+    grid-template-columns: 1fr !important;
+    flex-direction: column !important;
+  }
+  .compte-sidebar {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(200,146,26,0.15);
+    padding-bottom: 16px !important;
+    margin-bottom: 0 !important;
+  }
+  .compte-main { padding: 24px 16px !important; }
+  .compte-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .compte-nav-item { font-size: 0.85rem; padding: 8px 12px; }
+
+  /* Nav orders btn */
+  .nav-orders-btn span { display: none; }
+  .nav-orders-btn { padding: 6px 8px; border: none; }
+
+  /* Confirmation paiement */
+  .container { padding-left: 16px !important; padding-right: 16px !important; }
+
+  /* Boutons côte à côte → colonne */
+  .qty-cart { flex-direction: column; gap: 10px; }
+  .qty-cart .btn { width: 100%; justify-content: center; text-align: center; }
+
+  /* Auth */
+  .auth-container { padding: 32px 20px !important; }
+  .auth-row { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  /* Panier items */
+  .cart-item { flex-direction: row; gap: 10px; }
+  .cart-item-img { width: 60px !important; height: 72px !important; flex-shrink: 0; }
+
+  /* Boutons action panier */
+  .btn-lg { padding: 14px 20px; font-size: 0.9rem; }
+  .btn-full { width: 100%; box-sizing: border-box; }
+
+  /* Page commande padding */
+  .form-section { padding: 20px 16px !important; }
+
+  /* Options livraison */
+  .delivery-option label { flex-direction: column; gap: 4px; }
+
+  /* Options paiement */
+  .payment-option label { gap: 10px; }
+  .pay-icon { font-size: 1.4rem !important; }
+
+  /* Confirmation */
+  .confirmation-box, [style*="padding:48px"] {
+    padding: 24px 16px !important;
+  }
+}
