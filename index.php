@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Accueil';
+$pageTitle = 'AfroStyle78 — Mode Africaine Sur-Mesure | Mariages & Cérémonies | Guyancourt (78)';
 require_once 'includes/header.php';
 
 $db = getDB();
@@ -68,6 +68,30 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
     </div>
 
 </section>
+
+<!-- TRUST BAR -->
+<div style="background:#fff;border-top:1px solid #ece6dc;border-bottom:1px solid #ece6dc;">
+    <div class="container">
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:0;padding:0;">
+            <div style="display:flex;align-items:center;gap:10px;padding:16px 28px;border-right:1px solid #ece6dc;flex:1;min-width:180px;justify-content:center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                <div><div style="font-size:0.75rem;font-weight:700;color:#1a1008;letter-spacing:0.05em;">Livraison rapide</div><div style="font-size:0.68rem;color:#7a6248;">France & International</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:16px 28px;border-right:1px solid #ece6dc;flex:1;min-width:180px;justify-content:center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                <div><div style="font-size:0.75rem;font-weight:700;color:#1a1008;letter-spacing:0.05em;">Paiement sécurisé</div><div style="font-size:0.68rem;color:#7a6248;">CB, Wave, Orange Money</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:16px 28px;border-right:1px solid #ece6dc;flex:1;min-width:180px;justify-content:center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><path d="M12 2L3 7v6c0 5 4 9.3 9 11 5-1.7 9-6 9-11V7L12 2z"/></svg>
+                <div><div style="font-size:0.75rem;font-weight:700;color:#1a1008;letter-spacing:0.05em;">Sur-mesure garanti</div><div style="font-size:0.68rem;color:#7a6248;">Toutes morphologies</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:16px 28px;flex:1;min-width:180px;justify-content:center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <div><div style="font-size:0.75rem;font-weight:700;color:#1a1008;letter-spacing:0.05em;">Qualité artisanale</div><div style="font-size:0.68rem;color:#7a6248;">100% fait à la main</div></div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- CATEGORIES STRIP -->
 <section class="categories-strip">
@@ -314,7 +338,7 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
             <a href="produit.php?slug=<?= $p['slug'] ?>" class="product-card">
                 <div class="product-image-wrap">
                     <?php if($p['image']): ?>
-                    <img src="<?= UPLOADS_URL . htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>">
+                    <img src="<?= UPLOADS_URL . htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>" loading="lazy">
                     <?php else: ?>
                     <div class="product-placeholder">👗</div>
                     <?php endif; ?>
@@ -459,7 +483,7 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
                     <li>Tissus sélectionnés : bazin riche, kente, wax premium</li>
                     <li>Broderies faites à la main par nos artisans</li>
                     <li>Sur-mesure disponible sur tous nos articles</li>
-                    <li>Livraison à Dakar et dans toutes les régions</li>
+                    <li>Livraison France & International</li>
                     <li>Délai de confection : 7 à 14 jours ouvrables</li>
                 </ul>
                 <div class="featured-cta">
@@ -485,21 +509,86 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
             <div class="testimonial-card">
                 <div class="testimonial-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
                 <p class="testimonial-text">Ma robe pour le mariage était absolument magnifique. La broderie à la main est d'une qualité exceptionnelle. Je recommande vivement !</p>
-                <div class="testimonial-author">Fatou D. — Dakar</div>
+                <div class="testimonial-author">Fatou D. — Paris (75)</div>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
                 <p class="testimonial-text">Mon boubou sur-mesure est arrivé exactement à ma taille. Le tissu bazin est d'une qualité rare. AfroStyle m'a rendu fier de ma culture.</p>
-                <div class="testimonial-author">Mamadou K. — Saint-Louis</div>
+                <div class="testimonial-author">Mamadou K. — Lyon (69)</div>
             </div>
             <div class="testimonial-card">
                 <div class="testimonial-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
                 <p class="testimonial-text">Service impeccable du début à la fin. J'ai pu suivre ma commande en temps réel. La livraison était rapide et le colis très bien emballé.</p>
-                <div class="testimonial-author">Aïssatou B. — Thiès</div>
+                <div class="testimonial-author">Aïssatou B. — Versailles (78)</div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- NOTRE HISTOIRE -->
+<section style="background:#1a1008;padding:80px 0;">
+    <div class="container">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+            <div>
+                <div class="section-eyebrow" style="color:var(--gold);">Notre histoire</div>
+                <h2 class="section-title" style="color:#f5f0e8;">Une passion, <em>un héritage</em></h2>
+                <p style="color:rgba(245,240,232,0.7);font-size:1rem;line-height:1.9;margin-bottom:20px;">
+                    AfroStyle78 est né d'une passion profonde pour la mode africaine et d'un désir de la rendre accessible depuis la France. Basé à <strong style="color:#c8921a;">Guyancourt, dans les Yvelines (78)</strong>, notre atelier célèbre la richesse des tissus africains — bazin riche, kente, wax premium — en les sublimant par une coupe moderne et des broderies artisanales.
+                </p>
+                <p style="color:rgba(245,240,232,0.7);font-size:1rem;line-height:1.9;margin-bottom:32px;">
+                    Chaque création est pensée sur mesure, pour que vous portiez une pièce unique qui vous ressemble, qu'il s'agisse d'un mariage, d'une cérémonie ou d'un moment du quotidien.
+                </p>
+                <a href="sur-mesure.php" class="btn btn-primary">Découvrir notre savoir-faire</a>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div style="background:rgba(200,146,26,0.08);border:1px solid rgba(200,146,26,0.2);padding:28px 20px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#c8921a;">500+</div>
+                    <div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,240,232,0.5);margin-top:6px;">Clients satisfaits</div>
+                </div>
+                <div style="background:rgba(200,146,26,0.08);border:1px solid rgba(200,146,26,0.2);padding:28px 20px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#c8921a;">7–14j</div>
+                    <div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,240,232,0.5);margin-top:6px;">Délai confection</div>
+                </div>
+                <div style="background:rgba(200,146,26,0.08);border:1px solid rgba(200,146,26,0.2);padding:28px 20px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#c8921a;">100%</div>
+                    <div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,240,232,0.5);margin-top:6px;">Fait à la main</div>
+                </div>
+                <div style="background:rgba(200,146,26,0.08);border:1px solid rgba(200,146,26,0.2);padding:28px 20px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#c8921a;">🌍</div>
+                    <div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,240,232,0.5);margin-top:6px;">Livraison mondiale</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- BADGES CONFIANCE -->
+<div style="background:#f5f0e8;padding:32px 0;border-top:1px solid #e8dcc8;">
+    <div class="container">
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:32px;">
+            <div style="display:flex;align-items:center;gap:8px;color:#7a6248;font-size:0.75rem;font-weight:600;letter-spacing:0.05em;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                VISA / MASTERCARD
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:#7a6248;font-size:0.75rem;font-weight:600;letter-spacing:0.05em;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                PAIEMENT SSL SÉCURISÉ
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:#7a6248;font-size:0.75rem;font-weight:600;letter-spacing:0.05em;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+                WAVE / ORANGE MONEY
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:#7a6248;font-size:0.75rem;font-weight:600;letter-spacing:0.05em;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                GUYANCOURT (78) · FRANCE
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:#7a6248;font-size:0.75rem;font-weight:600;letter-spacing:0.05em;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8921a" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+                SATISFACTION GARANTIE
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL SÉLECTION TAILLE + COULEUR -->
 <div id="sizeModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); align-items:center; justify-content:center;">
