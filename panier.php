@@ -3,13 +3,19 @@ ob_start();
 $pageTitle = 'Panier';
 require_once 'includes/header.php';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $cart = $_SESSION['cart'] ?? [];
 
-// Remove item
+// Remove item — vérification CSRF
 if (isset($_GET['remove'])) {
-    $key = urldecode($_GET['remove']);
-    unset($_SESSION['cart'][$key]);
-    $cart = $_SESSION['cart'];
+    if (!empty($_GET['csrf']) && hash_equals($_SESSION['csrf_token'], $_GET['csrf'])) {
+        $key = urldecode($_GET['remove']);
+        unset($_SESSION['cart'][$key]);
+        $cart = $_SESSION['cart'];
+    }
     header('Location: panier.php');
     exit;
 }
@@ -114,7 +120,7 @@ $total = $subtotal;
                             </td>
                             <td style="font-weight:700;"><?= number_format($item['price'] * $item['quantity'], 0, ',', ' ') ?> <?= CURRENCY ?></td>
                             <td>
-                                <a href="panier.php?remove=<?= urlencode($key) ?>" class="remove-btn" title="Supprimer" onclick="return confirm('Supprimer cet article ?')">✕</a>
+                                <a href="panier.php?remove=<?= urlencode($key) ?>&csrf=<?= htmlspecialchars($_SESSION['csrf_token']) ?>" class="remove-btn" title="Supprimer" onclick="return confirm('Supprimer cet article ?')">✕</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -147,7 +153,7 @@ $total = $subtotal;
                                 <div style="font-weight:700; font-size:1rem;"><?= number_format($item['price'] * $item['quantity'], 0, ',', ' ') ?> <?= CURRENCY ?></div>
                             </div>
                         </div>
-                        <a href="panier.php?remove=<?= urlencode($key) ?>" class="remove-btn" title="Supprimer" onclick="return confirm('Supprimer ?')" style="flex-shrink:0;">✕</a>
+                        <a href="panier.php?remove=<?= urlencode($key) ?>&csrf=<?= htmlspecialchars($_SESSION['csrf_token']) ?>" class="remove-btn" title="Supprimer" onclick="return confirm('Supprimer ?')" style="flex-shrink:0;">✕</a>
                     </div>
                     <?php endforeach; ?>
                 </div>
