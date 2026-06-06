@@ -2343,7 +2343,7 @@ body {
 }
 .occasion-card {
   background: var(--dark);
-  padding: 10px 14px;
+  padding: 6px 14px;
   transition: background 0.3s;
 }
 .occasion-card:hover { background: rgba(200,146,26,0.06); }
