@@ -2470,7 +2470,12 @@ body {
   .process-step::after { display: none; }
 }
 @media (max-width: 640px) {
-  .occasion-grid { grid-template-columns: 1fr; }
+  .occasion-grid { grid-template-columns: repeat(2, 1fr); }
+  .occasion-card { padding: 8px 10px; }
+  .occasion-icon { width: 28px; height: 28px; margin-bottom: 6px; }
+  .occasion-icon svg { width: 16px; height: 16px; }
+  .occasion-card h3 { font-size: 1rem; margin-bottom: 3px; }
+  .occasion-card p { font-size: 0.78rem; }
   .process-steps { grid-template-columns: 1fr; }
   .mariage-cta-inner { flex-direction: column; align-items: flex-start; }
   .mariage-cta-actions { width: 100%; }
