@@ -5,3 +5,5 @@ config/mailer.php
 *.log
 uploads/
 .DS_Store
+config/secrets.php
+config/mail.php
