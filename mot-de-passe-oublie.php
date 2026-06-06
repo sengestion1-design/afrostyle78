@@ -1,8 +1,10 @@
 <?php
 ob_start();
 $pageTitle = 'Mot de passe oublié';
+$useTurnstile = true;
 require_once 'includes/header.php';
 require_once 'config/mailer.php';
+require_once 'config/turnstile.php';
 
 $errors   = [];
 $success  = '';
@@ -51,6 +53,8 @@ if ($step === 2 && $_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($step === 1 && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $errors[] = 'Requête invalide.';
+    } elseif (!verifyTurnstile($_POST['cf-turnstile-response'] ?? '')) {
+        $errors[] = 'Vérification de sécurité échouée. Réessayez.';
     } else {
     // Rate limit : 3 demandes / heure / IP
     $rlKey = 'pwreset_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
@@ -199,6 +203,7 @@ if ($step === 1 && $_SERVER['REQUEST_METHOD'] === 'POST') {
                        placeholder="fatou@example.com" autofocus required>
             </div>
 
+            <div class="cf-turnstile" data-sitekey="<?= TURNSTILE_SITE_KEY ?>" style="margin:12px 0;"></div>
             <button type="submit" class="btn btn-primary btn-full">Envoyer le lien</button>
 
             <p class="auth-switch">Vous avez votre mot de passe ? <a href="<?= SITE_URL ?>/login">Se connecter</a></p>

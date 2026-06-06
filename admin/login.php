@@ -1,6 +1,7 @@
 <?php
 require_once '../config/config.php';
 require_once '../config/database.php';
+require_once '../config/turnstile.php';
 
 if (isset($_SESSION['admin_id'])) { header('Location: ' . ADMIN_URL . '/index.php'); exit; }
 
@@ -13,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF check
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $error = 'Requête invalide.';
+    } elseif (!verifyTurnstile($_POST['cf-turnstile-response'] ?? '')) {
+        $error = 'Vérification de sécurité échouée. Réessayez.';
     } else {
         // Rate limiting : 5 tentatives max / 15 min / IP
         $ipKey = 'admin_login_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
@@ -71,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .back-link{display:block;text-align:center;margin-top:24px;color:#7A6248;font-size:1rem;letter-spacing:0.1em;text-decoration:none;transition:color 0.3s;}
         .back-link:hover{color:#C8921A;}
     </style>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 <div class="login-box">
@@ -90,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label>Mot de passe</label>
             <input type="password" name="password" required placeholder="••••••••">
         </div>
+        <div class="cf-turnstile" data-sitekey="<?= TURNSTILE_SITE_KEY ?>" data-theme="dark" style="margin:16px 0;"></div>
         <button type="submit" class="btn-login">Connexion →</button>
     </form>
     <a href="<?= SITE_URL ?>" class="back-link">← Retour à la boutique</a>

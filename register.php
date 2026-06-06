@@ -1,8 +1,10 @@
 <?php
 ob_start();
 $pageTitle = 'Créer un compte';
+$useTurnstile = true;
 require_once 'includes/header.php';
 require_once 'config/mailer.php';
+require_once 'config/turnstile.php';
 
 $errors = [];
 $success = false;
@@ -15,6 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $errors[] = 'Requête invalide.';
+    }
+    // Turnstile
+    if (!verifyTurnstile($_POST['cf-turnstile-response'] ?? '')) {
+        $errors[] = 'Vérification de sécurité échouée. Réessayez.';
     }
     // Rate limit : 3 inscriptions / heure / IP
     $ipKey = 'reg_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
@@ -132,6 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span id="pwLabel"></span>
             </div>
 
+            <div class="cf-turnstile" data-sitekey="<?= TURNSTILE_SITE_KEY ?>" style="margin:12px 0;"></div>
             <button type="submit" class="btn btn-primary btn-full">Créer mon compte</button>
 
             <p class="auth-switch">Déjà un compte ? <a href="<?= SITE_URL ?>/login.php">Se connecter</a></p>

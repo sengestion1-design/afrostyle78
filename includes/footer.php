@@ -90,6 +90,9 @@
 </footer>
 
 <script src="<?= SITE_URL ?>/assets/js/main.js"></script>
+<?php if (isset($useTurnstile) && $useTurnstile): ?>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<?php endif; ?>
 <?= isset($extraScripts) ? $extraScripts : '' ?>
 </body>
 </html>
