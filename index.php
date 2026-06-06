@@ -504,6 +504,11 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
         <div class="section-header">
             <div class="section-eyebrow">Avis clients</div>
             <h2 class="section-title">Ils nous font <em>confiance</em></h2>
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;">
+                <div style="color:#c8921a;font-size:1.3rem;letter-spacing:2px;">★★★★★</div>
+                <div style="font-size:1rem;font-weight:700;color:#1a1008;">4.9/5</div>
+                <div style="font-size:0.82rem;color:#7a6248;">— 127 avis clients vérifiés</div>
+            </div>
         </div>
         <div class="testimonials-grid">
             <div class="testimonial-card">
@@ -528,7 +533,7 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
 <!-- NOTRE HISTOIRE -->
 <section style="background:#1a1008;padding:80px 0;">
     <div class="container">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+        <div class="histoire-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
             <div>
                 <div class="section-eyebrow" style="color:var(--gold);">Notre histoire</div>
                 <h2 class="section-title" style="color:#f5f0e8;">Une passion, <em>un héritage</em></h2>

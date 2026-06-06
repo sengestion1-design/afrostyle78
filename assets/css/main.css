@@ -2967,3 +2967,7 @@ body {
   .form-grid { gap: 10px; }
   .container h1[style] { font-size: 1.6rem !important; margin-bottom: 20px !important; }
 }
+
+@media (max-width: 768px) {
+  .histoire-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+}
