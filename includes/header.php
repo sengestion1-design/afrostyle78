@@ -153,7 +153,7 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name")->fetchAll();
                 <svg class="mobile-submenu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="6 9 12 15 18 9"/></svg>
             </label>
             <ul class="mobile-submenu">
-                <li><a href="<?= SITE_URL ?>/boutique" class="sub-link">✦ Toutes les collections</a></li>
+                <li><a href="<?= SITE_URL ?>/boutique" class="sub-link">✦ Nos articles</a></li>
                 <?php foreach($categories as $cat): ?>
                 <li><a href="<?= SITE_URL ?>/boutique?cat=<?= $cat['slug'] ?>" class="sub-link"><?= htmlspecialchars($cat['name']) ?></a></li>
                 <?php endforeach; ?>
