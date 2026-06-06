@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Adresse email invalide.';
     if (strlen($password) < 8) $errors[] = 'Le mot de passe doit contenir au moins 8 caractères.';
     if ($password !== $confirm) $errors[] = 'Les mots de passe ne correspondent pas.';
+    if (empty($_POST['cgv'])) $errors[] = 'Vous devez accepter les conditions d\'utilisation.';
 
     if (empty($errors)) {
         $db = getDB();
@@ -139,6 +140,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="cf-turnstile" data-sitekey="<?= TURNSTILE_SITE_KEY ?>" style="margin:12px 0;"></div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;text-transform:none;letter-spacing:0;">
+                    <input type="checkbox" name="cgv" required style="margin-top:3px;flex-shrink:0;">
+                    <span>J'accepte les <a href="/politique-confidentialite" target="_blank" style="color:var(--gold);">conditions d'utilisation et la politique de confidentialité</a> *</span>
+                </label>
+            </div>
             <button type="submit" class="btn btn-primary btn-full">Créer mon compte</button>
 
             <p class="auth-switch">Déjà un compte ? <a href="<?= SITE_URL ?>/login.php">Se connecter</a></p>

@@ -70,14 +70,21 @@ if ($catSlug) {
 
 <div class="filters-bar">
     <div class="container">
+        <?php
+            $baseParams = ['q' => $q, 'cat' => $catSlug, 'sort' => $sort !== 'newest' ? $sort : '', 'filter' => $filter];
+            function filterUrl(array $base, array $override): string {
+                $p = array_filter(array_merge($base, $override), fn($v) => $v !== '' && $v !== null);
+                return 'boutique.php' . ($p ? '?' . http_build_query($p) : '');
+            }
+        ?>
         <div class="filters-inner">
             <span class="filter-label">Filtrer :</span>
             <a href="boutique.php" class="filter-btn <?= !$catSlug && !$filter ? 'active' : '' ?>">Tout</a>
             <?php foreach($categories as $cat): ?>
-            <a href="boutique.php?cat=<?= $cat['slug'] ?>" class="filter-btn <?= $catSlug === $cat['slug'] ? 'active' : '' ?>"><?= htmlspecialchars($cat['name']) ?></a>
+            <a href="<?= filterUrl($baseParams, ['cat' => $cat['slug'], 'filter' => '']) ?>" class="filter-btn <?= $catSlug === $cat['slug'] ? 'active' : '' ?>"><?= htmlspecialchars($cat['name']) ?></a>
             <?php endforeach; ?>
-            <a href="boutique.php?filter=featured" class="filter-btn <?= $filter === 'featured' ? 'active' : '' ?>">★ Coups de cœur</a>
-            <a href="boutique.php?filter=promo" class="filter-btn <?= $filter === 'promo' ? 'active' : '' ?>">Promotions</a>
+            <a href="<?= filterUrl($baseParams, ['filter' => 'featured']) ?>" class="filter-btn <?= $filter === 'featured' ? 'active' : '' ?>">★ Coups de cœur</a>
+            <a href="<?= filterUrl($baseParams, ['filter' => 'promo']) ?>" class="filter-btn <?= $filter === 'promo' ? 'active' : '' ?>">Promotions</a>
 
             <form method="GET" style="margin-left:auto; display:flex; gap:8px; align-items:center;">
                 <?php if($catSlug): ?><input type="hidden" name="cat" value="<?= htmlspecialchars($catSlug) ?>"><?php endif; ?>

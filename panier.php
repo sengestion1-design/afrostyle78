@@ -35,6 +35,18 @@ foreach ($cart as $item) {
     $subtotal += $item['price'] * $item['quantity'];
 }
 $total = $subtotal;
+
+// Fetch slugs for all products in cart
+$productSlugs = [];
+if (!empty($cart)) {
+    $productIds = array_unique(array_column($cart, 'product_id'));
+    $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+    $slugStmt = $db->prepare("SELECT id, slug FROM products WHERE id IN ($placeholders)");
+    $slugStmt->execute($productIds);
+    foreach ($slugStmt->fetchAll() as $row) {
+        $productSlugs[$row['id']] = $row['slug'];
+    }
+}
 ?>
 
 <div class="container">
@@ -91,7 +103,7 @@ $total = $subtotal;
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div class="cart-item-name"><?= htmlspecialchars($item['name']) ?></div>
+                                <div class="cart-item-name"><?php if (!empty($productSlugs[$item['product_id']])): ?><a href="produit.php?slug=<?= urlencode($productSlugs[$item['product_id']]) ?>" style="color:inherit; text-decoration:none;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='inherit'"><?= htmlspecialchars($item['name']) ?></a><?php else: ?><?= htmlspecialchars($item['name']) ?><?php endif; ?></div>
                                 <?php if($item['is_custom'] && $item['measurements']): ?>
                                 <div class="cart-item-size">Sur-mesure — <a href="#" onclick="toggleMeasures('m_<?= md5($key) ?>')">voir mesures</a></div>
                                 <div id="m_<?= md5($key) ?>" style="display:none; margin-top:8px; font-size:0.72rem; color:var(--text-muted); background:var(--cream-2); padding:10px;">
@@ -139,7 +151,7 @@ $total = $subtotal;
                             <?php endif; ?>
                         </div>
                         <div style="flex:1; min-width:0;">
-                            <div style="font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:600; margin-bottom:4px;"><?= htmlspecialchars($item['name']) ?></div>
+                            <div style="font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:600; margin-bottom:4px;"><?php if (!empty($productSlugs[$item['product_id']])): ?><a href="produit.php?slug=<?= urlencode($productSlugs[$item['product_id']]) ?>" style="color:inherit; text-decoration:none;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='inherit'"><?= htmlspecialchars($item['name']) ?></a><?php else: ?><?= htmlspecialchars($item['name']) ?><?php endif; ?></div>
                             <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:8px;">
                                 Taille : <?= htmlspecialchars($item['size']) ?>
                                 <?php if (!empty($item['color'])): ?> · <?= htmlspecialchars($item['color']) ?><?php endif; ?>

@@ -33,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
         $cartMsg = '<div class="alert alert-error">Veuillez choisir une taille.</div>';
     } elseif (!empty($colors) && !$selectedColor) {
         $cartMsg = '<div class="alert alert-error">Veuillez choisir une couleur.</div>';
+    } elseif ($product['stock'] <= 0) {
+        $cartMsg = '<div class="alert alert-error">Ce produit est actuellement en rupture de stock.</div>';
     } else {
         $cartKey = $product['id'] . '_' . ($selectedSize ?: 'SUR-MESURE') . ($selectedColor ? '_' . preg_replace('/[^a-z0-9]/', '', strtolower($selectedColor)) : '');
         if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
@@ -132,6 +134,9 @@ $relatedProducts = $related->fetchAll();
                     <?php else: ?>
                     <?= number_format($product['price'], 0, ',', ' ') ?> <?= CURRENCY ?>
                     <?php endif; ?>
+                    <?php if($product['stock'] <= 0): ?>
+                    <span style="display:inline-block; margin-left:12px; background:#e53e3e; color:#fff; font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:3px 10px; border-radius:3px;">Rupture de stock</span>
+                    <?php endif; ?>
                 </div>
 
                 <form method="POST" action="">
@@ -169,7 +174,7 @@ $relatedProducts = $related->fetchAll();
                             <?php endforeach; ?>
                         </div>
                         <div style="margin-top:10px; font-size:0.72rem; color:var(--text-muted);">
-                            <a href="#" style="color:var(--gold);">Guide des tailles →</a>
+                            <a href="/guide-des-tailles" style="color:var(--gold);" target="_blank">Guide des tailles →</a>
                         </div>
                     </div>
                     <?php endif; ?>
@@ -233,9 +238,9 @@ $relatedProducts = $related->fetchAll();
                             <input type="number" name="quantity" class="qty-input" value="1" min="1" max="99">
                             <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg" style="flex:1;">
+                        <button type="submit" class="btn btn-primary btn-lg" style="flex:1;"<?= $product['stock'] <= 0 ? ' disabled title="Rupture de stock"' : '' ?>>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                            Ajouter au panier
+                            <?= $product['stock'] <= 0 ? 'Rupture de stock' : 'Ajouter au panier' ?>
                         </button>
                     </div>
                 </form>
