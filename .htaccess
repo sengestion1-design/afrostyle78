@@ -38,3 +38,6 @@ RewriteRule ^stripe-success$ stripe-success.php [NC,L]
 RewriteRule ^cart-action$ cart-action.php [NC,L]
 RewriteRule ^mot-de-passe-oublie$ mot-de-passe-oublie.php [NC,L]
 RewriteRule ^politique-confidentialite$ politique-confidentialite.php [NC,L]
+
+# Page 404 personnalisée
+ErrorDocument 404 /404.php

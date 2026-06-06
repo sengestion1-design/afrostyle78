@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /vendor/
+Disallow: /uploads/
+Allow: /uploads/products/
+
+Sitemap: https://afrostyle78.com/sitemap.xml
