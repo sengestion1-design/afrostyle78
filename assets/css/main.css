@@ -2978,6 +2978,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .trust-badges-grid { display: grid !important; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
-  .trust-badges-grid > div { justify-content: flex-start; }
+  .trust-badges-grid { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+  .trust-badges-grid > div { justify-content: flex-start; gap: 5px !important; font-size: 0.6rem !important; letter-spacing: 0.02em !important; }
+  .trust-badges-grid > div svg { width: 13px !important; height: 13px !important; flex-shrink: 0; }
 }
