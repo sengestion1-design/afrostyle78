@@ -3,6 +3,11 @@ ob_start();
 $pageTitle = 'Connexion';
 require_once 'includes/header.php';
 
+if (isset($_SESSION['customer_id'])) {
+    header('Location: ' . SITE_URL . '/');
+    exit;
+}
+
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

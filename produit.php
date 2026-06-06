@@ -1,6 +1,7 @@
 <?php
 ob_start();
-require_once 'includes/header.php';
+require_once 'config/config.php';
+require_once 'config/database.php';
 $db = getDB();
 
 $slug = $_GET['slug'] ?? '';
@@ -16,6 +17,8 @@ $sizes  = json_decode($product['available_sizes']  ?? '[]', true);
 $colors = json_decode($product['available_colors'] ?? '[]', true);
 $images = json_decode($product['images'] ?? '[]', true);
 $price  = $product['promo_price'] ?: $product['price'];
+
+require_once 'includes/header.php';
 
 // Cart action
 $cartMsg = '';

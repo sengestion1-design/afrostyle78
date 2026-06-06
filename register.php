@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label>Mot de passe *</label>
                     <div class="input-password">
-                        <input type="password" name="password" id="pw1" placeholder="Min. 6 caractères" required>
+                        <input type="password" name="password" id="pw1" placeholder="Min. 8 caractères" required>
                         <button type="button" class="pw-toggle" onclick="togglePw('pw1',this)">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
@@ -158,7 +158,7 @@ document.getElementById('pw1').addEventListener('input', function() {
     const bar = document.getElementById('pwBar');
     const label = document.getElementById('pwLabel');
     let score = 0;
-    if (val.length >= 6) score++;
+    if (val.length >= 8) score++;
     if (val.length >= 10) score++;
     if (/[A-Z]/.test(val)) score++;
     if (/[0-9]/.test(val)) score++;
