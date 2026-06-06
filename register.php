@@ -140,10 +140,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="cf-turnstile" data-sitekey="<?= TURNSTILE_SITE_KEY ?>" style="margin:12px 0;"></div>
-            <div class="form-group" style="margin-bottom:12px;">
-                <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;text-transform:none;letter-spacing:0;">
-                    <input type="checkbox" name="cgv" required style="margin-top:3px;flex-shrink:0;">
-                    <span>J'accepte les <a href="/politique-confidentialite" target="_blank" style="color:var(--gold);">conditions d'utilisation et la politique de confidentialité</a> *</span>
+            <div style="display:flex;align-items:flex-start;gap:10px;margin:12px 0 16px;cursor:pointer;">
+                <input type="checkbox" name="cgv" id="cgv" required style="margin-top:4px;flex-shrink:0;width:16px;height:16px;accent-color:var(--gold);cursor:pointer;">
+                <label for="cgv" style="font-size:0.82rem;color:var(--text-muted);cursor:pointer;line-height:1.5;">
+                    J'accepte les <a href="/politique-confidentialite" target="_blank" style="color:var(--gold);">conditions d'utilisation et la politique de confidentialité</a> *
                 </label>
             </div>
             <button type="submit" class="btn btn-primary btn-full">Créer mon compte</button>
