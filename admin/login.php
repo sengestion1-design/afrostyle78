@@ -2,6 +2,7 @@
 require_once '../config/config.php';
 require_once '../config/database.php';
 require_once '../config/turnstile.php';
+require_once '../config/mailer.php';
 
 if (isset($_SESSION['admin_id'])) { header('Location: ' . ADMIN_URL . '/index.php'); exit; }
 
@@ -10,38 +11,79 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 $error = '';
+$step  = isset($_SESSION['admin_2fa_code']) ? 'verify' : 'login';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF check
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $error = 'Requête invalide.';
-    } elseif (!verifyTurnstile($_POST['cf-turnstile-response'] ?? '')) {
-        $error = 'Vérification de sécurité échouée. Réessayez.';
-    } else {
-        // Rate limiting : 5 tentatives max / 15 min / IP
-        $ipKey = 'admin_login_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
-        if (!isset($_SESSION[$ipKey])) $_SESSION[$ipKey] = ['count' => 0, 'first' => time()];
-        if (time() - $_SESSION[$ipKey]['first'] > 900) $_SESSION[$ipKey] = ['count' => 0, 'first' => time()];
 
-        if ($_SESSION[$ipKey]['count'] >= 5) {
-            $error = 'Trop de tentatives. Réessayez dans 15 minutes.';
+    } elseif ($step === 'verify') {
+        // ── ÉTAPE 2 : vérification du code 2FA ───────────────────────────────
+        $entered = trim($_POST['tfa_code'] ?? '');
+        if (time() > ($_SESSION['admin_2fa_expires'] ?? 0)) {
+            unset($_SESSION['admin_2fa_code'], $_SESSION['admin_2fa_expires'], $_SESSION['admin_2fa_id'], $_SESSION['admin_2fa_username']);
+            $step  = 'login';
+            $error = 'Le code a expiré. Veuillez vous reconnecter.';
+        } elseif (!hash_equals((string)$_SESSION['admin_2fa_code'], $entered)) {
+            $error = 'Code incorrect.';
         } else {
-            $_SESSION[$ipKey]['count']++;
-            $username = trim($_POST['username'] ?? '');
-            $password = $_POST['password'] ?? '';
+            session_regenerate_id(true);
+            $_SESSION['admin_id']       = $_SESSION['admin_2fa_id'];
+            $_SESSION['admin_username'] = $_SESSION['admin_2fa_username'];
+            unset($_SESSION['admin_2fa_code'], $_SESSION['admin_2fa_expires'], $_SESSION['admin_2fa_id'], $_SESSION['admin_2fa_username']);
+            header('Location: ' . ADMIN_URL . '/index.php');
+            exit;
+        }
 
-            $stmt = getDB()->prepare("SELECT * FROM admins WHERE username = ? OR email = ?");
-            $stmt->execute([$username, $username]);
-            $admin = $stmt->fetch();
+    } else {
+        // ── ÉTAPE 1 : identifiant + mot de passe ─────────────────────────────
+        if (!verifyTurnstile($_POST['cf-turnstile-response'] ?? '')) {
+            $error = 'Vérification de sécurité échouée. Réessayez.';
+        } else {
+            $ipKey = 'admin_login_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
+            if (!isset($_SESSION[$ipKey])) $_SESSION[$ipKey] = ['count' => 0, 'first' => time()];
+            if (time() - $_SESSION[$ipKey]['first'] > 900) $_SESSION[$ipKey] = ['count' => 0, 'first' => time()];
 
-            if ($admin && password_verify($password, $admin['password'])) {
-                session_regenerate_id(true);
-                unset($_SESSION[$ipKey]);
-                $_SESSION['admin_id']       = $admin['id'];
-                $_SESSION['admin_username'] = $admin['username'];
-                header('Location: ' . ADMIN_URL . '/index.php');
-                exit;
+            if ($_SESSION[$ipKey]['count'] >= 5) {
+                $error = 'Trop de tentatives. Réessayez dans 15 minutes.';
             } else {
-                $error = 'Identifiants incorrects.';
+                $_SESSION[$ipKey]['count']++;
+                $username = trim($_POST['username'] ?? '');
+                $password = $_POST['password'] ?? '';
+
+                $stmt = getDB()->prepare("SELECT * FROM admins WHERE username = ? OR email = ?");
+                $stmt->execute([$username, $username]);
+                $admin = $stmt->fetch();
+
+                if ($admin && password_verify($password, $admin['password'])) {
+                    $code = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                    $_SESSION['admin_2fa_code']     = $code;
+                    $_SESSION['admin_2fa_expires']  = time() + 600;
+                    $_SESSION['admin_2fa_id']        = $admin['id'];
+                    $_SESSION['admin_2fa_username']  = $admin['username'];
+                    unset($_SESSION[$ipKey]);
+
+                    $sent = sendMail(
+                        $admin['email'],
+                        $admin['username'],
+                        '🔐 AfroStyle Admin — Code de vérification',
+                        '<div style="font-family:Arial,sans-serif;padding:32px;background:#f5f0e8;">
+                        <h2 style="color:#1a1008;">Code de connexion admin</h2>
+                        <p style="font-size:16px;color:#555;">Votre code de vérification :</p>
+                        <p style="font-size:40px;font-weight:bold;letter-spacing:12px;color:#c8921a;background:#1a1008;padding:16px 24px;display:inline-block;">' . $code . '</p>
+                        <p style="color:#999;font-size:13px;margin-top:16px;">Ce code expire dans <strong>10 minutes</strong>. Ne le partagez jamais.</p>
+                        </div>'
+                    );
+
+                    if (!$sent) {
+                        unset($_SESSION['admin_2fa_code'], $_SESSION['admin_2fa_expires'], $_SESSION['admin_2fa_id'], $_SESSION['admin_2fa_username']);
+                        $error = 'Impossible d\'envoyer le code. Vérifiez la configuration email.';
+                    } else {
+                        $step = 'verify';
+                    }
+                } else {
+                    $error = 'Identifiants incorrects.';
+                }
             }
         }
     }
@@ -84,6 +126,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1 class="login-title">Administration</h1>
     <p class="login-sub">Panneau de gestion AfroStyle</p>
     <?php if($error): ?><div class="error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+
+    <?php if ($step === 'verify'): ?>
+    <p style="color:rgba(253,246,236,0.6);font-size:0.9rem;text-align:center;margin-bottom:24px;line-height:1.6;">
+        Un code à 6 chiffres a été envoyé à votre adresse email.<br>
+        <small style="color:rgba(253,246,236,0.4);">Expiré dans 10 minutes.</small>
+    </p>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+        <div class="form-group">
+            <label>Code de vérification</label>
+            <input type="text" name="tfa_code" autofocus required placeholder="000000"
+                   maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+                   style="letter-spacing:0.4em;font-size:1.6rem;text-align:center;">
+        </div>
+        <button type="submit" class="btn-login">Valider le code →</button>
+    </form>
+
+    <?php else: ?>
     <form method="POST">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
         <div class="form-group">
@@ -97,6 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="cf-turnstile" data-sitekey="<?= TURNSTILE_SITE_KEY ?>" data-theme="dark" style="margin:16px 0;"></div>
         <button type="submit" class="btn-login">Connexion →</button>
     </form>
+    <?php endif; ?>
     <a href="<?= SITE_URL ?>" class="back-link">← Retour à la boutique</a>
 </div>
 </body>

@@ -73,11 +73,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $deleteImages = $_POST['delete_images'] ?? [];
     $existingImages = array_values(array_filter($existingImages, fn($img) => !in_array($img, $deleteImages)));
 
-    $newImages = [];
+    $newImages  = [];
+    $allowedExt  = ['jpg','jpeg','png','webp','gif'];
+    $allowedMime = ['image/jpeg','image/png','image/webp','image/gif'];
     if (!empty($_FILES['images']['name'][0])) {
         foreach ($_FILES['images']['error'] as $i => $err) {
             if ($err === UPLOAD_ERR_OK && $_FILES['images']['size'][$i] > 0) {
                 $ext  = strtolower(pathinfo($_FILES['images']['name'][$i], PATHINFO_EXTENSION));
+                $mime = mime_content_type($_FILES['images']['tmp_name'][$i]);
+                if (!in_array($ext, $allowedExt, true) || !in_array($mime, $allowedMime, true) || getimagesize($_FILES['images']['tmp_name'][$i]) === false) {
+                    continue; // fichier invalide — on ignore
+                }
                 $name = uniqid('img_', true) . '.' . $ext;
                 if (move_uploaded_file($_FILES['images']['tmp_name'][$i], UPLOADS_DIR . $name)) {
                     $newImages[] = $name;
