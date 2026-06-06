@@ -422,31 +422,31 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
     <div class="container">
         <div class="occasion-grid">
             <div class="occasion-card">
-                <div class="occasion-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                <div class="occasion-card-header">
+                    <div class="occasion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div>
+                    <h3>Mariages</h3>
                 </div>
-                <h3>Mariages</h3>
                 <p>Robes, costumes &amp; tenues famille assortis.</p>
             </div>
             <div class="occasion-card">
-                <div class="occasion-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                <div class="occasion-card-header">
+                    <div class="occasion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+                    <h3>Baptêmes</h3>
                 </div>
-                <h3>Baptêmes</h3>
                 <p>Bazin brodé, boubou de fête &amp; ensembles.</p>
             </div>
             <div class="occasion-card">
-                <div class="occasion-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                <div class="occasion-card-header">
+                    <div class="occasion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+                    <h3>Fiançailles</h3>
                 </div>
-                <h3>Fiançailles</h3>
                 <p>Kente luxe, wax premium &amp; accessoires.</p>
             </div>
             <div class="occasion-card">
-                <div class="occasion-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <div class="occasion-card-header">
+                    <div class="occasion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                    <h3>Événements</h3>
                 </div>
-                <h3>Événements</h3>
                 <p>Grand boubou, 3 pièces &amp; robes de soirée.</p>
             </div>
         </div>
