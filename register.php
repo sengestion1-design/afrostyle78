@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Email de bienvenue (non bloquant)
             emailWelcome($email, $firstName, $lastName);
 
-            $redirect = $_SESSION['redirect_after_login'] ?? SITE_URL . '/compte.php';
+            $redirect = $_SESSION['redirect_after_login'] ?? SITE_URL . '/';
             unset($_SESSION['redirect_after_login']);
             header('Location: ' . $redirect);
             exit;
