@@ -14,9 +14,6 @@ RewriteRule ^vendor/ - [F,L]
     Require all denied
 </FilesMatch>
 
-RewriteEngine On
-RewriteBase /
-
 # Rediriger les accès directs .php vers URL propre (hors admin/)
 RewriteCond %{THE_REQUEST} \s/(?!admin/)([^.]+)\.php[\s?] [NC]
 RewriteRule ^ /%1 [R=301,L]
