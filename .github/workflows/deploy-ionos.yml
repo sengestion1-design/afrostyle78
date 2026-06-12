@@ -16,13 +16,18 @@ jobs:
         run: composer install --no-dev --optimize-autoloader
 
       - name: Deploy via SFTP
-        uses: appleboy/scp-action@v0.1.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.SFTP_HOST }}
+          server: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASS }}
-          port: 22
-          source: "."
-          target: "/afrostyle78.com/htdocs"
-          rm: false
-          exclude: ".git,.github,.gitignore,node_modules,config/database.php,config/mailer.php,install.php"
+          protocol: ftps
+          port: 21
+          server-dir: /afrostyle78.com/htdocs/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            config/database.php
+            config/mailer.php
+            install.php
