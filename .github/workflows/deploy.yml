@@ -13,8 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install PHP dependencies
-        run: |
-          composer install --no-dev --optimize-autoloader
+        run: composer install --no-dev --optimize-autoloader
 
       - name: Deploy via SFTP
         uses: appleboy/scp-action@v0.1.7
@@ -26,11 +25,4 @@ jobs:
           source: "."
           target: "/afrostyle78.com/htdocs"
           rm: false
-          exclude: |
-            .git
-            .github
-            .gitignore
-            node_modules
-            config/database.php
-            config/mailer.php
-            install.php
+          exclude: ".git,.github,.gitignore,node_modules,config/database.php,config/mailer.php,install.php"
