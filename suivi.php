@@ -26,13 +26,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['order']) || isset($_GE
                 $order = null;
                 $error = 'Email incorrect pour cette commande.';
             } else {
-                $stmt2 = $db->prepare("SELECT * FROM delivery_tracking WHERE order_id = ? ORDER BY created_at ASC");
-                $stmt2->execute([$order['id']]);
-                $tracking = $stmt2->fetchAll();
+                try {
+                    $stmt2 = $db->prepare("SELECT * FROM delivery_tracking WHERE order_id = ? ORDER BY created_at ASC");
+                    $stmt2->execute([$order['id']]);
+                    $tracking = $stmt2->fetchAll();
+                } catch (PDOException $e) {
+                    // Table delivery_tracking absente ou colonne manquante — non bloquant
+                    $tracking = [];
+                }
 
-                $items = $db->prepare("SELECT oi.*, m.tour_poitrine, m.tour_taille FROM order_items oi LEFT JOIN measurements m ON m.order_item_id = oi.id WHERE oi.order_id = ?");
-                $items->execute([$order['id']]);
-                $orderItems = $items->fetchAll();
+                try {
+                    $items = $db->prepare("SELECT oi.*, m.tour_poitrine, m.tour_taille FROM order_items oi LEFT JOIN measurements m ON m.order_item_id = oi.id WHERE oi.order_id = ?");
+                    $items->execute([$order['id']]);
+                    $orderItems = $items->fetchAll();
+                } catch (PDOException $e) {
+                    // Fallback sans mesures si la table measurements ou la colonne order_item_id est absente
+                    try {
+                        $items = $db->prepare("SELECT * FROM order_items WHERE order_id = ?");
+                        $items->execute([$order['id']]);
+                        $orderItems = $items->fetchAll();
+                    } catch (PDOException $e2) {
+                        $orderItems = [];
+                    }
+                }
             }
         } else {
             $error = 'Commande non trouvée. Vérifiez le numéro.';
