@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
             </p>
         </div>
         <div style="background:#fffbf0; border:1px solid rgba(200,146,26,0.3); padding:16px 20px; font-size:0.9rem; color:#7a6248; margin-bottom:28px;">
-            📸 Si ce n'est pas encore fait, envoyez la capture d'écran de votre paiement par WhatsApp au <strong><?= htmlspecialchars($waveNumber) ?></strong>
+            📸 Si ce n'est pas encore fait, envoyez la capture d'écran de votre paiement par WhatsApp au <strong><?= htmlspecialchars($method === 'orange_money' ? $omNumber : $waveNumber) ?></strong>
         </div>
 
     <?php elseif ($order && !$isPaid): ?>
@@ -264,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
 
         <?php if (in_array($method, ['wave', 'orange_money']) && !$waveApiKey): ?>
         <div style="background:#fffbf0; border:1px solid rgba(200,146,26,0.3); padding:14px 20px; font-size:0.85rem; color:#7a6248; border-radius:4px; margin-bottom:20px;">
-            📸 Après le transfert, envoyez aussi la <strong>capture d'écran</strong> par WhatsApp au <strong><?= htmlspecialchars($waveNumber) ?></strong>
+            📸 Après le transfert, envoyez aussi la <strong>capture d'écran</strong> par WhatsApp au <strong><?= htmlspecialchars($method === 'orange_money' ? $omNumber : $waveNumber) ?></strong>
         </div>
         <?php endif; ?>
 
