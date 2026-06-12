@@ -16,7 +16,7 @@ jobs:
         run: composer install --no-dev --optimize-autoloader
 
       - name: Deploy via SFTP
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USER }}
