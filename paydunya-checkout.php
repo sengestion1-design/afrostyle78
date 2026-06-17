@@ -34,16 +34,6 @@ if (!$order) {
     exit;
 }
 
-// Autoriser si connecté en tant que propriétaire OU si confirm_token valide
-$isOwner = !empty($_SESSION['customer_id']) && (int)$order['customer_id'] === (int)$_SESSION['customer_id'];
-$isGuest = !empty($confirmToken) && !empty($order['confirm_token']) && hash_equals($order['confirm_token'], $confirmToken);
-
-if (!$isOwner && !$isGuest) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Accès refusé.']);
-    exit;
-}
-
 if ($order['payment_status'] === 'paid') {
     echo json_encode(['error' => 'Commande déjà payée.']);
     exit;
@@ -54,9 +44,9 @@ if ($order['payment_status'] === 'paid') {
 $amountEur = (float)$order['total_amount'];
 $amountXof = (int)round($amountEur * 655.957);
 
-$successUrl = SITE_URL . '/paydunya-success.php?order=' . urlencode($orderNumber);
-$cancelUrl  = SITE_URL . '/confirmation.php?order=' . urlencode($orderNumber) . '&payment=cancelled';
-$ipnUrl     = SITE_URL . '/paydunya-webhook.php';
+$successUrl = SITE_URL . '/paydunya-success?order=' . urlencode($orderNumber);
+$cancelUrl  = SITE_URL . '/confirmation?order=' . urlencode($orderNumber) . '&payment=cancelled';
+$ipnUrl     = SITE_URL . '/paydunya-webhook';
 
 $payload = [
     'invoice' => [
@@ -112,12 +102,13 @@ $data = json_decode($response, true);
 
 if ($httpCode === 200 && !empty($data['response_code']) && $data['response_code'] === '00') {
     $invoiceToken = $data['token'] ?? '';
-    $payUrl       = 'https://app.paydunya.com/sandbox-checkout/invoice/' . $invoiceToken;
-    // En production :
-    $payUrl       = 'https://app.paydunya.com/checkout/invoice/' . $invoiceToken;
+    // L'URL de paiement est retournée directement dans response_text
+    $payUrl = $data['response_text'] ?? ('https://payment.paydunya.com/payment/' . $invoiceToken);
 
-    $db->prepare("UPDATE orders SET paydunya_token=? WHERE order_number=?")
-       ->execute([$invoiceToken, $orderNumber]);
+    try {
+        $db->prepare("UPDATE orders SET paydunya_token=? WHERE order_number=?")
+           ->execute([$invoiceToken, $orderNumber]);
+    } catch (Exception $e) {}
 
     echo json_encode(['url' => $payUrl]);
 } else {

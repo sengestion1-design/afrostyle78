@@ -339,7 +339,7 @@ function payWithPaydunya() {
     const btn = document.getElementById('paydunya-btn');
     btn.textContent = '⏳ Redirection vers PayDunya...';
     btn.disabled = true;
-    fetch('<?= SITE_URL ?>/paydunya-checkout.php', {
+    fetch('<?= SITE_URL ?>/paydunya-checkout', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: 'order_number=<?= urlencode($orderNumber) ?>&confirm_token=<?= urlencode($order["confirm_token"] ?? "") ?>'
