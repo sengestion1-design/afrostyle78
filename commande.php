@@ -334,7 +334,18 @@ $total = $subtotal + $delivery;
                     <p style="color:var(--text-muted);font-size:0.95rem;margin-bottom:16px;">Choisissez votre mode de paiement. Vous effectuerez le paiement à l'étape suivante.</p>
                     <div class="payment-options" id="payment-options">
                         <div class="payment-option">
-                            <input type="radio" name="payment_method" id="pay_wave" value="wave" checked>
+                            <input type="radio" name="payment_method" id="pay_paydunya" value="paydunya" checked>
+                            <label for="pay_paydunya">
+                                <span class="pay-icon">🌍</span>
+                                <span class="pay-details">
+                                    <strong>PayDunya</strong>
+                                    <small>Wave, Orange Money, Carte bancaire & plus</small>
+                                </span>
+                            </label>
+                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" name="payment_method" id="pay_wave" value="wave">
                             <label for="pay_wave">
                                 <span class="pay-icon">📱</span>
                                 <span class="pay-details">

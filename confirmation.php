@@ -216,6 +216,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
         </div>
         <?php endif; ?>
 
+        <!-- PAYDUNYA -->
+        <?php if ($method === 'paydunya'): ?>
+        <div style="border:2px solid #e67e22; border-radius:8px; overflow:hidden; margin-bottom:20px;">
+            <div style="background:#e67e22; padding:16px 24px; display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.8rem;">🌍</span>
+                <span style="font-weight:700; color:#fff; font-size:1.1rem;">Payer via PayDunya</span>
+            </div>
+            <div style="padding:24px;">
+                <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:12px;">
+                    Paiement sécurisé via PayDunya — Wave, Orange Money, Expresso, Free Money, Djamo, Carte bancaire.
+                </p>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Wave</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Orange Money</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Free Money</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Expresso</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Djamo</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Carte bancaire</span>
+                </div>
+                <button onclick="payWithPaydunya()" id="paydunya-btn" style="background:#e67e22; color:#fff; border:none; padding:14px 28px; font-size:1rem; font-weight:700; cursor:pointer; width:100%; border-radius:4px;">
+                    🌍 Payer <?= number_format($order['total_amount'], 0, ',', ' ') ?> € via PayDunya
+                </button>
+                <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
+                    🔒 Paiement 100% sécurisé — Le montant sera converti en XOF (FCFA)
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- CARTE BANCAIRE -->
         <?php if (in_array($method, ['carte', 'stripe'])): ?>
         <div style="border:2px solid #4f46e5; border-radius:8px; overflow:hidden; margin-bottom:20px;">
@@ -303,6 +332,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
 
     </div>
 </div>
+
+<?php if ($order && $method === 'paydunya' && !$isPaid): ?>
+<script>
+function payWithPaydunya() {
+    const btn = document.getElementById('paydunya-btn');
+    btn.textContent = '⏳ Redirection vers PayDunya...';
+    btn.disabled = true;
+    fetch('<?= SITE_URL ?>/paydunya-checkout.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'order_number=<?= urlencode($orderNumber) ?>'
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            alert('Erreur : ' + (data.error || 'Réessayez.'));
+            btn.textContent = '🌍 Payer via PayDunya';
+            btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        alert('Erreur réseau. Réessayez.');
+        btn.textContent = '🌍 Payer via PayDunya';
+        btn.disabled = false;
+    });
+}
+</script>
+<?php endif; ?>
 
 <?php if ($order && $method === 'wave' && $waveApiKey && !$isPaid): ?>
 <script>

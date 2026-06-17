@@ -54,6 +54,10 @@ CREATE TABLE orders (
     payment_method VARCHAR(50) DEFAULT 'cash',
     payment_status ENUM('unpaid','paid') DEFAULT 'unpaid',
     notes TEXT,
+    wave_session_id VARCHAR(255) DEFAULT NULL,
+    paydunya_token VARCHAR(255) DEFAULT NULL,
+    confirm_token VARCHAR(64) DEFAULT NULL,
+    sender_phone VARCHAR(30) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(id)
