@@ -216,8 +216,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
         </div>
         <?php endif; ?>
 
-        <!-- PAYDUNYA -->
-        <?php if ($method === 'paydunya'): ?>
+        <!-- PAYDUNYA (couvre aussi carte, wave, orange_money legacy) -->
+        <?php if (in_array($method, ['paydunya', 'carte', 'wave', 'orange_money', 'stripe'])): ?>
         <div style="border:2px solid #e67e22; border-radius:8px; overflow:hidden; margin-bottom:20px;">
             <div style="background:#e67e22; padding:16px 24px; display:flex; align-items:center; gap:12px;">
                 <span style="font-size:1.8rem;">🌍</span>
@@ -333,7 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
     </div>
 </div>
 
-<?php if ($order && $method === 'paydunya' && !$isPaid): ?>
+<?php if ($order && in_array($method, ['paydunya','carte','wave','orange_money','stripe']) && !$isPaid): ?>
 <script>
 function payWithPaydunya() {
     const btn = document.getElementById('paydunya-btn');

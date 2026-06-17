@@ -345,39 +345,6 @@ $total = $subtotal + $delivery;
                             <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
                         </div>
                         <div class="payment-option">
-                            <input type="radio" name="payment_method" id="pay_wave" value="wave">
-                            <label for="pay_wave">
-                                <span class="pay-icon">📱</span>
-                                <span class="pay-details">
-                                    <strong>Wave</strong>
-                                    <small>Mobile Money — Instantané</small>
-                                </span>
-                            </label>
-                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
-                        </div>
-                        <div class="payment-option">
-                            <input type="radio" name="payment_method" id="pay_orange" value="orange_money">
-                            <label for="pay_orange">
-                                <span class="pay-icon">📱</span>
-                                <span class="pay-details">
-                                    <strong>Orange Money</strong>
-                                    <small>Mobile Money Orange</small>
-                                </span>
-                            </label>
-                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
-                        </div>
-                        <div class="payment-option">
-                            <input type="radio" name="payment_method" id="pay_carte" value="carte">
-                            <label for="pay_carte">
-                                <span class="pay-icon">💳</span>
-                                <span class="pay-details">
-                                    <strong>Carte bancaire</strong>
-                                    <small>Visa, Mastercard, Amex — Sécurisé</small>
-                                </span>
-                            </label>
-                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
-                        </div>
-                        <div class="payment-option">
                             <input type="radio" name="payment_method" id="pay_cash" value="cash">
                             <label for="pay_cash">
                                 <span class="pay-icon">💵</span>
