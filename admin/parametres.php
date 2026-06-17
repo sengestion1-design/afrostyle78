@@ -8,6 +8,8 @@ $allowedKeys = [
     'site_name','site_phone','site_email','site_address',
     'wave_number','wave_owner_name','orange_money_number','om_owner_name','bank_name','bank_iban','bank_owner',
     'wave_api_key',
+    'stripe_public_key','stripe_secret_key','stripe_currency','stripe_fcfa_to_eur',
+    'paydunya_master_key','paydunya_private_key','paydunya_token','paydunya_public_key',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -286,6 +288,120 @@ require_once 'includes/admin_header.php';
         </div>
         <div style="background:#e8f9f0;border:1px solid rgba(0,180,100,0.2);padding:14px 16px;font-size:0.88rem;color:#276749;">
           ℹ️ Une fois la clé ajoutée, les clients pourront payer directement par Wave ou carte bancaire sans intervention manuelle.
+        </div>
+      </div>
+    </div>
+
+    <!-- STRIPE -->
+    <div class="admin-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #f0ebe0;">
+        <div style="background:#635bff;color:#fff;padding:8px 14px;font-size:1.1rem;font-weight:700;border-radius:4px;">Stripe</div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--dark);">Paiement par carte bancaire</div>
+          <div style="font-size:0.88rem;color:var(--muted);">Visa, Mastercard via Stripe</div>
+        </div>
+        <div style="margin-left:auto;">
+          <?php $stripeKey = $settings['stripe_secret_key']['setting_value'] ?? ''; ?>
+          <span style="padding:4px 14px;font-size:0.82rem;font-weight:700;border-radius:20px;
+            <?= $stripeKey ? 'background:rgba(99,91,255,0.1);color:#635bff;' : 'background:rgba(200,200,200,0.2);color:#999;' ?>">
+            <?= $stripeKey ? '🟢 ACTIF' : '⚪ NON CONFIGURÉ' ?>
+          </span>
+        </div>
+      </div>
+      <div class="admin-form">
+        <div style="margin-bottom:16px;">
+          <label>Clé publique (Publishable key)</label>
+          <input type="text" name="stripe_public_key"
+                 value="<?= sv($settings,'stripe_public_key') ?>"
+                 placeholder="pk_live_xxxxxxxxxxxxxxxxxxxx">
+          <small style="color:var(--muted);font-size:0.85rem;">Commence par <strong>pk_live_</strong> (production) ou <strong>pk_test_</strong> (test)</small>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>Clé secrète (Secret key)</label>
+          <div style="position:relative;">
+            <input type="password" name="stripe_secret_key" id="stripe_secret_key"
+                   value="<?= sv($settings,'stripe_secret_key') ?>"
+                   placeholder="sk_live_xxxxxxxxxxxxxxxxxxxx">
+            <button type="button" onclick="document.getElementById('stripe_secret_key').type = document.getElementById('stripe_secret_key').type==='password'?'text':'password'"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);">👁</button>
+          </div>
+          <small style="color:var(--muted);font-size:0.85rem;">Commence par <strong>sk_live_</strong> — ne jamais partager.</small>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>Devise (currency)</label>
+          <input type="text" name="stripe_currency"
+                 value="<?= sv($settings,'stripe_currency') ?: 'eur' ?>"
+                 placeholder="eur">
+          <small style="color:var(--muted);font-size:0.85rem;">Ex: <strong>eur</strong>, <strong>usd</strong></small>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>Taux de conversion FCFA → EUR</label>
+          <input type="text" name="stripe_fcfa_to_eur"
+                 value="<?= sv($settings,'stripe_fcfa_to_eur') ?: '0.00152' ?>"
+                 placeholder="0.00152">
+          <small style="color:var(--muted);font-size:0.85rem;">1 FCFA = 0.00152 EUR (taux fixe CFA)</small>
+        </div>
+        <div style="background:#f0efff;border:1px solid rgba(99,91,255,0.2);padding:14px 16px;font-size:0.88rem;color:#635bff;">
+          ℹ️ Récupère tes clés sur <strong>dashboard.stripe.com</strong> → Développeurs → Clés API.
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYDUNYA -->
+    <div class="admin-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #f0ebe0;">
+        <div style="background:#e67e22;color:#fff;padding:8px 14px;font-size:1.1rem;font-weight:700;border-radius:4px;">PD</div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--dark);">PayDunya</div>
+          <div style="font-size:0.88rem;color:var(--muted);">Wave, Orange Money, Carte bancaire (Sénégal)</div>
+        </div>
+        <div style="margin-left:auto;">
+          <?php $pdKey = $settings['paydunya_master_key']['setting_value'] ?? ''; ?>
+          <span style="padding:4px 14px;font-size:0.82rem;font-weight:700;border-radius:20px;
+            <?= $pdKey ? 'background:rgba(230,126,34,0.1);color:#e67e22;' : 'background:rgba(200,200,200,0.2);color:#999;' ?>">
+            <?= $pdKey ? '🟢 ACTIF' : '⚪ NON CONFIGURÉ' ?>
+          </span>
+        </div>
+      </div>
+      <div class="admin-form">
+        <div style="margin-bottom:16px;">
+          <label>Clé Principale (Master Key)</label>
+          <div style="position:relative;">
+            <input type="password" name="paydunya_master_key" id="paydunya_master_key"
+                   value="<?= sv($settings,'paydunya_master_key') ?>"
+                   placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+            <button type="button" onclick="document.getElementById('paydunya_master_key').type=document.getElementById('paydunya_master_key').type==='password'?'text':'password'"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);">👁</button>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>Clé Privée de Production (Private Key)</label>
+          <div style="position:relative;">
+            <input type="password" name="paydunya_private_key" id="paydunya_private_key"
+                   value="<?= sv($settings,'paydunya_private_key') ?>"
+                   placeholder="live_private_xxxxxxxxxxxxxxxxxxxx">
+            <button type="button" onclick="document.getElementById('paydunya_private_key').type=document.getElementById('paydunya_private_key').type==='password'?'text':'password'"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);">👁</button>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>Token de Production</label>
+          <div style="position:relative;">
+            <input type="password" name="paydunya_token" id="paydunya_token"
+                   value="<?= sv($settings,'paydunya_token') ?>"
+                   placeholder="xxxxxxxxxxxxxxxxxxxx">
+            <button type="button" onclick="document.getElementById('paydunya_token').type=document.getElementById('paydunya_token').type==='password'?'text':'password'"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);">👁</button>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label>Clé Publique de Production (Public Key)</label>
+          <input type="text" name="paydunya_public_key"
+                 value="<?= sv($settings,'paydunya_public_key') ?>"
+                 placeholder="live_public_xxxxxxxxxxxxxxxxxxxx">
+        </div>
+        <div style="background:#fef3e8;border:1px solid rgba(230,126,34,0.3);padding:14px 16px;font-size:0.88rem;color:#c0692a;">
+          ℹ️ Récupère tes clés sur <strong>app.paydunya.com</strong> → Applications → Clés API de Production.
         </div>
       </div>
     </div>

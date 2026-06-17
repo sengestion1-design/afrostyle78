@@ -12,9 +12,16 @@ if (!$data) {
     exit;
 }
 
-$masterKey  = 'lvXZhkmQ-6reb-ZImt-DuuL-iYRpJuqa7r2z';
-$privateKey = 'live_private_66iDiEIdYje03GqVl0vLOZJPBX6';
-$token      = 'WI5qQNHHhW5k9psP6rdl';
+$db2        = getDB();
+$s          = $db2->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('paydunya_master_key','paydunya_private_key','paydunya_token')")->fetchAll(PDO::FETCH_KEY_PAIR);
+$masterKey  = $s['paydunya_master_key']  ?? getenv('PAYDUNYA_MASTER_KEY');
+$privateKey = $s['paydunya_private_key'] ?? getenv('PAYDUNYA_PRIVATE_KEY');
+$token      = $s['paydunya_token']       ?? getenv('PAYDUNYA_TOKEN');
+
+if (!$masterKey || !$privateKey || !$token) {
+    http_response_code(500);
+    exit;
+}
 
 // Récupérer le token de la facture depuis le payload IPN
 $invoiceToken = $data['data']['invoice']['token'] ?? '';
@@ -39,12 +46,26 @@ curl_close($ch);
 
 $invoice = json_decode($response, true);
 
-$status      = $invoice['status'] ?? '';
-$orderNumber = $invoice['custom_data']['order_number'] ?? '';
+$status           = $invoice['status'] ?? '';
+$confirmedToken   = $invoice['token'] ?? $invoiceToken;
+$confirmedAmount  = (int)($invoice['invoice']['total_amount'] ?? 0);
 
-if ($status === 'completed' && $orderNumber) {
-    $db = getDB();
+// Chercher la commande par paydunya_token stocké (plus fiable que custom_data)
+$db = getDB();
+$stmt = $db->prepare("SELECT * FROM orders WHERE paydunya_token = ? AND payment_status = 'unpaid'");
+$stmt->execute([$confirmedToken]);
+$order = $stmt->fetch();
 
+if (!$order) {
+    http_response_code(200);
+    echo 'OK';
+    exit;
+}
+
+$orderNumber     = $order['order_number'];
+$expectedAmountXof = (int)round((float)$order['total_amount'] * 655.957);
+
+if ($status === 'completed' && abs($confirmedAmount - $expectedAmountXof) <= 1) {
     $db->prepare("UPDATE orders SET payment_status='paid', payment_method='paydunya' WHERE order_number=?")
        ->execute([$orderNumber]);
 

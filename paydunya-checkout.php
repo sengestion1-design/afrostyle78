@@ -13,10 +13,15 @@ if (empty($_SESSION['customer_id'])) {
 $db          = getDB();
 $allSettings = $db->query("SELECT setting_key, setting_value FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
 
-$masterKey   = $allSettings['paydunya_master_key']   ?? 'lvXZhkmQ-6reb-ZImt-DuuL-iYRpJuqa7r2z';
-$privateKey  = $allSettings['paydunya_private_key']  ?? 'live_private_66iDiEIdYje03GqVl0vLOZJPBX6';
-$token       = $allSettings['paydunya_token']        ?? 'WI5qQNHHhW5k9psP6rdl';
-$publicKey   = $allSettings['paydunya_public_key']   ?? 'live_public_7FHzlF6BkenRSjZj4W6AWpNB35A';
+$masterKey   = $allSettings['paydunya_master_key']  ?? getenv('PAYDUNYA_MASTER_KEY');
+$privateKey  = $allSettings['paydunya_private_key'] ?? getenv('PAYDUNYA_PRIVATE_KEY');
+$token       = $allSettings['paydunya_token']       ?? getenv('PAYDUNYA_TOKEN');
+$publicKey   = $allSettings['paydunya_public_key']  ?? getenv('PAYDUNYA_PUBLIC_KEY');
+
+if (!$masterKey || !$privateKey || !$token) {
+    echo json_encode(['error' => 'PayDunya non configuré. Ajoutez les clés dans les paramètres.']);
+    exit;
+}
 
 $orderNumber = trim($_POST['order_number'] ?? '');
 if (!$orderNumber) {
