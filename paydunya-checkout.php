@@ -34,6 +34,14 @@ if (!$order) {
     exit;
 }
 
+$isOwner = !empty($_SESSION['customer_id']) && (int)$order['customer_id'] === (int)$_SESSION['customer_id'];
+$isGuest = !empty($confirmToken) && !empty($order['confirm_token']) && hash_equals($order['confirm_token'], $confirmToken);
+if (!$isOwner && !$isGuest) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Accès refusé.']);
+    exit;
+}
+
 if ($order['payment_status'] === 'paid') {
     echo json_encode(['error' => 'Commande déjà payée.']);
     exit;
