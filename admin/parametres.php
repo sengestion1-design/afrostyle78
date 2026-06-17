@@ -106,6 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $msg = 'success';
 }
 
+// Initialiser les clés PayDunya si absentes
+try {
+    foreach (['paydunya_master_key','paydunya_private_key','paydunya_token','paydunya_public_key'] as $k) {
+        $db->prepare("INSERT IGNORE INTO settings (setting_key, setting_value) VALUES (?,?)")->execute([$k, '']);
+    }
+} catch (Exception $e) { /* ignore */ }
+
 // Charger tous les settings
 $rows = $db->query("SELECT * FROM settings ORDER BY setting_group, id")->fetchAll();
 $settings = [];
@@ -292,60 +299,11 @@ require_once 'includes/admin_header.php';
       </div>
     </div>
 
-    <!-- STRIPE -->
-    <div class="admin-card">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #f0ebe0;">
-        <div style="background:#635bff;color:#fff;padding:8px 14px;font-size:1.1rem;font-weight:700;border-radius:4px;">Stripe</div>
-        <div>
-          <div style="font-size:1.1rem;font-weight:700;color:var(--dark);">Paiement par carte bancaire</div>
-          <div style="font-size:0.88rem;color:var(--muted);">Visa, Mastercard via Stripe</div>
-        </div>
-        <div style="margin-left:auto;">
-          <?php $stripeKey = $settings['stripe_secret_key']['setting_value'] ?? ''; ?>
-          <span style="padding:4px 14px;font-size:0.82rem;font-weight:700;border-radius:20px;
-            <?= $stripeKey ? 'background:rgba(99,91,255,0.1);color:#635bff;' : 'background:rgba(200,200,200,0.2);color:#999;' ?>">
-            <?= $stripeKey ? '🟢 ACTIF' : '⚪ NON CONFIGURÉ' ?>
-          </span>
-        </div>
-      </div>
-      <div class="admin-form">
-        <div style="margin-bottom:16px;">
-          <label>Clé publique (Publishable key)</label>
-          <input type="text" name="stripe_public_key"
-                 value="<?= sv($settings,'stripe_public_key') ?>"
-                 placeholder="pk_live_xxxxxxxxxxxxxxxxxxxx">
-          <small style="color:var(--muted);font-size:0.85rem;">Commence par <strong>pk_live_</strong> (production) ou <strong>pk_test_</strong> (test)</small>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label>Clé secrète (Secret key)</label>
-          <div style="position:relative;">
-            <input type="password" name="stripe_secret_key" id="stripe_secret_key"
-                   value="<?= sv($settings,'stripe_secret_key') ?>"
-                   placeholder="sk_live_xxxxxxxxxxxxxxxxxxxx">
-            <button type="button" onclick="document.getElementById('stripe_secret_key').type = document.getElementById('stripe_secret_key').type==='password'?'text':'password'"
-                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);">👁</button>
-          </div>
-          <small style="color:var(--muted);font-size:0.85rem;">Commence par <strong>sk_live_</strong> — ne jamais partager.</small>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label>Devise (currency)</label>
-          <input type="text" name="stripe_currency"
-                 value="<?= sv($settings,'stripe_currency') ?: 'eur' ?>"
-                 placeholder="eur">
-          <small style="color:var(--muted);font-size:0.85rem;">Ex: <strong>eur</strong>, <strong>usd</strong></small>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label>Taux de conversion FCFA → EUR</label>
-          <input type="text" name="stripe_fcfa_to_eur"
-                 value="<?= sv($settings,'stripe_fcfa_to_eur') ?: '0.00152' ?>"
-                 placeholder="0.00152">
-          <small style="color:var(--muted);font-size:0.85rem;">1 FCFA = 0.00152 EUR (taux fixe CFA)</small>
-        </div>
-        <div style="background:#f0efff;border:1px solid rgba(99,91,255,0.2);padding:14px 16px;font-size:0.88rem;color:#635bff;">
-          ℹ️ Récupère tes clés sur <strong>dashboard.stripe.com</strong> → Développeurs → Clés API.
-        </div>
-      </div>
-    </div>
+  </div>
+</div>
+
+<!-- STRIPE + PAYDUNYA EN PLEINE LARGEUR -->
+<div style="display:flex; flex-direction:column; gap:24px; margin-top:24px;">
 
     <!-- PAYDUNYA -->
     <div class="admin-card">
@@ -406,6 +364,10 @@ require_once 'includes/admin_header.php';
       </div>
     </div>
 
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start; margin-top:24px;">
+  <div>
     <!-- PHOTO TOUT VOIR -->
     <div class="admin-card">
       <div style="font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #f0ebe0;">
@@ -438,6 +400,9 @@ require_once 'includes/admin_header.php';
       </div>
     </div>
 
+  </div>
+
+  <div>
     <!-- AIDE WAVE -->
     <div style="background:#e8f9f0;border:1px solid rgba(0,180,100,0.2);padding:24px;">
       <p style="margin:0 0 12px;font-size:0.9rem;font-weight:700;color:#00b464;letter-spacing:0.05em;text-transform:uppercase;">Comment obtenir une clé Wave Business ?</p>
@@ -453,7 +418,6 @@ require_once 'includes/admin_header.php';
         </p>
       </div>
     </div>
-
   </div>
 </div>
 
