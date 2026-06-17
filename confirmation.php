@@ -342,7 +342,7 @@ function payWithPaydunya() {
     fetch('<?= SITE_URL ?>/paydunya-checkout.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'order_number=<?= urlencode($orderNumber) ?>'
+        body: 'order_number=<?= urlencode($orderNumber) ?>&confirm_token=<?= urlencode($order["confirm_token"] ?? "") ?>'
     })
     .then(r => r.json())
     .then(data => {

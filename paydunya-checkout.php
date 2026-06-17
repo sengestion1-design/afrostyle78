@@ -4,12 +4,6 @@ require_once 'config/database.php';
 
 header('Content-Type: application/json');
 
-if (empty($_SESSION['customer_id'])) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Vous devez être connecté pour payer.']);
-    exit;
-}
-
 $db          = getDB();
 $allSettings = $db->query("SELECT setting_key, setting_value FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
 
@@ -23,7 +17,9 @@ if (!$masterKey || !$privateKey || !$token) {
     exit;
 }
 
-$orderNumber = trim($_POST['order_number'] ?? '');
+$orderNumber  = trim($_POST['order_number'] ?? '');
+$confirmToken = trim($_POST['confirm_token'] ?? '');
+
 if (!$orderNumber) {
     echo json_encode(['error' => 'Numéro de commande manquant.']);
     exit;
@@ -38,7 +34,11 @@ if (!$order) {
     exit;
 }
 
-if ((int)$order['customer_id'] !== (int)$_SESSION['customer_id']) {
+// Autoriser si connecté en tant que propriétaire OU si confirm_token valide
+$isOwner = !empty($_SESSION['customer_id']) && (int)$order['customer_id'] === (int)$_SESSION['customer_id'];
+$isGuest = !empty($confirmToken) && !empty($order['confirm_token']) && hash_equals($order['confirm_token'], $confirmToken);
+
+if (!$isOwner && !$isGuest) {
     http_response_code(403);
     echo json_encode(['error' => 'Accès refusé.']);
     exit;
