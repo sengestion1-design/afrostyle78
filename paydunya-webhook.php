@@ -3,6 +3,7 @@
 require_once 'config/config.php';
 require_once 'config/database.php';
 require_once 'config/mailer.php';
+require_once 'config/invoice.php';
 
 $payload = file_get_contents('php://input');
 $data    = json_decode($payload, true);
@@ -78,12 +79,30 @@ if ($status === 'completed' && abs($confirmedAmount - $expectedAmountXof) <= 1) 
     $db->prepare("UPDATE orders SET payment_status='paid', payment_method='paydunya' WHERE order_number=?")
        ->execute([$orderNumber]);
 
-    $stmt = $db->prepare("SELECT o.*, c.email, c.first_name, c.last_name FROM orders o JOIN customers c ON o.customer_id=c.id WHERE o.order_number=?");
+    $stmt = $db->prepare("SELECT o.*, c.email, c.first_name, c.last_name, c.customer_address, c.customer_city FROM orders o JOIN customers c ON o.customer_id=c.id WHERE o.order_number=?");
     $stmt->execute([$orderNumber]);
     $order = $stmt->fetch();
 
     if ($order) {
-        emailOrderConfirmed($order['email'], $order['first_name'], $order['last_name'], $orderNumber, $order['total_amount']);
+        // Récupérer les articles de la commande
+        $stmtItems = $db->prepare("SELECT oi.*, p.name AS product_name, p.images AS product_images FROM order_items oi JOIN products p ON oi.product_id=p.id WHERE oi.order_id=?");
+        $stmtItems->execute([$order['id']]);
+        $items = $stmtItems->fetchAll();
+
+        $customer = [
+            'first_name'       => $order['first_name'],
+            'last_name'        => $order['last_name'],
+            'email'            => $order['email'],
+            'customer_address' => $order['customer_address'] ?? $order['delivery_address'],
+            'customer_city'    => $order['customer_city']    ?? $order['delivery_city'],
+        ];
+
+        try {
+            $pdfString = generateInvoicePDF($order, $items, $customer);
+            emailPaymentConfirmedWithInvoice($order['email'], $order['first_name'], $order, $items, $pdfString);
+        } catch (Exception $e) {
+            error_log('Invoice PDF error: ' . $e->getMessage());
+        }
     }
 }
 
