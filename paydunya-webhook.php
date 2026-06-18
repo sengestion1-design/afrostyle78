@@ -12,6 +12,9 @@ if (!$data) {
     exit;
 }
 
+// Vérification signature IPN : PayDunya envoie le master key dans le header
+$receivedKey = $_SERVER['HTTP_PAYDUNYA_MASTER_KEY'] ?? $_SERVER['HTTP_X_PAYDUNYA_MASTER_KEY'] ?? '';
+
 $db2        = getDB();
 $s          = $db2->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('paydunya_master_key','paydunya_private_key','paydunya_token')")->fetchAll(PDO::FETCH_KEY_PAIR);
 $masterKey  = $s['paydunya_master_key']  ?? getenv('PAYDUNYA_MASTER_KEY');
@@ -20,6 +23,12 @@ $token      = $s['paydunya_token']       ?? getenv('PAYDUNYA_TOKEN');
 
 if (!$masterKey || !$privateKey || !$token) {
     http_response_code(500);
+    exit;
+}
+
+// Bloquer les requêtes IPN non authentifiées
+if ($receivedKey && !hash_equals($masterKey, $receivedKey)) {
+    http_response_code(403);
     exit;
 }
 

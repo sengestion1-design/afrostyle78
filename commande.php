@@ -394,7 +394,14 @@ $total = $subtotal + $delivery;
                     <div class="summary-row summary-total" style="border-bottom:none; padding-top:16px; margin-top:8px; border-top:2px solid var(--dark);">
                         <span>Total</span><span id="summary-total"><?= number_format($total, 0, ',', ' ') ?> <?= CURRENCY ?></span>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg btn-full" style="margin-top:24px;">
+                    <div style="margin-top:20px;padding:14px;background:#fdf6ec;border:1px solid #e8c97a;border-radius:6px;">
+                        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.85rem;line-height:1.5;">
+                            <input type="checkbox" name="cgv_accepted" id="cgv_accepted" required
+                                   style="margin-top:3px;accent-color:var(--primary);width:16px;height:16px;flex-shrink:0;">
+                            <span>J'ai lu et j'accepte les <a href="<?= SITE_URL ?>/cgv" target="_blank" style="color:var(--primary);font-weight:700;text-decoration:underline;">Conditions Générales de Vente</a> ainsi que la <a href="<?= SITE_URL ?>/politique-confidentialite" target="_blank" style="color:var(--primary);text-decoration:underline;">Politique de confidentialité</a>. Je reconnais que les articles sur mesure ne sont pas soumis au droit de rétractation.</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-full" style="margin-top:16px;">
                         Continuer vers le paiement →
                     </button>
                     <div style="margin-top:12px; font-size:0.7rem; color:var(--text-muted); text-align:center;">

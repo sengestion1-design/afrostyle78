@@ -85,8 +85,8 @@ function rejectCookies() {
             <ul>
                 <li><a href="<?= SITE_URL ?>/sur-mesure.php">Commande Sur-Mesure</a></li>
                 <li><a href="<?= SITE_URL ?>/suivi.php">Suivi de commande</a></li>
-                <li><a href="#">Guide des tailles</a></li>
-                <li><a href="#">Livraison & Retours</a></li>
+                <li><a href="<?= SITE_URL ?>/guide-des-tailles.php">Guide des tailles</a></li>
+                <li><a href="<?= SITE_URL ?>/politique-confidentialite.php">Livraison & Retours</a></li>
             </ul>
         </div>
         <div class="footer-col">
@@ -116,6 +116,11 @@ function rejectCookies() {
         </div>
     </div>
     <div class="footer-bottom">
+        <p style="margin-bottom:8px;">
+            <a href="<?= SITE_URL ?>/cgv" style="color:rgba(253,246,236,0.5);text-decoration:none;font-size:0.75rem;margin:0 10px;">CGV</a>
+            <a href="<?= SITE_URL ?>/mentions-legales" style="color:rgba(253,246,236,0.5);text-decoration:none;font-size:0.75rem;margin:0 10px;">Mentions légales</a>
+            <a href="<?= SITE_URL ?>/politique-confidentialite" style="color:rgba(253,246,236,0.5);text-decoration:none;font-size:0.75rem;margin:0 10px;">Confidentialité</a>
+        </p>
         <p>© 2026 AfroStyle78 — Tous droits réservés · Mode Africaine Sur-Mesure · Guyancourt (78)</p>
         <p style="margin-top:8px;font-size:0.72rem;color:rgba(253,246,236,0.3);letter-spacing:0.08em;">
             Réalisé par

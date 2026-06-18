@@ -32,10 +32,15 @@ RewriteRule ^register$ register.php [NC,L]
 RewriteRule ^compte$ compte.php [NC,L]
 RewriteRule ^stripe-checkout$ stripe-checkout.php [NC,L]
 RewriteRule ^stripe-success$ stripe-success.php [NC,L]
+RewriteRule ^paydunya-checkout$ paydunya-checkout.php [NC,L]
+RewriteRule ^paydunya-success$ paydunya-success.php [NC,L]
+RewriteRule ^paydunya-webhook$ paydunya-webhook.php [NC,L]
 RewriteRule ^cart-action$ cart-action.php [NC,L]
 RewriteRule ^mot-de-passe-oublie$ mot-de-passe-oublie.php [NC,L]
 RewriteRule ^politique-confidentialite$ politique-confidentialite.php [NC,L]
 RewriteRule ^guide-des-tailles$ guide-des-tailles.php [NC,L]
+RewriteRule ^cgv$ cgv.php [NC,L]
+RewriteRule ^mentions-legales$ mentions-legales.php [NC,L]
 
 # Page 404 personnalisée
 ErrorDocument 404 /404.php
