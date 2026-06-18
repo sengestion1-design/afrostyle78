@@ -26,8 +26,8 @@ if (!$masterKey || !$privateKey || !$token) {
     exit;
 }
 
-// Bloquer les requêtes IPN non authentifiées
-if ($receivedKey && !hash_equals($masterKey, $receivedKey)) {
+// Bloquer les requêtes IPN non authentifiées — header obligatoire
+if (!$receivedKey || !hash_equals($masterKey, $receivedKey)) {
     http_response_code(403);
     exit;
 }
