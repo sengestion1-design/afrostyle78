@@ -15,14 +15,35 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      - name: Deploy via SFTP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USER }}
-          password: ${{ secrets.SFTP_PASS }}
-          port: 22
-          source: ".,!.git,!.github,!node_modules,!config/database.php,!config/mailer.php,!config/secrets.php,!install.php,!deploy.sh,!afrostyle.sql,!assets/Facture-*.pdf,!monetbil-payment-notification-fr.pdf"
-          target: /
-          strip_components: 0
-          overwrite: true
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Deploy via SFTP (lftp mirror)
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}
+        run: |
+          lftp -u "$SFTP_USER,$SFTP_PASS" "sftp://$SFTP_HOST" <<'EOF'
+          set sftp:auto-confirm yes
+          set net:reconnect-interval-base 5
+          set net:max-retries 2
+          set net:timeout 30
+          lcd .
+          mirror --reverse --verbose --parallel=2 \
+            --exclude-glob .git/ \
+            --exclude-glob .github/ \
+            --exclude-glob node_modules/ \
+            --exclude-glob vendor/.git/ \
+            --exclude-glob 'assets/MARKETING*' \
+            --exclude-glob 'assets/Facture-*.pdf' \
+            --exclude deploy.sh \
+            --exclude install.php \
+            --exclude afrostyle.sql \
+            --exclude monetbil-payment-notification-fr.pdf \
+            --exclude-glob config/database.php \
+            --exclude-glob config/mailer.php \
+            --exclude-glob config/secrets.php \
+            . /
+          bye
+          EOF
