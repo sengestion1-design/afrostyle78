@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Catégories — Carousel Mobile</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset & Tokens ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e0d0b;
+      --surface:   #181612;
+      --card-bg:   #1e1c18;
+      --border:    rgba(255,255,255,.07);
+      --cream:     #f0e8d8;
+      --amber:     #c8893a;
+      --amber-dim: rgba(200,137,58,.18);
+      --text-dim:  rgba(240,232,216,.45);
+      --shadow:    0 8px 32px rgba(0,0,0,.55);
+
+      /* Carousel speed: total width of ONE set = 6 cards × (150px + 16px gap) = 996px */
+      --strip-w:    996px;
+      --duration:   18s;
+    }
+
+    html { background: var(--bg); }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--cream);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0 3rem;
+      /* Grain overlay */
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+    }
+
+    /* ─── Section header ───────────────────────────────────────── */
+    .section-header {
+      width: 100%;
+      max-width: 420px;
+      padding: 0 1.5rem 1.6rem;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(1.25rem, 5vw, 1.55rem);
+      letter-spacing: -.02em;
+      line-height: 1.1;
+      color: var(--cream);
+    }
+
+    .section-title span {
+      display: block;
+      color: var(--amber);
+    }
+
+    .see-all {
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2px;
+      transition: color .25s, border-color .25s;
+    }
+
+    .see-all:hover { color: var(--amber); border-color: var(--amber); }
+
+    /* ─── Carousel wrapper ─────────────────────────────────────── */
+    /*
+      The wrapper clips the strip.
+      -webkit-overflow-scrolling is intentionally OFF — we don't use
+      native scroll. All motion is CSS transform on the inner strip.
+    */
+    .carousel-wrapper {
+      width: 100%;
+      overflow: hidden;
+      /* iOS Safari: force GPU layer */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      /* Progress bar */
+      position: relative;
+    }
+
+    /* Fade edges */
+    .carousel-wrapper::before,
+    .carousel-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 40px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .carousel-wrapper::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg), transparent);
+    }
+    .carousel-wrapper::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg), transparent);
+    }
+
+    /* ─── The scrolling strip ──────────────────────────────────── */
+    /*
+      Contains 12 cards (original 6 + clones 6).
+      translateX animates from 0 → -var(--strip-w) then jumps back seamlessly.
+    */
+    .categories-strip {
+      display: flex;
+      gap: 16px;
+      padding: 12px 24px 20px;
+      width: max-content;
+
+      /* GPU compositing hint */
+      will-change: transform;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+
+      /* The animation */
+      animation: carousel-slide var(--duration) linear infinite;
+    }
+
+    @keyframes carousel-slide {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(calc(-1 * var(--strip-w))); }
+    }
+
+    /* Pause state — set by JS */
+    .categories-strip.paused {
+      animation-play-state: paused;
+    }
+
+    /* ─── Cat card ─────────────────────────────────────────────── */
+    .cat-card {
+      flex: 0 0 150px;
+      width: 150px;
+      height: 200px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      /* Prevent ghost image on drag (iOS) */
+      -webkit-tap-highlight-color: transparent;
+
+      transition: border-color .3s, box-shadow .3s;
+    }
+
+    .cat-card:hover,
+    .cat-card:active {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 1px var(--amber), var(--shadow);
+    }
+
+    /* Card image area */
+    .cat-card__img {
+      width: 100%;
+      height: 118px;
+      object-fit: cover;
+      display: block;
+      /* Placeholder gradient when no real image */
+      background: var(--card-img-grad, linear-gradient(135deg, #2a2620, #3a3020));
+    }
+
+    /* Card body */
+    .cat-card__body {
+      padding: 12px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .cat-card__label {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: .88rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cat-card__count {
+      font-size: .68rem;
+      font-weight: 300;
+      letter-spacing: .06em;
+      color: var(--text-dim);
+    }
+
+    /* Amber accent dot */
+    .cat-card__dot {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--amber);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .cat-card:hover .cat-card__dot,
+    .cat-card:active .cat-card__dot { opacity: 1; }
+
+    /* ─── Progress bar ─────────────────────────────────────────── */
+    .carousel-progress {
+      width: calc(100% - 48px);
+      margin: 0 24px;
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .carousel-progress__fill {
+      height: 100%;
+      background: var(--amber);
+      border-radius: 2px;
+      transform-origin: left;
+      animation: progress-fill var(--duration) linear infinite;
+    }
+
+    @keyframes progress-fill {
+      0%   { transform: scaleX(0); }
+      100% { transform: scaleX(1); }
+    }
+
+    .carousel-progress__fill.paused {
+      animation-play-state: paused;
+    }
+
+    /* ─── Demo page frame ──────────────────────────────────────── */
+    .page-label {
+      font-size: .65rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 2.5rem;
+    }
+  </style>
+</head>
+
+<body>
+  <p class="page-label">E-Commerce · Mobile Carousel</p>
+
+  <section class="section-header">
+    <h2 class="section-title">
+      Nos<br/>
+      <span>Catégories</span>
+    </h2>
+    <a href="#" class="see-all">Tout voir</a>
+  </section>
+
+  <!-- ─── Carousel ───────────────────────────────────────────── -->
+  <div class="carousel-wrapper" id="carouselWrapper">
+
+    <!--
+      .categories-strip contains 12 cards: the real 6 then 6 clones.
+      JS clones them automatically — the HTML below has only the real 6.
+      (If JS is disabled the strip still shows statically.)
+    -->
+    <div class="categories-strip" id="categoriesStrip">
+
+      <!-- Card 1 -->
+      <div class="cat-card" data-index="0">
+        <div class="cat-card__img" style="--card-img-grad: linear-gradient(135deg,#1a2a1a,#2d4a2d);">
+          <!-- <img src="img/robes.jpg" alt="Robes" /> -->
+        </div>
+        <div class="cat-card__body">
+          <p class="cat-card__label">Robes</p>
+          <p class="cat-card__count">124 articles</p>
+        </div>
+        <div class="cat-card__dot"></div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="cat-card" data-index="1">
+        <div class="cat-card__img" style="--card-img-grad: linear-gradient(135deg,#2a1a12,#4a2d1a);">
+        </div>
+        <div class="cat-card__body">
+          <p class="cat-card__label">Hauts</p>
+          <p class="cat-card__count">89 articles</p>
+        </div>
+        <div class="cat-card__dot"></div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="cat-card" data-index="2">
+        <div class="cat-card__img" style="--card-img-grad: linear-gradient(135deg,#12121a,#1a1a2e);">
+        </div>
+        <div class="cat-card__body">
+          <p class="cat-card__label">Pantalons</p>
+          <p class="cat-card__count">67 articles</p>
+        </div>
+        <div class="cat-card__dot"></div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="cat-card" data-index="3">
+        <div class="cat-card__img" style="--card-img-grad: linear-gradient(135deg,#1a1412,#3a2a1a);">
+        </div>
+        <div class="cat-card__body">
+          <p class="cat-card__label">Accessoires</p>
+          <p class="cat-card__count">210 articles</p>
+        </div>
+        <div class="cat-card__dot"></div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="cat-card" data-index="4">
+        <div class="cat-card__img" style="--card-img-grad: linear-gradient(135deg,#121a14,#1a3020);">
+        </div>
+        <div class="cat-card__body">
+          <p class="cat-card__label">Chaussures</p>
+          <p class="cat-card__count">53 articles</p>
+        </div>
+        <div class="cat-card__dot"></div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="cat-card" data-index="5">
+        <div class="cat-card__img" style="--card-img-grad: linear-gradient(135deg,#1a1218,#2e1a2a);">
+        </div>
+        <div class="cat-card__body">
+          <p class="cat-card__label">Sacs</p>
+          <p class="cat-card__count">41 articles</p>
+        </div>
+        <div class="cat-card__dot"></div>
+      </div>
+
+    </div><!-- /.categories-strip -->
+
+  </div><!-- /.carousel-wrapper -->
+
+  <!-- Progress bar -->
+  <div class="carousel-progress" id="carouselProgress">
+    <div class="carousel-progress__fill" id="progressFill"></div>
+  </div>
+
+  <!-- ─── Carousel JS ──────────────────────────────────────────── -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── Config ───────────────────────────────────────────── */
+    const CARD_W   = 150;   // px
+    const GAP      = 16;    // px — must match CSS gap
+    const CARDS    = 6;     // number of real cards
+    const DURATION = 18000; // ms — must match CSS --duration
+    const RESUME_DELAY = 2000; // ms before auto resumes after manual swipe
+
+    /* ── Elements ─────────────────────────────────────────── */
+    const strip    = document.getElementById('categoriesStrip');
+    const wrapper  = document.getElementById('carouselWrapper');
+    const fill     = document.getElementById('progressFill');
+
+    /* ── 1. Clone cards for seamless loop ─────────────────── */
+    // Strip width for ONE set (used in CSS as --strip-w)
+    const stripW = CARDS * (CARD_W + GAP); // 996px
+
+    // Clone the original 6 cards and append
+    const originals = Array.from(strip.children);
+    originals.forEach(card => {
+      const clone = card.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      clone.classList.add('clone');
+      strip.appendChild(clone);
+    });
+
+    /* ── 2. Pause / Resume helpers ────────────────────────── */
+    let resumeTimer = null;
+    let paused = false;
+
+    function pause () {
+      if (paused) return;
+      paused = true;
+      strip.classList.add('paused');
+      fill.classList.add('paused');
+    }
+
+    function resume () {
+      if (!paused) return;
+      paused = false;
+
+      /*
+        Resuming a paused CSS animation in iOS Safari can stutter
+        if we simply remove the class. Instead we:
+        1. Read the current animated translateX value.
+        2. Remove the animation.
+        3. Set that translateX as inline style.
+        4. Force a reflow.
+        5. Re-attach the animation with a remaining-duration calculated
+           from how far along the strip we currently are.
+      */
+      const matrix   = window.getComputedStyle(strip).transform;
+      const currentX = parseTX(matrix);               // negative px value, 0 → -stripW
+      const progress  = Math.abs(currentX) / stripW;  // 0 … 1
+      const remaining = DURATION * (1 - progress);    // ms left in cycle
+
+      // Detach animation
+      strip.style.animation = 'none';
+      fill.style.animation  = 'none';
+      strip.style.transform = `translateX(${currentX}px)`;
+      fill.style.transform  = `scaleX(${progress})`;
+
+      // Force reflow (layout flush)
+      void strip.offsetWidth;
+
+      // Re-attach animation with correct delay to keep sync
+      const delay = -(DURATION - remaining); // negative = "already elapsed"
+      strip.style.animation = `carousel-slide ${DURATION}ms ${delay}ms linear infinite`;
+      fill.style.animation  = `progress-fill ${DURATION}ms ${delay}ms linear infinite`;
+
+      strip.classList.remove('paused');
+      fill.classList.remove('paused');
+    }
+
+    function parseTX (matrix) {
+      // matrix(a,b,c,d,tx,ty) or 'none'
+      if (!matrix || matrix === 'none') return 0;
+      const parts = matrix.match(/matrix.*\((.+)\)/);
+      if (!parts) return 0;
+      const values = parts[1].split(',').map(parseFloat);
+      return values[4] || 0; // tx
+    }
+
+    /* ── 3. Touch / Pointer swipe ─────────────────────────── */
+    let touchStartX   = 0;
+    let touchStartY   = 0;
+    let isSwiping     = false;
+    let swipeBaseX    = 0;  // translateX at touch start
+    let lockedAxis    = null; // 'x' | 'y' | null
+    const AXIS_LOCK   = 8;  // px threshold before locking axis
+
+    function getTX () {
+      const matrix = window.getComputedStyle(strip).transform;
+      return parseTX(matrix);
+    }
+
+    wrapper.addEventListener('touchstart', onTouchStart, { passive: true });
+    wrapper.addEventListener('touchmove',  onTouchMove,  { passive: false });
+    wrapper.addEventListener('touchend',   onTouchEnd,   { passive: true });
+    wrapper.addEventListener('touchcancel',onTouchEnd,   { passive: true });
+
+    function onTouchStart (e) {
+      clearTimeout(resumeTimer);
+      pause();
+
+      const t = e.touches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+      isSwiping   = false;
+      lockedAxis  = null;
+      swipeBaseX  = getTX();
+
+      // Freeze strip at current position for manual control
+      strip.style.animation = 'none';
+      strip.style.transform = `translateX(${swipeBaseX}px)`;
+    }
+
+    function onTouchMove (e) {
+      const t  = e.touches[0];
+      const dx = t.clientX - touchStartX;
+      const dy = t.clientY - touchStartY;
+
+      // Determine scroll axis once we have enough movement
+      if (!lockedAxis) {
+        if (Math.abs(dx) > AXIS_LOCK || Math.abs(dy) > AXIS_LOCK) {
+          lockedAxis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+        }
+      }
+
+      if (lockedAxis === 'x') {
+        e.preventDefault(); // prevent page scroll while swiping carousel
+        isSwiping = true;
+        let newX = swipeBaseX + dx;
+
+        // Rubber-band: if dragged beyond the strip, apply resistance
+        const maxX = 0;
+        const minX = -(stripW); // one full set
+        if (newX > maxX)        newX = maxX + (newX - maxX) * 0.25;
+        if (newX < minX)        newX = minX + (newX - minX) * 0.25;
+
+        // Wrap: keep within the two-set range seamlessly
+        newX = wrapX(newX);
+
+        strip.style.transform = `translateX(${newX}px)`;
+      }
+    }
+
+    function onTouchEnd () {
+      if (!isSwiping) {
+        // Tap — resume immediately
+        scheduleResume(100);
+        return;
+      }
+      // Schedule resume after 2s
+      scheduleResume(RESUME_DELAY);
+    }
+
+    function wrapX (x) {
+      // Keep translateX within [-stripW, 0] for seamless appearance
+      if (x <= -stripW) return x + stripW;
+      if (x > 0)        return x - stripW;
+      return x;
+    }
+
+    function scheduleResume (delay) {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(resume, delay);
+    }
+
+    /* ── 4. Pointer events (mouse / stylus for desktop demo) ── */
+    wrapper.addEventListener('pointerdown', function () {
+      clearTimeout(resumeTimer);
+      pause();
+    });
+    wrapper.addEventListener('pointerup', function () {
+      scheduleResume(RESUME_DELAY);
+    });
+    wrapper.addEventListener('pointerleave', function () {
+      if (paused) scheduleResume(RESUME_DELAY);
+    });
+
+    /* ── 5. Visibility API — pause when tab hidden ─────────── */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        pause();
+      } else {
+        scheduleResume(300);
+      }
+    });
+
+    /* ── 6. Accessibility: respect prefers-reduced-motion ───── */
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mq.matches) {
+      strip.style.animation = 'none';
+      fill.style.animation  = 'none';
+    }
+    mq.addEventListener('change', function (e) {
+      if (e.matches) { pause(); strip.style.animation = 'none'; }
+      else           { resume(); }
+    });
+
+  })();
+  </script>
+
+</body>
+</html>
