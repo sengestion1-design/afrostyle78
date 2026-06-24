@@ -22,7 +22,7 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name")->fetchAll();
     <meta name="keywords" content="mode africaine, sur-mesure, mariage africain, cérémonie, bazin, wax, kente, Guyancourt, Yvelines, livraison France">
     <meta property="og:title" content="<?= isset($ogTitle) ? htmlspecialchars($ogTitle) : 'AfroStyle78 | Mode Africaine Sur-Mesure — Guyancourt (78)' ?>">
     <meta property="og:description" content="<?= isset($ogDesc) ? htmlspecialchars($ogDesc) : 'Le chic & l\'élégance du sur-mesure. Spécialiste Mariages & Cérémonies. Livraison France & international.' ?>">
-    <meta property="og:type" content="<?= isset($ogType) ? $ogType : 'website' ?>">
+    <meta property="og:type" content="<?= (isset($ogType) && in_array($ogType, ['website','product','article'], true)) ? $ogType : 'website' ?>">
     <meta property="og:url" content="<?= isset($ogUrl) ? htmlspecialchars($ogUrl) : SITE_URL ?>">
     <meta property="og:image" content="<?= isset($ogImage) ? htmlspecialchars($ogImage) : SITE_URL.'/logo.jpg' ?>">
     <meta property="og:site_name" content="AfroStyle78">
