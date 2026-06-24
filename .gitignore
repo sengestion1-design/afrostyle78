@@ -7,3 +7,7 @@ uploads/
 .DS_Store
 config/secrets.php
 config/mail.php
+
+# Factures et docs sensibles (ne pas versionner)
+assets/Facture-*.pdf
+monetbil-payment-notification-fr.pdf
