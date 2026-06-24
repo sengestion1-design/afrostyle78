@@ -22,7 +22,7 @@ jobs:
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASS }}
           port: 22
-          source: ".,!.git,!.github,!node_modules,!config/database.php,!config/mailer.php,!config/secrets.php,!install.php,!deploy.sh,!afrostyle.sql"
-          target: /afrostyle78.com/htdocs
+          source: ".,!.git,!.github,!node_modules,!config/database.php,!config/mailer.php,!config/secrets.php,!install.php,!deploy.sh,!afrostyle.sql,!assets/Facture-*.pdf,!monetbil-payment-notification-fr.pdf"
+          target: /
           strip_components: 0
           overwrite: true
