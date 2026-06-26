@@ -15,7 +15,12 @@ RewriteRule ^vendor/ - [F,L]
 </FilesMatch>
 
 # Rediriger les accès directs .php vers URL propre (hors admin/)
+# UNIQUEMENT sur les requêtes GET : une redirection 301 sur un POST
+# perd le corps de la requête (casse l'ajout au panier, les webhooks, le checkout AJAX).
+# On exclut aussi explicitement les endpoints techniques (AJAX / webhooks).
+RewriteCond %{REQUEST_METHOD} =GET
 RewriteCond %{THE_REQUEST} \s/(?!admin/)([^.]+)\.php[\s?] [NC]
+RewriteCond %1 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success)$ [NC]
 RewriteRule ^ /%1 [R=301,L]
 
 # Réécrire les URLs propres vers .php (liste explicite)
@@ -36,6 +41,10 @@ RewriteRule ^paydunya-checkout$ paydunya-checkout.php [NC,L]
 RewriteRule ^paydunya-success$ paydunya-success.php [NC,L]
 RewriteRule ^paydunya-webhook$ paydunya-webhook.php [NC,L]
 RewriteRule ^cart-action$ cart-action.php [NC,L]
+RewriteRule ^wave-checkout$ wave-checkout.php [NC,L]
+RewriteRule ^wave-success$ wave-success.php [NC,L]
+RewriteRule ^wave-webhook$ wave-webhook.php [NC,L]
+RewriteRule ^paydunya-webhook$ paydunya-webhook.php [NC,L]
 RewriteRule ^mot-de-passe-oublie$ mot-de-passe-oublie.php [NC,L]
 RewriteRule ^politique-confidentialite$ politique-confidentialite.php [NC,L]
 RewriteRule ^guide-des-tailles$ guide-des-tailles.php [NC,L]

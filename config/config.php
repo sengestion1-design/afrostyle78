@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
         'path'     => '/',
         'secure'   => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
         'httponly' => true,
-        'samesite' => 'Strict',
+        'samesite' => 'Lax',
     ]);
     session_start();
 }
