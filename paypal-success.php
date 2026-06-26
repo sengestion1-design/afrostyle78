@@ -15,7 +15,9 @@ $clientId = $settings['paypal_client_id'] ?? '';
 $secret   = $settings['paypal_secret']    ?? '';
 $mode     = $settings['paypal_mode']      ?? 'sandbox';
 $currency = $settings['paypal_currency']  ?? 'EUR';
-$rate     = (float)($settings['paypal_fcfa_to_eur'] ?? 0.00152);
+// Les prix du site sont DEJA en euros -> aucune conversion (taux = 1 par defaut).
+$rate     = (float)($settings['paypal_fcfa_to_eur'] ?? 1);
+if ($rate <= 0) $rate = 1;
 
 $orderNumber = $_GET['order'] ?? '';
 
