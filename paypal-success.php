@@ -14,10 +14,10 @@ $settings = $db->query("SELECT setting_key, setting_value FROM settings WHERE se
 $clientId = $settings['paypal_client_id'] ?? '';
 $secret   = $settings['paypal_secret']    ?? '';
 $mode     = $settings['paypal_mode']      ?? 'sandbox';
+$currency = $settings['paypal_currency']  ?? 'EUR';
+$rate     = (float)($settings['paypal_fcfa_to_eur'] ?? 0.00152);
 
 $orderNumber = $_GET['order'] ?? '';
-// PayPal renvoie le token (= id de l'ordre PayPal) dans l'URL
-$paypalToken = $_GET['token'] ?? '';
 
 $apiBase = $mode === 'live'
     ? 'https://api-m.paypal.com'
@@ -32,7 +32,10 @@ if ($clientId && $secret && $orderNumber) {
     $order = $stmt->fetch();
 
     if ($order && $order['payment_status'] !== 'paid') {
-        $paypalOrderId = $paypalToken ?: $order['paypal_order_id'];
+        // SECURITE : on n'utilise QUE l'id PayPal stocke pour CETTE commande lors du checkout.
+        // On ignore tout token fourni dans l'URL (sinon un attaquant pourrait capturer le
+        // paiement d'une commande pas chere et valider une commande chere = cross-order confusion).
+        $paypalOrderId = $order['paypal_order_id'] ?? '';
 
         // 1. Access token
         $ch = curl_init($apiBase . '/v1/oauth2/token');
@@ -58,9 +61,25 @@ if ($clientId && $secret && $orderNumber) {
             $capResp = json_decode(curl_exec($ch), true);
             curl_close($ch);
 
-            if (($capResp['status'] ?? '') === 'COMPLETED') {
+            // SECURITE : verifier que la capture correspond bien a CETTE commande
+            // et au BON montant, avant de marquer payee.
+            $pu          = $capResp['purchase_units'][0] ?? [];
+            $capture     = $pu['payments']['captures'][0] ?? [];
+            $refId       = $pu['reference_id'] ?? '';
+            $capStatus   = $capture['status'] ?? ($capResp['status'] ?? '');
+            $capAmount   = (float)($capture['amount']['value'] ?? 0);
+            $capCurrency = $capture['amount']['currency_code'] ?? '';
+
+            // Montant attendu (recalcule depuis la DB, jamais depuis le retour)
+            $expectedEur = round((float)$order['total_amount'] * $rate, 2);
+
+            $refMatch    = ($refId === $orderNumber);
+            $amountMatch = (abs($capAmount - $expectedEur) < 0.01) && ($capCurrency === $currency);
+            $statusOk    = ($capStatus === 'COMPLETED');
+
+            if ($statusOk && $refMatch && $amountMatch) {
                 $paymentOk = true;
-                $db->prepare("UPDATE orders SET payment_status='paid', payment_method='paypal' WHERE order_number=?")
+                $db->prepare("UPDATE orders SET payment_status='paid', payment_method='paypal' WHERE order_number=? AND payment_status!='paid'")
                    ->execute([$orderNumber]);
 
                 // Email de confirmation
