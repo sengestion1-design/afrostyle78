@@ -345,6 +345,17 @@ $total = $subtotal + $delivery;
                             <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
                         </div>
                         <div class="payment-option">
+                            <input type="radio" name="payment_method" id="pay_paypal" value="paypal">
+                            <label for="pay_paypal">
+                                <span class="pay-icon">💳</span>
+                                <span class="pay-details">
+                                    <strong>PayPal / Carte bancaire</strong>
+                                    <small>Visa, Mastercard & PayPal — sans compte requis</small>
+                                </span>
+                            </label>
+                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
+                        </div>
+                        <div class="payment-option">
                             <input type="radio" name="payment_method" id="pay_cash" value="cash">
                             <label for="pay_cash">
                                 <span class="pay-icon">💵</span>

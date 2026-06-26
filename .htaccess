@@ -20,7 +20,7 @@ RewriteRule ^vendor/ - [F,L]
 # On exclut aussi explicitement les endpoints techniques (AJAX / webhooks).
 RewriteCond %{REQUEST_METHOD} =GET
 RewriteCond %{THE_REQUEST} \s/(?!admin/)([^.]+)\.php[\s?] [NC]
-RewriteCond %1 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success)$ [NC]
+RewriteCond %1 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success|paypal-checkout|paypal-success)$ [NC]
 RewriteRule ^ /%1 [R=301,L]
 
 # Réécrire les URLs propres vers .php (liste explicite)
@@ -44,7 +44,8 @@ RewriteRule ^cart-action$ cart-action.php [NC,L]
 RewriteRule ^wave-checkout$ wave-checkout.php [NC,L]
 RewriteRule ^wave-success$ wave-success.php [NC,L]
 RewriteRule ^wave-webhook$ wave-webhook.php [NC,L]
-RewriteRule ^paydunya-webhook$ paydunya-webhook.php [NC,L]
+RewriteRule ^paypal-checkout$ paypal-checkout.php [NC,L]
+RewriteRule ^paypal-success$ paypal-success.php [NC,L]
 RewriteRule ^mot-de-passe-oublie$ mot-de-passe-oublie.php [NC,L]
 RewriteRule ^politique-confidentialite$ politique-confidentialite.php [NC,L]
 RewriteRule ^guide-des-tailles$ guide-des-tailles.php [NC,L]

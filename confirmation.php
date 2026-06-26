@@ -21,6 +21,7 @@ $omNumber       = $allSettings['orange_money_number'] ?? '';
 $omOwner        = $allSettings['om_owner_name'] ?? '';
 $waveApiKey  = $allSettings['wave_api_key'] ?? '';
 $stripeOk    = !empty($allSettings['stripe_secret_key']);
+$paypalOk    = !empty($allSettings['paypal_client_id']) && !empty($allSettings['paypal_secret']);
 
 $isPaid = $order && $order['payment_status'] === 'paid';
 $method = $order['payment_method'] ?? '';
@@ -275,6 +276,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
         </div>
         <?php endif; ?>
 
+        <!-- PAYPAL / CARTE BANCAIRE -->
+        <?php if ($method === 'paypal'): ?>
+        <div style="border:2px solid #003087; border-radius:8px; overflow:hidden; margin-bottom:20px;">
+            <div style="background:#003087; padding:16px 24px; display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.8rem;">💳</span>
+                <span style="font-weight:700; color:#fff; font-size:1.1rem;">Payer par PayPal ou carte bancaire</span>
+            </div>
+            <div style="padding:24px;">
+                <?php if ($paypalOk): ?>
+                <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:16px;">
+                    Paiement 100% sécurisé via PayPal. Visa, Mastercard acceptés — un compte PayPal n'est pas obligatoire.
+                </p>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">PayPal</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">VISA</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Mastercard</span>
+                </div>
+                <button onclick="payWithPaypal()" id="paypal-btn" style="background:#0070ba; color:#fff; border:none; padding:14px 28px; font-size:1rem; font-weight:700; cursor:pointer; width:100%; border-radius:4px;">
+                    🔒 Payer <?= number_format($order['total_amount'], 0, ',', ' ') ?> € via PayPal
+                </button>
+                <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
+                    🔒 Vos données bancaires sont traitées par PayPal et ne sont jamais stockées sur notre site
+                </div>
+                <?php else: ?>
+                <p style="color:#c53030; font-size:0.95rem;">Le paiement PayPal n'est pas encore configuré. Veuillez choisir un autre mode de paiement ou nous contacter.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- ESPÈCES -->
         <?php if ($method === 'cash'): ?>
         <div style="border:2px solid #38a169; border-radius:8px; overflow:hidden; margin-bottom:20px;">
@@ -406,6 +437,31 @@ function payWithStripe() {
         } else {
             alert('Erreur : ' + (data.error || 'Réessayez.'));
             btn.textContent = '🔒 Payer par carte';
+            btn.disabled = false;
+        }
+    });
+}
+</script>
+<?php endif; ?>
+
+<?php if ($order && $method === 'paypal' && $paypalOk && !$isPaid): ?>
+<script>
+function payWithPaypal() {
+    const btn = document.getElementById('paypal-btn');
+    btn.textContent = '⏳ Redirection...';
+    btn.disabled = true;
+    fetch('<?= SITE_URL ?>/paypal-checkout.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'order_number=<?= urlencode($orderNumber) ?>'
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            alert('Erreur : ' + (data.error || 'Réessayez.'));
+            btn.textContent = '🔒 Payer via PayPal';
             btn.disabled = false;
         }
     });
