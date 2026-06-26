@@ -11,3 +11,4 @@ config/mail.php
 # Factures et docs sensibles (ne pas versionner)
 assets/Facture-*.pdf
 monetbil-payment-notification-fr.pdf
+run-paypal-migration.php
