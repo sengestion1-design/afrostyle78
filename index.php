@@ -15,6 +15,18 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
     <div class="hero-pattern"></div>
     <div class="hero-accent"></div>
 
+    <!-- DIAPORAMA MOBILE (remplace le texte sur mobile) -->
+    <div class="hero-slideshow" aria-label="Diaporama AfroStyle78">
+        <div class="hero-slide is-active"><img src="<?= SITE_URL ?>/assets/IMG_9142.jpeg" alt="AfroStyle78 — tenue africaine sur-mesure" loading="eager"></div>
+        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9143.jpeg" alt="AfroStyle78 — grand boubou" loading="lazy"></div>
+        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9145.jpeg" alt="AfroStyle78 — ensemble élégant" loading="lazy"></div>
+        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9146.jpeg" alt="AfroStyle78 — collection homme" loading="lazy"></div>
+        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9147.jpeg" alt="AfroStyle78 — veste sur-mesure" loading="lazy"></div>
+        <div class="hero-slide-dots" aria-hidden="true">
+            <span class="hsd is-active"></span><span class="hsd"></span><span class="hsd"></span><span class="hsd"></span><span class="hsd"></span>
+        </div>
+    </div>
+
     <div class="hero-content">
         <div class="hero-text">
             <div class="hero-eyebrow">AFROSTYLE78 — Guyancourt (78)</div>
@@ -314,6 +326,35 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
   } else {
     window.addEventListener('load', init);
   }
+})();
+
+/* ── Diaporama hero mobile ── */
+(function () {
+  var box = document.querySelector('.hero-slideshow');
+  if (!box) return;
+  var slides = box.querySelectorAll('.hero-slide');
+  var dots   = box.querySelectorAll('.hero-slide-dots .hsd');
+  if (slides.length < 2) return;
+  var i = 0, timer = null;
+  function show(n) {
+    slides[i].classList.remove('is-active');
+    if (dots[i]) dots[i].classList.remove('is-active');
+    i = (n + slides.length) % slides.length;
+    slides[i].classList.add('is-active');
+    if (dots[i]) dots[i].classList.add('is-active');
+  }
+  function start() { stop(); timer = setInterval(function () { show(i + 1); }, 4000); }
+  function stop()  { if (timer) { clearInterval(timer); timer = null; } }
+  /* clic/tap sur un point = aller à la slide */
+  dots.forEach(function (d, idx) {
+    d.style.pointerEvents = 'auto';
+    d.style.cursor = 'pointer';
+    d.addEventListener('click', function () { show(idx); start(); });
+  });
+  document.addEventListener('visibilitychange', function () {
+    document.hidden ? stop() : start();
+  });
+  start();
 })();
 </script>
 </section>
