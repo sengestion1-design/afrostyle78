@@ -15,17 +15,26 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
     <div class="hero-pattern"></div>
     <div class="hero-accent"></div>
 
-    <!-- DIAPORAMA MOBILE (remplace le texte sur mobile) -->
+    <!-- DIAPORAMA MOBILE (remplace le texte sur mobile) — photos des catégories -->
+    <?php
+        // On ne garde que les catégories qui ont une image, pour le diaporama
+        $slideCats = array_values(array_filter($allCats, fn($c) => !empty($c['image'])));
+    ?>
+    <?php if (!empty($slideCats)): ?>
     <div class="hero-slideshow" aria-label="Diaporama AfroStyle78">
-        <div class="hero-slide is-active"><img src="<?= SITE_URL ?>/assets/IMG_9034.jpeg" alt="AfroStyle78 — couple mariage en boubou blanc" loading="eager"></div>
-        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9036.jpeg" alt="AfroStyle78 — tenue de famille assortie" loading="lazy"></div>
-        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9026.jpeg" alt="AfroStyle78 — robes bazin femmes" loading="lazy"></div>
-        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9037.jpeg" alt="AfroStyle78 — ensemble homme élégant" loading="lazy"></div>
-        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9032.jpeg" alt="AfroStyle78 — ensemble homme sur-mesure" loading="lazy"></div>
+        <?php foreach ($slideCats as $si => $sc): ?>
+        <a href="boutique.php?cat=<?= htmlspecialchars($sc['slug']) ?>" class="hero-slide<?= $si === 0 ? ' is-active' : '' ?>">
+            <img src="<?= UPLOADS_URL . htmlspecialchars($sc['image']) ?>" alt="AfroStyle78 — <?= htmlspecialchars($sc['name']) ?>" loading="<?= $si === 0 ? 'eager' : 'lazy' ?>">
+            <span class="hero-slide-cat"><?= htmlspecialchars($sc['name']) ?></span>
+        </a>
+        <?php endforeach; ?>
         <div class="hero-slide-dots" aria-hidden="true">
-            <span class="hsd is-active"></span><span class="hsd"></span><span class="hsd"></span><span class="hsd"></span><span class="hsd"></span>
+            <?php foreach ($slideCats as $si => $sc): ?>
+            <span class="hsd<?= $si === 0 ? ' is-active' : '' ?>"></span>
+            <?php endforeach; ?>
         </div>
     </div>
+    <?php endif; ?>
 
     <div class="hero-content">
         <div class="hero-text">

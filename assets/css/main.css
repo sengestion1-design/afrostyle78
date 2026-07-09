@@ -3126,6 +3126,8 @@ body {
     opacity: 0;
     transition: opacity 1s ease-in-out;
     z-index: 1;
+    display: block;
+    text-decoration: none;
   }
   .hero-slide.is-active { opacity: 1; z-index: 2; }
   .hero-slide img {
@@ -3134,6 +3136,22 @@ body {
     object-fit: cover;
     object-position: center 22%;
     display: block;
+  }
+  /* Libellé du nom de catégorie sur chaque slide */
+  .hero-slide-cat {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 44px;
+    text-align: center;
+    z-index: 4;
+    color: #fdf6ec;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    padding: 0 20px;
   }
   /* Voile bas pour lisibilité des points */
   .hero-slideshow::after {
