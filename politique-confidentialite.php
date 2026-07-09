@@ -12,7 +12,7 @@ require_once 'includes/header.php';
 
             <h2 style="font-size:1.1rem;font-weight:700;color:#1a1008;margin:32px 0 12px;text-transform:uppercase;letter-spacing:0.08em;">1. Responsable du traitement</h2>
             <p>AfroStyle78 — Guyancourt, Yvelines (78)<br>
-            Email : contact@afrostyle78.fr<br>
+            Email : afrostyleparis78@gmail.com<br>
             Téléphone : +33 6 44 72 87 30</p>
 
             <h2 style="font-size:1.1rem;font-weight:700;color:#1a1008;margin:32px 0 12px;text-transform:uppercase;letter-spacing:0.08em;">2. Données collectées</h2>
@@ -54,7 +54,7 @@ require_once 'includes/header.php';
                 <li><strong>Droit à la portabilité</strong> — recevoir vos données dans un format lisible</li>
                 <li><strong>Droit d'opposition</strong> — vous opposer au traitement</li>
             </ul>
-            <p>Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@afrostyle78.fr" style="color:#c8921a;">contact@afrostyle78.fr</a></p>
+            <p>Pour exercer ces droits, contactez-nous à : <a href="mailto:afrostyleparis78@gmail.com" style="color:#c8921a;">afrostyleparis78@gmail.com</a></p>
             <p>Vous pouvez également introduire une réclamation auprès de la <strong>CNIL</strong> : <a href="https://www.cnil.fr" target="_blank" rel="noopener" style="color:#c8921a;">www.cnil.fr</a></p>
 
             <h2 style="font-size:1.1rem;font-weight:700;color:#1a1008;margin:32px 0 12px;text-transform:uppercase;letter-spacing:0.08em;">7. Sécurité</h2>

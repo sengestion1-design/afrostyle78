@@ -12,7 +12,7 @@ require_once 'includes/header.php';
     <li><strong>Activité :</strong> Vente en ligne de vêtements et accessoires de mode africaine</li>
     <li><strong>Siège social :</strong> Guyancourt, 78280 Yvelines, France</li>
     <li><strong>Téléphone :</strong> +33 6 44 72 87 30</li>
-    <li><strong>Email :</strong> contact@afrostyle78.fr</li>
+    <li><strong>Email :</strong> afrostyleparis78@gmail.com</li>
     <li><strong>Directeur de publication :</strong> M. SECK</li>
 </ul>
 
@@ -33,6 +33,6 @@ require_once 'includes/header.php';
 <p>Ce site utilise des cookies essentiels au fonctionnement du service (session, panier). Aucun cookie publicitaire tiers n'est utilisé sans votre consentement.</p>
 
 <h2>Médiation</h2>
-<p>Conformément aux dispositions du Code de la consommation concernant le règlement amiable des litiges, AfroStyle78 adhère au Service du Médiateur. En cas de litige, vous pouvez recourir gratuitement à ce service à l'adresse : <strong>contact@afrostyle78.fr</strong></p>
+<p>Conformément aux dispositions du Code de la consommation concernant le règlement amiable des litiges, AfroStyle78 adhère au Service du Médiateur. En cas de litige, vous pouvez recourir gratuitement à ce service à l'adresse : <strong>afrostyleparis78@gmail.com</strong></p>
 </div>
 <?php require_once 'includes/footer.php'; ?>

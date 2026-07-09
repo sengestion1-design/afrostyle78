@@ -44,7 +44,7 @@ require_once 'includes/header.php';
 <h2>Article 7 — Droit de rétractation</h2>
 <p>Conformément à l'article L221-18 du Code de la consommation, le Client dispose d'un délai de <strong>14 jours calendaires</strong> à compter de la réception de sa commande pour exercer son droit de rétractation, sans avoir à justifier de motifs.</p>
 <p><strong>Exception :</strong> Les articles confectionnés sur mesure selon les spécifications du Client sont expressément exclus du droit de rétractation, conformément à l'article L221-28 du Code de la consommation.</p>
-<p>Pour exercer ce droit, le Client doit notifier sa décision par email à <strong>contact@afrostyle78.fr</strong> avant l'expiration du délai de 14 jours.</p>
+<p>Pour exercer ce droit, le Client doit notifier sa décision par email à <strong>afrostyleparis78@gmail.com</strong> avant l'expiration du délai de 14 jours.</p>
 
 <h2>Article 8 — Retours et remboursements</h2>
 <p>Les produits retournés doivent être dans leur état d'origine, non portés, non lavés, avec leurs étiquettes. Les frais de retour sont à la charge du Client, sauf défaut avéré du produit.</p>
@@ -61,6 +61,6 @@ require_once 'includes/header.php';
 
 <h2>Article 12 — Litiges</h2>
 <p>En cas de litige, le Client peut recourir à une médiation conventionnelle ou à tout mode alternatif de règlement des litiges. À défaut, les tribunaux français sont compétents.</p>
-<p>Pour tout réclamation : <strong>contact@afrostyle78.fr</strong> — Tél : <strong>+33 6 44 72 87 30</strong></p>
+<p>Pour tout réclamation : <strong>afrostyleparis78@gmail.com</strong> — Tél : <strong>+33 6 44 72 87 30</strong></p>
 </div>
 <?php require_once 'includes/footer.php'; ?>
