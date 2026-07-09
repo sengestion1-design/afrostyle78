@@ -17,11 +17,11 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
 
     <!-- DIAPORAMA MOBILE (remplace le texte sur mobile) -->
     <div class="hero-slideshow" aria-label="Diaporama AfroStyle78">
-        <div class="hero-slide is-active"><img src="<?= SITE_URL ?>/assets/IMG_9142.jpeg" alt="AfroStyle78 — tenue africaine sur-mesure" loading="eager"></div>
-        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9143.jpeg" alt="AfroStyle78 — grand boubou" loading="lazy"></div>
-        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9145.jpeg" alt="AfroStyle78 — ensemble élégant" loading="lazy"></div>
-        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9146.jpeg" alt="AfroStyle78 — collection homme" loading="lazy"></div>
-        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9147.jpeg" alt="AfroStyle78 — veste sur-mesure" loading="lazy"></div>
+        <div class="hero-slide is-active"><img src="<?= SITE_URL ?>/assets/IMG_9034.jpeg" alt="AfroStyle78 — couple mariage en boubou blanc" loading="eager"></div>
+        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9036.jpeg" alt="AfroStyle78 — tenue de famille assortie" loading="lazy"></div>
+        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9026.jpeg" alt="AfroStyle78 — robes bazin femmes" loading="lazy"></div>
+        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9037.jpeg" alt="AfroStyle78 — ensemble homme élégant" loading="lazy"></div>
+        <div class="hero-slide"><img src="<?= SITE_URL ?>/assets/IMG_9032.jpeg" alt="AfroStyle78 — ensemble homme sur-mesure" loading="lazy"></div>
         <div class="hero-slide-dots" aria-hidden="true">
             <span class="hsd is-active"></span><span class="hsd"></span><span class="hsd"></span><span class="hsd"></span><span class="hsd"></span>
         </div>
