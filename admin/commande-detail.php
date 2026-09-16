@@ -195,6 +195,7 @@ require_once 'includes/admin_header.php';
                 <div class="admin-card-title">Mettre à jour le statut</div>
             </div>
             <form method="POST" class="admin-form">
+<?= csrfField() ?>
                 <div class="form-row">
                     <div>
                         <label>Nouveau statut</label>
@@ -279,6 +280,7 @@ require_once 'includes/admin_header.php';
                 <?php endif; ?>
                 <?php if($order['payment_status'] !== 'paid'): ?>
                 <form method="POST" style="margin-top:8px;" onsubmit="return confirm('Confirmer le paiement de cette commande ?');">
+<?= csrfField() ?>
                     <input type="hidden" name="mark_paid_id" value="<?= $order['id'] ?>">
                     <button type="submit" class="btn-admin btn-gold" style="width:100%; justify-content:center;">
                         ✓ Marquer comme payé

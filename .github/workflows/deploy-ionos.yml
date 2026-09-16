@@ -44,6 +44,7 @@ jobs:
             --exclude-glob config/database.php \
             --exclude-glob config/mailer.php \
             --exclude-glob config/secrets.php \
+            --exclude-glob config/mail.php \
             . /
           bye
           EOF

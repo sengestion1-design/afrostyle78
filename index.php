@@ -136,7 +136,7 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
             <div class="cat-count">Toutes collections</div>
         </a>
         <?php foreach($allCats as $cat): ?>
-        <a href="boutique.php?cat=<?= $cat['slug'] ?>" class="cat-card">
+        <a href="boutique.php?cat=<?= rawurlencode($cat['slug']) ?>" class="cat-card">
             <?php if (!empty($cat['image'])): ?>
             <div class="cat-photo">
                 <img src="<?= UPLOADS_URL . htmlspecialchars($cat['image']) ?>" alt="<?= htmlspecialchars($cat['name']) ?>">
@@ -385,7 +385,7 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
         <?php else: ?>
         <div class="products-grid">
             <?php foreach($featured as $p): ?>
-            <a href="produit.php?slug=<?= $p['slug'] ?>" class="product-card">
+            <a href="produit.php?slug=<?= rawurlencode($p['slug']) ?>" class="product-card">
                 <div class="product-image-wrap">
                     <?php if($p['image']): ?>
                     <img src="<?= UPLOADS_URL . htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>" loading="lazy">
@@ -440,7 +440,7 @@ $catAllImage = $db->query("SELECT setting_value FROM settings WHERE setting_key=
                     </div>
                 </a>
                 <?php foreach(array_merge($allCats, $allCats) as $cat): ?>
-                <a href="boutique.php?cat=<?= $cat['slug'] ?>" class="cat-slide">
+                <a href="boutique.php?cat=<?= rawurlencode($cat['slug']) ?>" class="cat-slide">
                     <?php if(!empty($cat['image'])): ?>
                     <img src="<?= UPLOADS_URL . htmlspecialchars($cat['image']) ?>" alt="<?= htmlspecialchars($cat['name']) ?>">
                     <?php else: ?>

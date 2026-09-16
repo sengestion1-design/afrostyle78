@@ -23,10 +23,9 @@ $settings = $db->query("SELECT setting_key, setting_value FROM settings WHERE se
 $clientId = $settings['paypal_client_id'] ?? '';
 $secret   = $settings['paypal_secret']    ?? '';
 $mode     = $settings['paypal_mode']      ?? 'sandbox'; // 'sandbox' ou 'live'
-$currency = $settings['paypal_currency']  ?? 'EUR';
-// Les prix du site sont DEJA en euros -> aucune conversion (taux = 1 par defaut).
-$rate     = (float)($settings['paypal_fcfa_to_eur'] ?? 1);
-if ($rate <= 0) $rate = 1;
+// Les prix du site sont en EUROS : devise forcee, aucune conversion.
+// (on ignore volontairement les reglages paypal_currency / paypal_fcfa_to_eur)
+$currency = 'EUR';
 
 if (!$clientId || !$secret) {
     echo json_encode(['error' => 'PayPal non configuré. Ajoutez vos clés dans les paramètres admin.']);
@@ -62,9 +61,8 @@ if ($order['payment_status'] === 'paid') {
     exit;
 }
 
-// Montant depuis la DB uniquement
-$totalFcfa = (float)$order['total_amount'];
-$amountEur = round($totalFcfa * $rate, 2);
+// Montant depuis la DB uniquement — deja en euros
+$amountEur = round((float)$order['total_amount'], 2);
 
 if ($amountEur < 0.01) {
     echo json_encode(['error' => 'Montant invalide.']);
@@ -99,6 +97,7 @@ function paypalRequest(string $method, string $url, $auth, $body = null, bool $i
 // 1. Obtenir un access token OAuth
 [$tokenCode, $tokenResp] = paypalRequest('POST', $apiBase . '/v1/oauth2/token', [$clientId, $secret], 'grant_type=client_credentials', false);
 if ($tokenCode !== 200 || empty($tokenResp['access_token'])) {
+    error_log('[PAYPAL] OAuth HTTP ' . $tokenCode . ' mode=' . $mode . ' resp=' . json_encode($tokenResp));
     echo json_encode(['error' => 'Authentification PayPal échouée. Vérifiez vos clés.']);
     exit;
 }
@@ -126,7 +125,11 @@ $orderPayload = [
 
 [$createCode, $createResp] = paypalRequest('POST', $apiBase . '/v2/checkout/orders', $accessToken, $orderPayload);
 if (($createCode !== 200 && $createCode !== 201) || empty($createResp['id'])) {
-    echo json_encode(['error' => 'Création du paiement PayPal échouée.']);
+    error_log('[PAYPAL] Create order HTTP ' . $createCode
+        . ' mode=' . $mode . ' currency=' . $currency . ' value=' . number_format($amountEur, 2, '.', '')
+        . ' resp=' . json_encode($createResp));
+    $detail = $createResp['details'][0]['issue'] ?? ($createResp['name'] ?? '');
+    echo json_encode(['error' => 'Création du paiement PayPal échouée.' . ($detail ? ' (' . $detail . ')' : '')]);
     exit;
 }
 

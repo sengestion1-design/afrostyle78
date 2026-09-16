@@ -12,3 +12,6 @@ config/mail.php
 assets/Facture-*.pdf
 monetbil-payment-notification-fr.pdf
 run-paypal-migration.php
+
+# Script de deploiement : contient le serveur et l'identifiant SFTP IONOS.
+deploy.sh

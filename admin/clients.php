@@ -34,7 +34,8 @@ require_once 'includes/admin_header.php';
                 <td><?= number_format($c['total_spent'] ?? 0, 0, ',', ' ') ?> €</td>
                 <td style="font-size:1rem; color:var(--muted);"><?= date('d/m/Y', strtotime($c['created_at'])) ?></td>
                 <td>
-                    <form method="POST" onsubmit="return confirm('Supprimer <?= htmlspecialchars(addslashes($c['first_name'] . ' ' . $c['last_name'])) ?> ? Cette action est irréversible.')">
+                    <form method="POST" onsubmit="return confirm('Supprimer <?= htmlspecialchars(addslashes($c['first_name'] . ' ' . $c['last_name'])) ?>
+<?= csrfField() ?> ? Cette action est irréversible.')">
                         <input type="hidden" name="delete_id" value="<?= $c['id'] ?>">
                         <button type="submit" class="btn-status" style="background:#fee2e2;color:#dc2626;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:1rem;">🗑 Supprimer</button>
                     </form>

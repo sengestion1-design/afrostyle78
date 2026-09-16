@@ -3,7 +3,10 @@ Options -MultiViews
 # Block direct access to sensitive directories
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteBase /
+# Pas de RewriteBase fixe : "/" ne vaut qu'en production, ou le site occupe la
+# racine du domaine. En local sous XAMPP il vit dans /afrostyle/, et un
+# RewriteBase / y cassait toutes les URL propres (/suivi, /boutique...).
+# Sans directive, Apache deduit le bon prefixe du dossier du .htaccess.
 RewriteRule ^config/ - [F,L]
 RewriteRule ^includes/ - [F,L]
 RewriteRule ^vendor/ - [F,L]
@@ -18,10 +21,16 @@ RewriteRule ^vendor/ - [F,L]
 # UNIQUEMENT sur les requêtes GET : une redirection 301 sur un POST
 # perd le corps de la requête (casse l'ajout au panier, les webhooks, le checkout AJAX).
 # On exclut aussi explicitement les endpoints techniques (AJAX / webhooks).
+# THE_REQUEST est la ligne brute envoyee par le navigateur ("GET /suivi.php HTTP/1.1").
+# Contrairement a REQUEST_URI, elle n'est pas modifiee par les reecritures internes :
+# une URL propre deja reecrite vers .php ne redeclenche donc pas cette regle
+# (sinon /suivi -> suivi.php -> /suivi -> ... en boucle infinie).
+# Le groupe capture le chemin complet depuis la racine du serveur, prefixe inclus,
+# ce qui vaut aussi bien en local (/afrostyle/suivi) qu'en production (/suivi).
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s/(?!admin/)([^.]+)\.php[\s?] [NC]
-RewriteCond %1 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success|paypal-checkout|paypal-success)$ [NC]
-RewriteRule ^ /%1 [R=301,L]
+RewriteCond %{THE_REQUEST} \s(/[^.\s?]*/)?(?!admin/)([^./\s?]+)\.php[\s?] [NC]
+RewriteCond %2 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success|paypal-checkout|paypal-success)$ [NC]
+RewriteRule \.php$ %1%2 [R=301,L]
 
 # Réécrire les URLs propres vers .php (liste explicite)
 RewriteRule ^boutique$ boutique.php [NC,L]
@@ -52,5 +61,11 @@ RewriteRule ^guide-des-tailles$ guide-des-tailles.php [NC,L]
 RewriteRule ^cgv$ cgv.php [NC,L]
 RewriteRule ^mentions-legales$ mentions-legales.php [NC,L]
 
-# Page 404 personnalisée
+# Pages d'erreur personnalisées
+# erreur.php est autonome (aucun require, aucune requete SQL) : il doit
+# pouvoir s'afficher meme quand PHP ou MySQL est en panne.
 ErrorDocument 404 /404.php
+ErrorDocument 400 /erreur.php
+ErrorDocument 403 /erreur.php
+ErrorDocument 500 /erreur.php
+ErrorDocument 503 /erreur.php

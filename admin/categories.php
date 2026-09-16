@@ -117,6 +117,7 @@ require_once 'includes/admin_header.php';
       <div class="admin-card-title"><?= $editCat ? '✏️ Modifier la catégorie' : '+ Nouvelle catégorie' ?></div>
     </div>
     <form method="POST" enctype="multipart/form-data" class="admin-form">
+<?= csrfField() ?>
       <?php if($editCat): ?>
       <input type="hidden" name="id" value="<?= $editCat['id'] ?>">
       <input type="hidden" name="existing_image" value="<?= htmlspecialchars($editCat['image'] ?? '') ?>">
@@ -180,6 +181,7 @@ require_once 'includes/admin_header.php';
     </div>
 
     <form method="POST" enctype="multipart/form-data" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+<?= csrfField() ?>
       <input type="hidden" name="save_all_image" value="1">
 
       <!-- PREVIEW -->

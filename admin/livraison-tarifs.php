@@ -157,6 +157,7 @@ require_once 'includes/admin_header.php';
     </h3>
 
     <form method="POST" class="admin-form">
+<?= csrfField() ?>
       <?php if ($editZone): ?>
       <input type="hidden" name="zone_id" value="<?= $editZone['id'] ?>">
       <?php endif; ?>

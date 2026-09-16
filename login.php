@@ -10,6 +10,9 @@ if (isset($_SESSION['customer_id'])) {
 
 $errors = [];
 
+// Verifie le jeton CSRF avant tout traitement du POST.
+csrfCheck();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -59,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" class="auth-form">
+<?= csrfField() ?>
             <div class="form-group">
                 <label>Adresse email *</label>
                 <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" placeholder="fatou@example.com" autofocus required>

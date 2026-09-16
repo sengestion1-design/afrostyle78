@@ -1,6 +1,17 @@
 <?php
 define('SITE_NAME', 'AfroStyle');
-define('SITE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'afrostyle78.com'));
+// Sous-dossier d'installation : vide en production (site a la racine du domaine),
+// "/afrostyle" en local sous XAMPP. Deduit du chemin reel du projet, donc aucune
+// configuration a changer entre les deux environnements.
+$siteBase = trim(str_replace(
+    rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/'),
+    '',
+    rtrim(str_replace('\\', '/', dirname(__DIR__)), '/')
+), '/');
+define('SITE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+    . '://' . ($_SERVER['HTTP_HOST'] ?? 'afrostyle78.com')
+    . ($siteBase !== '' ? '/' . $siteBase : ''));
+unset($siteBase);
 define('ADMIN_URL', SITE_URL . '/admin');
 define('UPLOADS_DIR', __DIR__ . '/../uploads/products/');
 define('UPLOADS_URL', SITE_URL . '/uploads/products/');
@@ -18,6 +29,33 @@ if (session_status() === PHP_SESSION_NONE) {
         'samesite' => 'Strict',
     ]);
     session_start();
+}
+
+// --- Protection CSRF -------------------------------------------------------
+// Un seul jeton par session, partage par tous les formulaires.
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+/** Champ cache a placer dans chaque formulaire POST. */
+function csrfField(): string {
+    return '<input type="hidden" name="csrf_token" value="'
+         . htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') . '">';
+}
+
+/**
+ * Verifie le jeton du POST courant. hash_equals : comparaison a temps constant.
+ * En cas d'echec, on arrete immediatement — la requete n'est pas legitime.
+ */
+function csrfCheck(): void {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        return;
+    }
+    $sent = $_POST['csrf_token'] ?? '';
+    if (!is_string($sent) || !hash_equals($_SESSION['csrf_token'] ?? '', $sent)) {
+        http_response_code(403);
+        exit('Requête invalide (jeton de sécurité absent ou expiré). Rechargez la page et réessayez.');
+    }
 }
 
 if (!headers_sent()) {

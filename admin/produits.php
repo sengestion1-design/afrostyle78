@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/auth.php';
+require_once __DIR__ . '/../includes/image_upload.php';
 $adminTitle = 'Produits';
 $db = getDB();
 
@@ -50,20 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slug = trim($slug, '-');
 
     // Handle image principale upload
+    // Tous les formats photo sont acceptes : ceux que les navigateurs ne lisent
+    // pas (HEIC iPhone, AVIF, TIFF...) sont convertis en JPEG. Chaque refus
+    // remonte un message precis au lieu d'etre ignore en silence.
+    $uploadErrors = [];
     $imageName = $_POST['existing_image'] ?? '';
-    if (isset($_FILES['image']) && $_FILES['image']['size'] > 0 && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $allowedExt  = ['jpg','jpeg','png','webp','gif'];
-        $allowedMime = ['image/jpeg','image/png','image/webp','image/gif'];
-        $ext  = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-        $mime = mime_content_type($_FILES['image']['tmp_name']);
-        if (in_array($ext, $allowedExt, true) && in_array($mime, $allowedMime, true) && getimagesize($_FILES['image']['tmp_name']) !== false) {
-            $imageName = uniqid('img_', true) . '.' . $ext;
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], UPLOADS_DIR . $imageName)) {
-                $imageName = $_POST['existing_image'] ?? '';
-            }
-        } else {
-            $msg = '<div class="alert alert-error">⚠ Format d\'image non autorisé. Utilisez JPG, PNG ou WebP.</div>';
-            $imageName = $_POST['existing_image'] ?? '';
+    if (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        $res = traiterImageUpload($_FILES['image']);
+        if ($res['name'] !== null) {
+            $imageName = $res['name'];
+        } elseif ($res['error'] !== null) {
+            $uploadErrors[] = 'Photo principale : ' . $res['error'];
         }
     }
 
@@ -73,36 +71,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $deleteImages = $_POST['delete_images'] ?? [];
     $existingImages = array_values(array_filter($existingImages, fn($img) => !in_array($img, $deleteImages)));
 
-    $newImages  = [];
-    $allowedExt  = ['jpg','jpeg','png','webp','gif'];
-    $allowedMime = ['image/jpeg','image/png','image/webp','image/gif'];
+    $newImages = [];
     if (!empty($_FILES['images']['name'][0])) {
         foreach ($_FILES['images']['error'] as $i => $err) {
-            if ($err === UPLOAD_ERR_OK && $_FILES['images']['size'][$i] > 0) {
-                $ext  = strtolower(pathinfo($_FILES['images']['name'][$i], PATHINFO_EXTENSION));
-                $mime = mime_content_type($_FILES['images']['tmp_name'][$i]);
-                if (!in_array($ext, $allowedExt, true) || !in_array($mime, $allowedMime, true) || getimagesize($_FILES['images']['tmp_name'][$i]) === false) {
-                    continue; // fichier invalide — on ignore
-                }
-                $name = uniqid('img_', true) . '.' . $ext;
-                if (move_uploaded_file($_FILES['images']['tmp_name'][$i], UPLOADS_DIR . $name)) {
-                    $newImages[] = $name;
-                }
+            if ($err === UPLOAD_ERR_NO_FILE) continue;
+            // $_FILES est transpose pour un champ multiple : on reconstruit
+            // une entree classique pour chaque fichier.
+            $res = traiterImageUpload([
+                'tmp_name' => $_FILES['images']['tmp_name'][$i] ?? '',
+                'name'     => $_FILES['images']['name'][$i] ?? '',
+                'error'    => $err,
+                'size'     => $_FILES['images']['size'][$i] ?? 0,
+            ]);
+            if ($res['name'] !== null) {
+                $newImages[] = $res['name'];
+            } elseif ($res['error'] !== null) {
+                $uploadErrors[] = $res['error'];
             }
         }
     }
     $allImages    = array_merge($existingImages, $newImages);
     $imagesJson   = json_encode($allImages);
 
-    if ($editId) {
-        $db->prepare("UPDATE products SET name=?,slug=?,description=?,price=?,promo_price=?,category_id=?,stock=?,featured=?,allow_custom_measure=?,available_sizes=?,available_colors=?,image=?,images=? WHERE id=?")
-           ->execute([$name,$slug,$desc,$price,$promoPrice,$catId,$stock,$featured,$allowCustom,$sizes,$colorsJson,$imageName,$imagesJson,$editId]);
-        $msg = '<div class="alert alert-success">Produit mis à jour.</div>';
-    } else {
-        $db->prepare("INSERT INTO products (name,slug,description,price,promo_price,category_id,stock,featured,allow_custom_measure,available_sizes,available_colors,image,images) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
-           ->execute([$name,$slug,$desc,$price,$promoPrice,$catId,$stock,$featured,$allowCustom,$sizes,$colorsJson,$imageName,$imagesJson]);
-        $msg = '<div class="alert alert-success">Produit ajouté avec succès.</div>';
-        $action = '';
+    // La vignette affichee partout (listes, boutique, panier) vient de la colonne
+    // image. Sans photo principale, le produit apparaissait sans visuel alors que
+    // des photos supplementaires existaient : on promeut la premiere.
+    if ($imageName === '' && !empty($allImages)) {
+        $imageName = $allImages[0];
+    }
+    // Cas inverse : une photo principale seule n'apparaissait pas dans la galerie.
+    if ($imageName !== '' && !in_array($imageName, $allImages, true)) {
+        array_unshift($allImages, $imageName);
+        $imagesJson = json_encode($allImages);
+    }
+
+    // La colonne slug est UNIQUE : deux produits au meme nom feraient echouer
+    // la requete. On suffixe jusqu'a trouver un slug libre (en ignorant le
+    // produit courant, sinon une simple modification se heurterait a elle-meme).
+    $baseSlug = $slug ?: 'produit';
+    $slug     = $baseSlug;
+    $suffix   = 2;
+    $slugTaken = $db->prepare("SELECT id FROM products WHERE slug = ? AND id <> ?");
+    while (true) {
+        $slugTaken->execute([$slug, $editId]);
+        if (!$slugTaken->fetch()) break;
+        $slug = $baseSlug . '-' . $suffix++;
+    }
+
+    try {
+        if ($editId) {
+            $db->prepare("UPDATE products SET name=?,slug=?,description=?,price=?,promo_price=?,category_id=?,stock=?,featured=?,allow_custom_measure=?,available_sizes=?,available_colors=?,image=?,images=? WHERE id=?")
+               ->execute([$name,$slug,$desc,$price,$promoPrice,$catId,$stock,$featured,$allowCustom,$sizes,$colorsJson,$imageName,$imagesJson,$editId]);
+            $msg = '<div class="alert alert-success">Produit mis à jour.</div>';
+            $msg .= messagesUpload($uploadErrors);
+        } else {
+            $db->prepare("INSERT INTO products (name,slug,description,price,promo_price,category_id,stock,featured,allow_custom_measure,available_sizes,available_colors,image,images) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
+               ->execute([$name,$slug,$desc,$price,$promoPrice,$catId,$stock,$featured,$allowCustom,$sizes,$colorsJson,$imageName,$imagesJson]);
+            $msg = '<div class="alert alert-success">Produit ajouté avec succès.</div>';
+            $msg .= messagesUpload($uploadErrors);
+            $action = '';
+        }
+    } catch (PDOException $e) {
+        // Sans ce catch, une erreur SQL renvoyait une page blanche HTTP 500.
+        error_log('produits.php : echec enregistrement produit — ' . $e->getMessage());
+        $msg = '<div class="alert alert-error">⚠ Enregistrement impossible. Le détail a été consigné dans les logs du serveur.</div>';
     }
     end_save:;
 }
@@ -133,6 +165,7 @@ require_once 'includes/admin_header.php';
         <a href="produits.php" class="btn-admin btn-outline btn-sm">← Retour</a>
     </div>
     <form method="POST" enctype="multipart/form-data" class="admin-form">
+<?= csrfField() ?>
         <input type="hidden" name="existing_image" value="<?= htmlspecialchars($editProduct['image'] ?? '') ?>">
         <div class="form-row">
             <div><label>Nom du produit *</label><input type="text" name="name" value="<?= htmlspecialchars($editProduct['name'] ?? '') ?>" required></div>
@@ -154,7 +187,7 @@ require_once 'includes/admin_header.php';
             <div><label>Stock</label><input type="number" name="stock" value="<?= $editProduct['stock'] ?? 0 ?>"></div>
             <div>
                 <label>Photo principale</label>
-                <input type="file" name="image" accept="image/*">
+                <input type="file" name="image" accept="image/*,.heic,.heif,.avif">
                 <?php if(!empty($editProduct['image'])): ?>
                 <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
                     <img src="<?= UPLOADS_URL . htmlspecialchars($editProduct['image']) ?>" style="width:60px;height:72px;object-fit:cover;border:1px solid #e0d8ce;">
@@ -168,7 +201,7 @@ require_once 'includes/admin_header.php';
         <div class="form-row full">
             <div>
                 <label>Photos supplémentaires <span style="font-weight:400;font-size:0.9rem;color:var(--muted);">(galerie — plusieurs photos)</span></label>
-                <input type="file" name="images[]" accept="image/*" multiple style="margin-top:8px;">
+                <input type="file" name="images[]" accept="image/*,.heic,.heif,.avif" multiple style="margin-top:8px;">
                 <input type="hidden" name="existing_images" value="<?= htmlspecialchars($editProduct['images'] ?? '[]') ?>">
 
                 <?php

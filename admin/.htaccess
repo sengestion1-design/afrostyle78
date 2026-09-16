@@ -6,3 +6,10 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# Pages d'erreur personnalisées (chemins absolus : les fichiers sont a la racine).
+ErrorDocument 404 /404.php
+ErrorDocument 400 /erreur.php
+ErrorDocument 403 /erreur.php
+ErrorDocument 500 /erreur.php
+ErrorDocument 503 /erreur.php

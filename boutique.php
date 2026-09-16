@@ -126,7 +126,7 @@ if ($catSlug) {
         <?php else: ?>
         <div class="products-grid">
             <?php foreach($products as $p): ?>
-            <a href="produit.php?slug=<?= $p['slug'] ?>" class="product-card">
+            <a href="produit.php?slug=<?= rawurlencode($p['slug']) ?>" class="product-card">
                 <div class="product-image-wrap">
                     <?php if($p['image']): ?>
                     <img src="<?= UPLOADS_URL . htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>" loading="lazy">
@@ -139,7 +139,7 @@ if ($catSlug) {
                     <div class="product-badge">Coup de cœur</div>
                     <?php endif; ?>
                     <div class="product-actions">
-                        <button class="btn btn-primary btn-sm btn-full" onclick="event.preventDefault(); window.location='produit.php?slug=<?= $p['slug'] ?>'">Voir le produit</button>
+                        <button class="btn btn-primary btn-sm btn-full" onclick="event.preventDefault(); window.location='produit.php?slug=<?= rawurlencode($p['slug']) ?>'">Voir le produit</button>
                     </div>
                 </div>
                 <div class="product-info">

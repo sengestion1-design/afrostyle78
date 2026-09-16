@@ -25,7 +25,7 @@ $products = $db->query("SELECT p.*, c.name as cat_name FROM products p LEFT JOIN
         </div>
         <div class="products-grid">
             <?php foreach($products as $p): ?>
-            <a href="produit.php?slug=<?= $p['slug'] ?>" class="product-card">
+            <a href="produit.php?slug=<?= rawurlencode($p['slug']) ?>" class="product-card">
                 <div class="product-image-wrap">
                     <?php if($p['image']): ?>
                     <img src="<?= UPLOADS_URL . htmlspecialchars($p['image']) ?>" alt="<?= htmlspecialchars($p['name']) ?>">

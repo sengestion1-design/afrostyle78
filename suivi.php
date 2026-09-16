@@ -103,7 +103,7 @@ $allStatuses = ['pending','confirmed','in_production','shipped','delivered'];
             <div>
                 <div style="font-size:0.7rem; color:var(--gold); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:4px;">Commande</div>
                 <div style="font-size:1.2rem; font-weight:700;"><?= htmlspecialchars($order['order_number']) ?></div>
-                <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;"><?= $order['first_name'] ?> <?= $order['last_name'] ?> · <?= date('d/m/Y', strtotime($order['created_at'])) ?></div>
+                <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;"><?= htmlspecialchars($order['first_name'], ENT_QUOTES, 'UTF-8') ?> <?= htmlspecialchars($order['last_name'], ENT_QUOTES, 'UTF-8') ?> · <?= date('d/m/Y', strtotime($order['created_at'])) ?></div>
             </div>
             <div style="text-align:right;">
                 <?php $s = $statusLabels[$order['status']] ?? $statusLabels['pending']; ?>

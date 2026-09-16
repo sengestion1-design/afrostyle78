@@ -38,6 +38,9 @@ $statusLabels = [
 
 // Handle profile update
 $profileMsg = '';
+// Verifie le jeton CSRF avant tout traitement du POST.
+csrfCheck();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $fn   = trim($_POST['first_name'] ?? '');
     $ln   = trim($_POST['last_name'] ?? '');
@@ -183,6 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                 <?php endif; ?>
 
                 <form method="POST" class="auth-form">
+<?= csrfField() ?>
                     <input type="hidden" name="update_profile" value="1">
                     <div class="auth-row">
                         <div class="form-group">
@@ -249,6 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
                 <?php endif; ?>
 
                 <form method="POST" class="auth-form">
+<?= csrfField() ?>
                     <input type="hidden" name="change_password" value="1">
                     <div class="form-group">
                         <label>Mot de passe actuel</label>

@@ -87,11 +87,13 @@ if ($unpaidOrders):
             <td><?= date('d/m/Y H:i', strtotime($ord['created_at'])) ?></td>
             <td style="display:flex;gap:6px;">
                 <form method="POST" onsubmit="return confirm('Confirmer le paiement de cette commande ?');">
+<?= csrfField() ?>
                     <input type="hidden" name="mark_paid_id" value="<?= $ord['id'] ?>">
                     <button type="submit" style="background:#38a169;color:#fff;border:none;padding:6px 14px;cursor:pointer;font-weight:700;font-size:0.85rem;">✓ Paiement reçu</button>
                 </form>
                 <a href="commande-detail.php?id=<?= $ord['id'] ?>" class="btn-admin btn-gold btn-sm">Détail</a>
                 <form method="POST" onsubmit="return confirm('Supprimer cette commande ?');">
+<?= csrfField() ?>
                     <input type="hidden" name="delete_order_id" value="<?= $ord['id'] ?>">
                     <button type="submit" class="btn-admin btn-sm" style="background:#e53e3e;color:#fff;border:none;cursor:pointer;">Supprimer</button>
                 </form>
@@ -146,7 +148,8 @@ if ($unpaidOrders):
                 <td style="color:var(--muted); font-size:1.05rem;"><?= date('d/m/Y', strtotime($ord['created_at'])) ?></td>
                 <td style="display:flex;gap:6px;">
                     <a href="commande-detail.php?id=<?= $ord['id'] ?>" class="btn-admin btn-gold btn-sm">Détail</a>
-                    <form method="POST" onsubmit="return confirm('Supprimer la commande <?= htmlspecialchars($ord['order_number']) ?> ? Cette action est irréversible.');">
+                    <form method="POST" onsubmit="return confirm('Supprimer la commande <?= htmlspecialchars($ord['order_number']) ?>
+<?= csrfField() ?> ? Cette action est irréversible.');">
                         <input type="hidden" name="delete_order_id" value="<?= $ord['id'] ?>">
                         <button type="submit" class="btn-admin btn-sm" style="background:#e53e3e;color:#fff;border:none;cursor:pointer;">Supprimer</button>
                     </form>

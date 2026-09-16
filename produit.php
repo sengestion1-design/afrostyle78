@@ -276,7 +276,7 @@ $relatedProducts = $related->fetchAll();
             </div>
             <div class="products-grid">
                 <?php foreach($relatedProducts as $rp): ?>
-                <a href="produit.php?slug=<?= $rp['slug'] ?>" class="product-card">
+                <a href="produit.php?slug=<?= rawurlencode($rp['slug']) ?>" class="product-card">
                     <div class="product-image-wrap">
                         <?php if($rp['image']): ?>
                         <img src="<?= UPLOADS_URL . htmlspecialchars($rp['image']) ?>" alt="<?= htmlspecialchars($rp['name']) ?>" loading="lazy">
