@@ -3,10 +3,12 @@ Options -MultiViews
 # Block direct access to sensitive directories
 <IfModule mod_rewrite.c>
 RewriteEngine On
-# Pas de RewriteBase : sa valeur differe entre la production ("/") et le poste
-# local ("/afrostyle/"), la directive n'accepte pas de condition, et la placer
-# dans un bloc <If> fait echouer les reecritures. Sans elle, Apache deduit le
-# prefixe du dossier ou se trouve ce .htaccess, ce qui vaut des deux cotes.
+RewriteBase /
+# RewriteBase / : le site occupe la racine du domaine en production et IONOS
+# exige cette valeur, sans quoi les URL propres (/panier, /boutique...) ne sont
+# pas reecrites et le serveur renvoie la page d'accueil.
+# En local, le site vit dans un sous-dossier : voir .htaccess.local, a copier
+# par-dessus celui-ci pour developper (il n'est jamais deploye).
 RewriteRule ^config/ - [F,L]
 RewriteRule ^includes/ - [F,L]
 RewriteRule ^vendor/ - [F,L]
@@ -21,12 +23,6 @@ RewriteRule ^vendor/ - [F,L]
 # UNIQUEMENT sur les requêtes GET : une redirection 301 sur un POST
 # perd le corps de la requête (casse l'ajout au panier, les webhooks, le checkout AJAX).
 # On exclut aussi explicitement les endpoints techniques (AJAX / webhooks).
-# THE_REQUEST est la ligne brute envoyee par le navigateur ("GET /suivi.php HTTP/1.1").
-# Contrairement a REQUEST_URI, elle n'est pas modifiee par les reecritures internes :
-# une URL propre deja reecrite vers .php ne redeclenche donc pas cette regle
-# (sinon /suivi -> suivi.php -> /suivi -> ... en boucle infinie).
-# Le groupe capture le chemin complet depuis la racine du serveur, prefixe inclus,
-# ce qui vaut aussi bien en local (/afrostyle/suivi) qu'en production (/suivi).
 RewriteCond %{REQUEST_METHOD} =GET
 # THE_REQUEST est la ligne brute du navigateur ("GET /cgv.php HTTP/1.1"), que les
 # reecritures internes ne modifient pas : une URL propre deja reecrite vers .php
