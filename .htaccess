@@ -28,7 +28,13 @@ RewriteRule ^vendor/ - [F,L]
 # Le groupe capture le chemin complet depuis la racine du serveur, prefixe inclus,
 # ce qui vaut aussi bien en local (/afrostyle/suivi) qu'en production (/suivi).
 RewriteCond %{REQUEST_METHOD} =GET
-RewriteCond %{THE_REQUEST} \s(/[^.\s?]*/)?(?!admin/)([^./\s?]+)\.php[\s?] [NC]
+# THE_REQUEST est la ligne brute du navigateur ("GET /cgv.php HTTP/1.1"), que les
+# reecritures internes ne modifient pas : une URL propre deja reecrite vers .php
+# ne redeclenche donc pas cette regle (sinon /cgv -> cgv.php -> /cgv, en boucle).
+# Le groupe capture tout le chemin, prefixe de sous-dossier compris, et fonctionne
+# a la racine du domaine (/cgv.php) comme en local (/afrostyle/cgv.php).
+RewriteCond %{THE_REQUEST} \s(/(?:[^\s?]*/)?)(?!admin/)([^./\s?]+)\.php[\s?] [NC]
+RewriteCond %{THE_REQUEST} !\s/(?:[^\s?]*/)?admin/ [NC]
 RewriteCond %2 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success|paypal-checkout|paypal-success)$ [NC]
 RewriteRule \.php$ %1%2 [R=301,L]
 
