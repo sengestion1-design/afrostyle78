@@ -3,10 +3,10 @@ Options -MultiViews
 # Block direct access to sensitive directories
 <IfModule mod_rewrite.c>
 RewriteEngine On
-# Pas de RewriteBase fixe : "/" ne vaut qu'en production, ou le site occupe la
-# racine du domaine. En local sous XAMPP il vit dans /afrostyle/, et un
-# RewriteBase / y cassait toutes les URL propres (/suivi, /boutique...).
-# Sans directive, Apache deduit le bon prefixe du dossier du .htaccess.
+# Pas de RewriteBase : sa valeur differe entre la production (/) et le poste
+# local (/afrostyle/), et la directive n'accepte aucune condition.
+# Les reecritures d'URL propres utilisent donc %{REQUEST_FILENAME}, un chemin
+# disque absolu qui ne depend d'aucun prefixe web (voir plus bas).
 RewriteRule ^config/ - [F,L]
 RewriteRule ^includes/ - [F,L]
 RewriteRule ^vendor/ - [F,L]
@@ -38,34 +38,15 @@ RewriteCond %{THE_REQUEST} !\s/(?:[^\s?]*/)?admin/ [NC]
 RewriteCond %2 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success|paypal-checkout|paypal-success)$ [NC]
 RewriteRule \.php$ %1%2 [R=301,L]
 
-# Réécrire les URLs propres vers .php (liste explicite)
-RewriteRule ^boutique$ boutique.php [NC,L]
-RewriteRule ^produit$ produit.php [NC,L]
-RewriteRule ^panier$ panier.php [NC,L]
-RewriteRule ^commande$ commande.php [NC,L]
-RewriteRule ^confirmation$ confirmation.php [NC,L]
-RewriteRule ^suivi$ suivi.php [NC,L]
-RewriteRule ^sur-mesure$ sur-mesure.php [NC,L]
-RewriteRule ^login$ login.php [NC,L]
-RewriteRule ^logout$ logout.php [NC,L]
-RewriteRule ^register$ register.php [NC,L]
-RewriteRule ^compte$ compte.php [NC,L]
-RewriteRule ^stripe-checkout$ stripe-checkout.php [NC,L]
-RewriteRule ^stripe-success$ stripe-success.php [NC,L]
-RewriteRule ^paydunya-checkout$ paydunya-checkout.php [NC,L]
-RewriteRule ^paydunya-success$ paydunya-success.php [NC,L]
-RewriteRule ^paydunya-webhook$ paydunya-webhook.php [NC,L]
-RewriteRule ^cart-action$ cart-action.php [NC,L]
-RewriteRule ^wave-checkout$ wave-checkout.php [NC,L]
-RewriteRule ^wave-success$ wave-success.php [NC,L]
-RewriteRule ^wave-webhook$ wave-webhook.php [NC,L]
-RewriteRule ^paypal-checkout$ paypal-checkout.php [NC,L]
-RewriteRule ^paypal-success$ paypal-success.php [NC,L]
-RewriteRule ^mot-de-passe-oublie$ mot-de-passe-oublie.php [NC,L]
-RewriteRule ^politique-confidentialite$ politique-confidentialite.php [NC,L]
-RewriteRule ^guide-des-tailles$ guide-des-tailles.php [NC,L]
-RewriteRule ^cgv$ cgv.php [NC,L]
-RewriteRule ^mentions-legales$ mentions-legales.php [NC,L]
+# Réécrire les URLs propres vers .php
+# %{REQUEST_FILENAME} est un chemin DISQUE absolu, calcule par Apache quel que
+# soit le prefixe web : la regle vaut donc a la racine d'un domaine comme dans
+# un sous-dossier, sans RewriteBase. La liste explicite qu'elle remplace ne
+# fonctionnait qu'avec un RewriteBase correct, absent en local.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.+?)/?$ $1.php [NC,L]
 
 # Pages d'erreur personnalisées
 # erreur.php est autonome (aucun require, aucune requete SQL) : il doit
