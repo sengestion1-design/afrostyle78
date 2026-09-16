@@ -148,8 +148,8 @@ if ($unpaidOrders):
                 <td style="color:var(--muted); font-size:1.05rem;"><?= date('d/m/Y', strtotime($ord['created_at'])) ?></td>
                 <td style="display:flex;gap:6px;">
                     <a href="commande-detail.php?id=<?= $ord['id'] ?>" class="btn-admin btn-gold btn-sm">Détail</a>
-                    <form method="POST" onsubmit="return confirm('Supprimer la commande <?= htmlspecialchars($ord['order_number']) ?>
-<?= csrfField() ?> ? Cette action est irréversible.');">
+                    <form method="POST" onsubmit="return confirm('Supprimer la commande <?= htmlspecialchars($ord['order_number'], ENT_QUOTES) ?> ? Cette action est irréversible.');">
+                        <?= csrfField() ?>
                         <input type="hidden" name="delete_order_id" value="<?= $ord['id'] ?>">
                         <button type="submit" class="btn-admin btn-sm" style="background:#e53e3e;color:#fff;border:none;cursor:pointer;">Supprimer</button>
                     </form>
