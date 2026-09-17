@@ -36,22 +36,27 @@ echo "\n=== COMMANDE DE TEST ===\n";
 echo "Numero  : " . $order['order_number'] . "\n";
 echo "Montant : " . $order['total_amount'] . " (devise du site : EUR)\n";
 
+// Meme conversion que moneyfusion-checkout.php : leur API raisonne en FCFA.
+$taux = 655.957;
+$montantXof = (int)round((float)$order['total_amount'] * $taux);
+echo "Converti : " . $montantXof . " FCFA (taux " . $taux . ")\n";
+
 $stmtItems = $db->prepare("SELECT product_name, quantity, unit_price FROM order_items WHERE order_id=?");
 $stmtItems->execute([$order['id']]);
 $articles = [];
 foreach ($stmtItems->fetchAll() as $it) {
     $articles[] = [
         'name'     => (string)$it['product_name'],
-        'price'    => (string)number_format((float)$it['unit_price'], 2, '.', ''),
+        'price'    => (string)(int)round((float)$it['unit_price'] * $taux),
         'quantity' => (int)$it['quantity'],
     ];
 }
 if (!$articles) {
-    $articles[] = ['name' => 'Commande', 'price' => number_format((float)$order['total_amount'], 2, '.', ''), 'quantity' => 1];
+    $articles[] = ['name' => 'Commande', 'price' => (string)$montantXof, 'quantity' => 1];
 }
 
 $payload = [
-    'totalPrice'    => (string)number_format((float)$order['total_amount'], 2, '.', ''),
+    'totalPrice'    => (string)$montantXof,
     'article'       => $articles,
     'numeroSend'    => preg_replace('/\D+/', '', (string)($order['phone'] ?? '')),
     'nomclient'     => trim($order['first_name'] . ' ' . $order['last_name']),
