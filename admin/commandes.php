@@ -12,6 +12,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_order_id'])) {
     exit;
 }
 
+// Suppression groupée (cases à cocher)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['delete_ids']) && is_array($_POST['delete_ids'])) {
+    // On force des entiers : les ids viennent du formulaire, donc du client.
+    $ids = array_values(array_filter(array_map('intval', $_POST['delete_ids'])));
+    if ($ids) {
+        $trous = implode(',', array_fill(0, count($ids), '?'));
+        try {
+            // Transaction : les lignes de commande et les commandes doivent
+            // disparaitre ensemble, sinon des order_items resteraient orphelins.
+            $db->beginTransaction();
+            $db->prepare("DELETE FROM order_items WHERE order_id IN ($trous)")->execute($ids);
+            $db->prepare("DELETE FROM orders WHERE id IN ($trous)")->execute($ids);
+            $db->commit();
+            header('Location: commandes.php?deleted=' . count($ids));
+            exit;
+        } catch (PDOException $e) {
+            $db->rollBack();
+            error_log('commandes.php : suppression groupee impossible — ' . $e->getMessage());
+            header('Location: commandes.php?delerror=1');
+            exit;
+        }
+    }
+}
+
 // Marquer comme payé
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_paid_id'])) {
     $paidId = (int)$_POST['mark_paid_id'];
@@ -39,8 +63,16 @@ $statusLabels = ['pending'=>'En attente','confirmed'=>'Confirmée','in_productio
 require_once 'includes/admin_header.php';
 ?>
 
-<?php if (isset($_GET['deleted'])): ?>
-<div style="background:#f0fff4;border:1px solid #9ae6b4;color:#276749;padding:12px 20px;margin-bottom:16px;">✓ Commande supprimée.</div>
+<?php if (isset($_GET['deleted'])):
+    // La suppression groupee renvoie le nombre supprime ; l'unitaire renvoie "1".
+    $nbSupp = max(1, (int)$_GET['deleted']);
+?>
+<div style="background:#f0fff4;border:1px solid #9ae6b4;color:#276749;padding:12px 20px;margin-bottom:16px;">
+    ✓ <?= $nbSupp ?> commande<?= $nbSupp > 1 ? 's supprimées' : ' supprimée' ?>.
+</div>
+<?php endif; ?>
+<?php if (isset($_GET['delerror'])): ?>
+<div style="background:#fff5f5;border:1px solid #feb2b2;color:#c53030;padding:12px 20px;margin-bottom:16px;">⚠ Suppression impossible : erreur base de données. Le détail est dans les logs du serveur.</div>
 <?php endif; ?>
 <?php if (isset($_GET['paid'])): ?>
 <div style="background:#f0fff4;border:1px solid #9ae6b4;color:#276749;padding:12px 20px;margin-bottom:16px;">✓ Commande marquée comme payée et confirmée.</div>
@@ -118,9 +150,30 @@ if ($unpaidOrders):
             </select>
         </form>
     </div>
+    <!-- Suppression groupée : le formulaire englobe le tableau, chaque ligne
+         porte une case à cocher, et la barre n'apparaît qu'une fois au moins
+         une commande sélectionnée. -->
+    <form method="POST" id="form-suppr-groupee"
+          onsubmit="return confirmerSuppressionGroupee();">
+        <?= csrfField() ?>
+        <div id="barre-selection" hidden
+             style="display:flex;align-items:center;gap:16px;background:#fffbf0;border:1px solid #f0d9a0;padding:12px 16px;margin-bottom:12px;">
+            <strong id="compteur-selection" style="font-size:1.05rem;">0 commande sélectionnée</strong>
+            <button type="submit" class="btn-admin btn-sm"
+                    style="background:#e53e3e;color:#fff;border:none;cursor:pointer;">
+                🗑 Supprimer la sélection
+            </button>
+            <button type="button" class="btn-admin btn-outline btn-sm" onclick="toutDeselectionner()">
+                Tout désélectionner
+            </button>
+        </div>
     <table class="admin-table">
         <thead>
             <tr>
+                <th style="width:36px;text-align:center;">
+                    <input type="checkbox" id="cocher-tout" onclick="basculerTout(this)"
+                           title="Tout sélectionner" style="cursor:pointer;">
+                </th>
                 <th>N° Commande</th>
                 <th>Client</th>
                 <th>Contact</th>
@@ -134,6 +187,10 @@ if ($unpaidOrders):
         <tbody>
             <?php foreach($orders as $ord): ?>
             <tr>
+                <td style="text-align:center;">
+                    <input type="checkbox" name="delete_ids[]" value="<?= (int)$ord['id'] ?>"
+                           class="case-commande" onclick="majSelection()" style="cursor:pointer;">
+                </td>
                 <td><strong style="font-size:1.1rem;"><?= htmlspecialchars($ord['order_number']) ?></strong></td>
                 <td><?= htmlspecialchars($ord['first_name'] . ' ' . $ord['last_name']) ?></td>
                 <td style="font-size:1.05rem; color:var(--muted);"><?= htmlspecialchars($ord['phone']) ?></td>
@@ -148,16 +205,75 @@ if ($unpaidOrders):
                 <td style="color:var(--muted); font-size:1.05rem;"><?= date('d/m/Y', strtotime($ord['created_at'])) ?></td>
                 <td style="display:flex;gap:6px;">
                     <a href="commande-detail.php?id=<?= $ord['id'] ?>" class="btn-admin btn-gold btn-sm">Détail</a>
-                    <form method="POST" onsubmit="return confirm('Supprimer la commande <?= htmlspecialchars($ord['order_number'], ENT_QUOTES) ?> ? Cette action est irréversible.');">
-                        <?= csrfField() ?>
-                        <input type="hidden" name="delete_order_id" value="<?= $ord['id'] ?>">
-                        <button type="submit" class="btn-admin btn-sm" style="background:#e53e3e;color:#fff;border:none;cursor:pointer;">Supprimer</button>
-                    </form>
+                    <!-- Un <form> ne peut pas etre imbrique dans un autre : les navigateurs
+                         l'ignorent. Le bouton pointe donc vers un formulaire declare hors
+                         du tableau, via l'attribut "form". -->
+                    <button type="submit" form="suppr-<?= (int)$ord['id'] ?>"
+                            class="btn-admin btn-sm"
+                            style="background:#e53e3e;color:#fff;border:none;cursor:pointer;">Supprimer</button>
                 </td>
             </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
+    </form>
+
+    <!-- Formulaires de suppression unitaire, hors du formulaire groupé pour
+         éviter toute imbrication. Chaque bouton de ligne y est relié par son id. -->
+    <?php foreach($orders as $ord): ?>
+    <form method="POST" id="suppr-<?= (int)$ord['id'] ?>" style="display:none;"
+          onsubmit="return confirm('Supprimer la commande <?= htmlspecialchars($ord['order_number'], ENT_QUOTES) ?> ? Cette action est irréversible.');">
+        <?= csrfField() ?>
+        <input type="hidden" name="delete_order_id" value="<?= (int)$ord['id'] ?>">
+    </form>
+    <?php endforeach; ?>
 </div>
+
+<script>
+// Suppression groupée : la barre d'action n'apparaît qu'une fois au moins une
+// commande cochée, et le compteur reflète la sélection en cours.
+function casesCommandes() {
+    return Array.from(document.querySelectorAll('.case-commande'));
+}
+
+function majSelection() {
+    var cases    = casesCommandes();
+    var cochees  = cases.filter(function (c) { return c.checked; });
+    var barre    = document.getElementById('barre-selection');
+    var compteur = document.getElementById('compteur-selection');
+    var toutes   = document.getElementById('cocher-tout');
+
+    barre.hidden = cochees.length === 0;
+    compteur.textContent = cochees.length + ' commande'
+        + (cochees.length > 1 ? 's sélectionnées' : ' sélectionnée');
+
+    // État intermédiaire quand la sélection est partielle.
+    toutes.checked = cases.length > 0 && cochees.length === cases.length;
+    toutes.indeterminate = cochees.length > 0 && cochees.length < cases.length;
+}
+
+function basculerTout(source) {
+    casesCommandes().forEach(function (c) { c.checked = source.checked; });
+    majSelection();
+}
+
+function toutDeselectionner() {
+    casesCommandes().forEach(function (c) { c.checked = false; });
+    document.getElementById('cocher-tout').checked = false;
+    majSelection();
+}
+
+function confirmerSuppressionGroupee() {
+    var n = casesCommandes().filter(function (c) { return c.checked; }).length;
+    if (n === 0) {
+        alert('Sélectionnez au moins une commande.');
+        return false;
+    }
+    return confirm('Supprimer définitivement ' + n + ' commande'
+        + (n > 1 ? 's' : '') + ' ? Cette action est irréversible.');
+}
+
+majSelection();
+</script>
 
 <?php require_once 'includes/admin_footer.php'; ?>
