@@ -501,6 +501,16 @@ require_once 'includes/admin_header.php';
             </strong>
           </div>
         </div>
+        <!-- Le formulaire de test vit plus bas dans la page : il ne peut pas
+             etre place ici, un <form> imbrique dans un autre etant ignore par
+             les navigateurs. Ce raccourci y mene et met le bloc en evidence. -->
+        <div style="margin-top:16px;background:#f0f4ff;border:1px solid #c3d4f7;padding:14px 16px;font-size:0.9rem;color:#2c4a8c;">
+          ✉️ <strong>Vérifier que les emails partent :</strong>
+          <a href="#test-email" onclick="var b=document.getElementById('test-email');b.scrollIntoView({behavior:'smooth'});b.style.outline='2px solid #c8921a';setTimeout(function(){b.style.outline='';},2000);"
+             style="color:#c8921a;font-weight:700;text-decoration:underline;">
+            aller au test d'envoi →
+          </a>
+        </div>
         <div style="margin-top:16px;background:#e8f9f0;border:1px solid rgba(0,180,100,0.2);padding:14px 16px;font-size:0.88rem;color:#276749;">
           🔗 URL Webhook Wave à configurer sur wave.com/business :<br>
           <strong style="word-break:break-all;"><?= SITE_URL ?>/wave-webhook.php</strong>
@@ -678,7 +688,7 @@ require_once 'includes/admin_header.php';
 <!-- Formulaire distinct : un <form> imbrique dans un autre est ignore par les
      navigateurs. Il envoie un vrai message pour verifier la configuration SMTP
      sans attendre une commande client. -->
-<div class="admin-card" style="margin-top:32px;">
+<div class="admin-card" id="test-email" style="margin-top:32px;transition:outline 0.3s;">
   <div class="admin-card-header">
     <div class="admin-card-title">✉️ Tester l'envoi d'emails</div>
   </div>
