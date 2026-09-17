@@ -31,7 +31,7 @@ RewriteCond %{REQUEST_METHOD} =GET
 # a la racine du domaine (/cgv.php) comme en local (/afrostyle/cgv.php).
 RewriteCond %{THE_REQUEST} \s(/(?:[^\s?]*/)?)(?!admin/)([^./\s?]+)\.php[\s?] [NC]
 RewriteCond %{THE_REQUEST} !\s/(?:[^\s?]*/)?admin/ [NC]
-RewriteCond %2 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success|paypal-checkout|paypal-success)$ [NC]
+RewriteCond %2 !^(cart-action|paydunya-webhook|wave-webhook|paydunya-success|wave-success|stripe-success|paypal-checkout|paypal-success|moneyfusion-webhook|moneyfusion-success|moneyfusion-checkout)$ [NC]
 RewriteRule \.php$ %1%2 [R=301,L]
 
 # Réécrire les URLs propres vers .php (liste explicite)
@@ -61,6 +61,9 @@ RewriteRule ^wave-success$ wave-success.php [NC,L]
 RewriteRule ^wave-webhook$ wave-webhook.php [NC,L]
 RewriteRule ^paypal-checkout$ paypal-checkout.php [NC,L]
 RewriteRule ^paypal-success$ paypal-success.php [NC,L]
+RewriteRule ^moneyfusion-checkout$ moneyfusion-checkout.php [NC,L]
+RewriteRule ^moneyfusion-success$ moneyfusion-success.php [NC,L]
+RewriteRule ^moneyfusion-webhook$ moneyfusion-webhook.php [NC,L]
 RewriteRule ^mot-de-passe-oublie$ mot-de-passe-oublie.php [NC,L]
 RewriteRule ^politique-confidentialite$ politique-confidentialite.php [NC,L]
 RewriteRule ^guide-des-tailles$ guide-des-tailles.php [NC,L]
