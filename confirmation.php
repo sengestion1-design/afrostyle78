@@ -417,7 +417,9 @@ function payWithWave() {
     fetch('<?= SITE_URL ?>/wave-checkout.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'order_number=<?= urlencode($orderNumber) ?>'
+        // Le jeton accompagne la requete : il prouve l'identite d'un client sans
+        // compte, comme il le fait deja pour l'acces a cette page.
+        body: 'order_number=<?= urlencode($orderNumber) ?>&confirm_token=<?= urlencode($order["confirm_token"] ?? "") ?>'
     })
     .then(r => r.json())
     .then(data => {
@@ -442,7 +444,9 @@ function payWithStripe() {
     fetch('<?= SITE_URL ?>/stripe-checkout.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'order_number=<?= urlencode($orderNumber) ?>'
+        // Le jeton accompagne la requete : il prouve l'identite d'un client sans
+        // compte, comme il le fait deja pour l'acces a cette page.
+        body: 'order_number=<?= urlencode($orderNumber) ?>&confirm_token=<?= urlencode($order["confirm_token"] ?? "") ?>'
     })
     .then(r => r.json())
     .then(data => {
@@ -467,7 +471,9 @@ function payWithPaypal() {
     fetch('<?= SITE_URL ?>/paypal-checkout.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'order_number=<?= urlencode($orderNumber) ?>'
+        // Le jeton accompagne la requete : il prouve l'identite d'un client sans
+        // compte, comme il le fait deja pour l'acces a cette page.
+        body: 'order_number=<?= urlencode($orderNumber) ?>&confirm_token=<?= urlencode($order["confirm_token"] ?? "") ?>'
     })
     .then(r => r.json())
     .then(data => {

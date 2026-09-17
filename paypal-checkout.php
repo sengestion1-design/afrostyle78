@@ -11,11 +11,11 @@ require_once 'config/database.php';
 
 header('Content-Type: application/json');
 
-if (empty($_SESSION['customer_id'])) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Vous devez être connecté pour payer.']);
-    exit;
-}
+// L'identite n'est plus exigee ici mais plus bas : proprietaire de la session,
+// OU porteur du jeton de confirmation de la commande. Un visiteur pouvait en
+// effet commander sans compte, puis se voir refuser le paiement a la derniere
+// etape. Meme controle que paydunya-checkout.php, deja en place.
+$confirmToken = trim($_POST['confirm_token'] ?? $_POST['t'] ?? '');
 
 $db       = getDB();
 $settings = $db->query("SELECT setting_key, setting_value FROM settings WHERE setting_group='paypal'")->fetchAll(PDO::FETCH_KEY_PAIR);
@@ -51,7 +51,13 @@ if (!$order) {
     echo json_encode(['error' => 'Commande introuvable.']);
     exit;
 }
-if ((int)$order['customer_id'] !== (int)$_SESSION['customer_id']) {
+// Deux preuves d'identite acceptees : la session du client connecte, ou le
+// jeton de confirmation propre a la commande (64 caracteres aleatoires,
+// compare en temps constant). Sans l'une des deux, acces refuse.
+$isOwner = !empty($_SESSION['customer_id']) && (int)$order['customer_id'] === (int)$_SESSION['customer_id'];
+$isGuest = !empty($confirmToken) && !empty($order['confirm_token'])
+           && hash_equals($order['confirm_token'], $confirmToken);
+if (!$isOwner && !$isGuest) {
     http_response_code(403);
     echo json_encode(['error' => 'Accès refusé.']);
     exit;

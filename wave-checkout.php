@@ -4,11 +4,10 @@ require_once 'config/database.php';
 
 header('Content-Type: application/json');
 
-if (empty($_SESSION['customer_id'])) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Vous devez être connecté pour payer.']);
-    exit;
-}
+// L'identite est verifiee plus bas : proprietaire de la session, OU porteur du
+// jeton de confirmation. Un visiteur pouvait commander sans compte puis se voir
+// refuser le paiement. Meme controle que paydunya-checkout.php.
+$confirmToken = trim($_POST['confirm_token'] ?? $_POST['t'] ?? '');
 
 $db          = getDB();
 $allSettings = $db->query("SELECT setting_key, setting_value FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
@@ -34,7 +33,12 @@ if (!$order) {
     exit;
 }
 
-if ((int)$order['customer_id'] !== (int)$_SESSION['customer_id']) {
+// Session du client connecte, ou jeton propre a la commande (64 caracteres
+// aleatoires, compares en temps constant). Sans l'un des deux : refus.
+$isOwner = !empty($_SESSION['customer_id']) && (int)$order['customer_id'] === (int)$_SESSION['customer_id'];
+$isGuest = !empty($confirmToken) && !empty($order['confirm_token'])
+           && hash_equals($order['confirm_token'], $confirmToken);
+if (!$isOwner && !$isGuest) {
     http_response_code(403);
     echo json_encode(['error' => 'Accès refusé.']);
     exit;
