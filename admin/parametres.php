@@ -123,6 +123,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // ── Envoi d'un email de test ─────────────────────────────────────────────
+    // Verifie la configuration SMTP sans attendre une vraie commande : l'echec
+    // d'envoi etait jusqu'ici totalement silencieux cote site.
+    if (!empty($_POST['test_mail_to'])) {
+        $testTo = trim($_POST['test_mail_to']);
+        if (!filter_var($testTo, FILTER_VALIDATE_EMAIL)) {
+            $msg = 'error_testmail_adresse';
+        } else {
+            require_once __DIR__ . '/../config/mailer.php';
+            $corpsTest = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>'
+                . '<body style="font-family:Georgia,serif;background:#f5f0e8;padding:32px;">'
+                . '<div style="max-width:520px;margin:0 auto;background:#fff;padding:32px;">'
+                . '<h2 style="color:#1a1008;font-weight:400;margin:0 0 16px;">Test d\'envoi réussi</h2>'
+                . '<p style="color:#555;line-height:1.7;margin:0 0 12px;">'
+                . 'Si vous lisez ce message, la configuration SMTP d\'AfroStyle78 fonctionne : '
+                . 'les emails de commande, de création de compte et de réinitialisation de mot de passe '
+                . 'peuvent être envoyés.</p>'
+                . '<p style="color:#8a7a62;font-size:13px;margin:20px 0 0;">Envoyé le '
+                . date('d/m/Y à H:i') . ' depuis l\'administration.</p>'
+                . '</div></body></html>';
+
+            $envoye = sendMail($testTo, 'Test AfroStyle', 'Test de configuration email — AfroStyle78', $corpsTest);
+            $msg = $envoye ? 'success_testmail' : 'error_testmail_envoi';
+            if (!$envoye) {
+                // Le detail (refus Gmail, port bloque...) part dans error_log via sendMail().
+                error_log('parametres.php : echec du mail de test vers ' . $testTo);
+            }
+        }
+    }
+
     // ── Modifier un compte admin (nom, email, mot de passe) ──────────────────
     if (!empty($_POST['edit_admin_id'])) {
         $targetId = (int)$_POST['edit_admin_id'];
@@ -443,6 +473,24 @@ require_once 'includes/admin_header.php';
         </div>
         <div style="margin-top:16px;background:#fffbf0;border:1px solid rgba(200,146,26,0.2);padding:14px 16px;font-size:0.88rem;color:#7a6248;">
           📧 Expéditeur actuel : <strong><?= htmlspecialchars($mailCfg['MAIL_FROM_EMAIL'] ?? 'non configuré') ?></strong>
+          <?php
+            // Le mot de passe vit dans secrets.php, hors du depot. S'il manque,
+            // aucun email ne part et rien ne le signalait jusqu'ici.
+            // On lit la constante reellement definie plutot que le texte du
+            // fichier : une valeur vide ('') doit compter comme absente, et
+            // mail.php a deja charge secrets.php a ce stade.
+            $motDePasseOk = defined('MAIL_APP_PASSWORD') && trim((string)MAIL_APP_PASSWORD) !== '';
+            if (!$motDePasseOk && defined('MAIL_PASSWORD')) {
+                // Ancienne configuration : le mot de passe vivait dans mail.php.
+                $motDePasseOk = trim((string)MAIL_PASSWORD) !== '';
+            }
+          ?>
+          <div style="margin-top:8px;">
+            🔑 Mot de passe d'application :
+            <strong style="color:<?= $motDePasseOk ? '#276749' : '#c53030' ?>;">
+              <?= $motDePasseOk ? 'enregistré' : 'ABSENT — aucun email ne peut partir' ?>
+            </strong>
+          </div>
         </div>
         <div style="margin-top:16px;background:#e8f9f0;border:1px solid rgba(0,180,100,0.2);padding:14px 16px;font-size:0.88rem;color:#276749;">
           🔗 URL Webhook Wave à configurer sur wave.com/business :<br>
@@ -615,6 +663,49 @@ require_once 'includes/admin_header.php';
 </div>
 
 </form>
+</div>
+
+<!-- ═══ TEST D'ENVOI EMAIL ═══ -->
+<!-- Formulaire distinct : un <form> imbrique dans un autre est ignore par les
+     navigateurs. Il envoie un vrai message pour verifier la configuration SMTP
+     sans attendre une commande client. -->
+<div class="admin-card" style="margin-top:32px;">
+  <div class="admin-card-header">
+    <div class="admin-card-title">✉️ Tester l'envoi d'emails</div>
+  </div>
+
+  <?php if ($msg === 'success_testmail'): ?>
+    <div class="alert alert-success">✓ Email de test envoyé. Vérifiez la boîte de réception (et les spams) de l'adresse saisie.</div>
+  <?php elseif ($msg === 'error_testmail_envoi'): ?>
+    <div class="alert alert-error">
+      ⚠ L'envoi a échoué. La configuration SMTP est refusée par Gmail.<br>
+      <span style="font-size:0.9rem;">Causes fréquentes : mot de passe d'application révoqué ou expiré, validation en deux étapes désactivée sur le compte Google, ou port SMTP bloqué par l'hébergeur. Le détail exact figure dans le fichier <strong>error_log</strong> du serveur, ligne « Mailer error ».</span>
+    </div>
+  <?php elseif ($msg === 'error_testmail_adresse'): ?>
+    <div class="alert alert-error">⚠ Adresse email invalide.</div>
+  <?php endif; ?>
+
+  <p style="color:var(--muted);font-size:0.92rem;margin-bottom:16px;">
+    Envoie un message réel à l'adresse indiquée, en utilisant la configuration
+    enregistrée ci-dessus. Si le test échoue, aucun email du site ne part :
+    ni confirmation de commande, ni création de compte, ni réinitialisation de
+    mot de passe.
+  </p>
+
+  <form method="POST" class="admin-form">
+    <?= csrfField() ?>
+    <div class="form-row">
+      <div>
+        <label>Envoyer un test à</label>
+        <input type="email" name="test_mail_to" required
+               placeholder="votre@email.com"
+               value="<?= htmlspecialchars($mailCfg['MAIL_FROM_EMAIL'] ?? '', ENT_QUOTES) ?>">
+      </div>
+      <div style="display:flex;align-items:flex-end;">
+        <button type="submit" class="btn-admin btn-dark">Envoyer l'email de test</button>
+      </div>
+    </div>
+  </form>
 </div>
 
 <!-- ═══ CRÉER UN COMPTE ADMIN ═══ -->
