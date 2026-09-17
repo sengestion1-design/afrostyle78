@@ -24,7 +24,16 @@ if ($apiUrl === '') {
 // L'URL vient des reglages : on refuse tout ce qui n'est pas une adresse
 // MoneyFusion en HTTPS, pour qu'un reglage errone n'envoie pas la commande
 // vers un serveur tiers.
-if (!preg_match('#^https://[a-z0-9.-]*moneyfusion\.net/#i', $apiUrl)) {
+//
+// Le domaine est compare sur ses composants, jamais par simple recherche de
+// texte : un motif du type «...moneyfusion.net» aurait accepte
+// «evilmoneyfusion.net», un domaine qu'un tiers peut enregistrer pour
+// intercepter les commandes. Seul moneyfusion.net et ses sous-domaines passent.
+$hote = parse_url($apiUrl, PHP_URL_HOST);
+$schema = parse_url($apiUrl, PHP_URL_SCHEME);
+$hoteOk = is_string($hote)
+    && ($hote === 'moneyfusion.net' || str_ends_with(strtolower($hote), '.moneyfusion.net'));
+if (strtolower((string)$schema) !== 'https' || !$hoteOk) {
     error_log('[MONEYFUSION] URL d\'API refusee : ' . $apiUrl);
     echo json_encode(['error' => 'URL d\'API MoneyFusion invalide. Vérifiez les paramètres.']);
     exit;
