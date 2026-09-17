@@ -100,6 +100,8 @@ if ($clientId && $secret && $orderNumber) {
                 $lignesEmail = $items->fetchAll();
                 @emailOrderConfirmation($order['email'], $order['first_name'], $orderForEmail, $lignesEmail);
                 // PayPal encaisse immediatement : la commande est payee d'emblee.
+                // PayPal a encaisse : le panier peut etre vide sans risque.
+                $_SESSION['cart'] = [];
                 @emailAdminNewOrder($orderForEmail, $lignesEmail, [
                     'first_name' => $order['first_name'],
                     'last_name'  => $order['last_name'] ?? '',

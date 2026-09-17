@@ -185,8 +185,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
             }
 
-            // Clear cart & redirect
-            $_SESSION['cart'] = [];
+            // Le panier n'est PAS vide ici : la commande vient d'etre creee mais
+            // n'est pas payee. Un client qui revient en arriere pour verifier un
+            // detail ou changer de moyen de paiement retrouvait un panier vide et
+            // devait tout ressaisir. Le vidage a lieu au paiement effectif
+            // (confirmation.php quand le client declare son paiement,
+            // paypal-success.php quand PayPal a encaisse).
             $_SESSION['last_order'] = ['number' => $orderNumber, 'total' => $total, 'name' => "$firstName $lastName"];
 
             ob_end_clean();

@@ -84,6 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
             'phone'      => $order['phone'] ?? '',
         ]);
 
+        // Paiement declare : la commande est engagee, le panier peut etre vide.
+        // Il etait auparavant vide des la creation de la commande, ce qui
+        // obligeait un client revenant en arriere a tout ressaisir.
+        $_SESSION['cart'] = [];
+
         $confirmMsg = 'success';
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         $stmt = $db->prepare("SELECT o.*, c.first_name, c.last_name, c.email FROM orders o JOIN customers c ON o.customer_id=c.id WHERE o.order_number=?");

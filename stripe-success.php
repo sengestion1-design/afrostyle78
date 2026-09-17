@@ -16,6 +16,8 @@ if ($secretKey && $sessionId) {
         if ($session->payment_status === 'paid') {
             $db->prepare("UPDATE orders SET payment_status='paid', payment_method='carte' WHERE order_number=?")
                ->execute([$orderNumber]);
+            // Paiement encaisse : le panier peut etre vide.
+            $_SESSION['cart'] = [];
         }
     } catch (Exception $e) {}
 }
