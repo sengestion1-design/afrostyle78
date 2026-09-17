@@ -80,6 +80,16 @@ if ($montant <= 0) {
     exit;
 }
 
+// MoneyFusion raisonne en FCFA : un montant en euros y etait lu comme des
+// francs (145 EUR devenaient 145 FCFA, refuses car sous leur minimum de 200).
+// Taux fixe de la zone franc, deja utilise par PayDunya et Wave dans ce projet.
+const MONEYFUSION_TAUX_EUR_XOF = 655.957;
+$montantXof = (int)round($montant * MONEYFUSION_TAUX_EUR_XOF);
+if ($montantXof < 200) {
+    echo json_encode(['error' => 'Le montant est trop faible pour ce moyen de paiement. Choisissez un autre moyen ci-dessous.']);
+    exit;
+}
+
 // Articles de la commande, pour que le client les retrouve chez MoneyFusion.
 $stmtItems = $db->prepare("SELECT product_name, quantity, unit_price FROM order_items WHERE order_id=?");
 $stmtItems->execute([$order['id']]);
@@ -87,19 +97,20 @@ $articles = [];
 foreach ($stmtItems->fetchAll() as $it) {
     $articles[] = [
         'name'     => (string)$it['product_name'],
-        'price'    => (string)number_format((float)$it['unit_price'], 2, '.', ''),
+        // Prix converti comme le total : MoneyFusion attend des FCFA.
+        'price'    => (string)(int)round((float)$it['unit_price'] * MONEYFUSION_TAUX_EUR_XOF),
         'quantity' => (int)$it['quantity'],
     ];
 }
 if (!$articles) {
-    $articles[] = ['name' => 'Commande ' . $orderNumber, 'price' => (string)number_format($montant, 2, '.', ''), 'quantity' => 1];
+    $articles[] = ['name' => 'Commande ' . $orderNumber, 'price' => (string)$montantXof, 'quantity' => 1];
 }
 
 // Le numero sert a pre-remplir le paiement mobile : on ne garde que les chiffres.
 $numeroSend = preg_replace('/\D+/', '', (string)($order['phone'] ?? ''));
 
 $payload = [
-    'totalPrice'    => (string)number_format($montant, 2, '.', ''),
+    'totalPrice'    => (string)$montantXof,
     'article'       => $articles,
     'numeroSend'    => $numeroSend,
     'nomclient'     => trim($order['first_name'] . ' ' . $order['last_name']),

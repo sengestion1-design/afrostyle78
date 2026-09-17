@@ -302,6 +302,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
                 <?php if ($mfUrl): ?>
                 <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:16px;">
                     Paiement sécurisé via MoneyFusion. Vous serez redirigé pour valider depuis votre téléphone.
+                    <br><span style="font-size:0.88rem;">Le montant sera converti en FCFA, soit
+                    <strong><?= number_format(round($order['total_amount'] * 655.957), 0, ',', ' ') ?> F</strong>.</span>
                 </p>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
                     <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Orange Money</span>

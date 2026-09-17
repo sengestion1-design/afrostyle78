@@ -82,12 +82,16 @@ if ($order['payment_status'] === 'paid') {
     exit;
 }
 
-// Le montant annonce doit correspondre a la commande, a un centime pres.
+// Le montant annonce doit correspondre a la commande. La comparaison se fait
+// en FCFA : c'est la devise de MoneyFusion, et celle dans laquelle le paiement
+// a ete cree. Comparer des euros a des francs rejetterait tout paiement valide.
+// Taux fixe de la zone franc, identique a celui de moneyfusion-checkout.php.
 $montantRecu = (float)($infos['Montant'] ?? 0);
-$montantDu   = (float)$order['total_amount'];
-if (abs($montantRecu - $montantDu) > 0.01) {
-    error_log(sprintf('[MONEYFUSION] Montant different pour %s : recu %.2f, attendu %.2f',
-        $order['order_number'], $montantRecu, $montantDu));
+$montantDuXof = round((float)$order['total_amount'] * 655.957);
+// Tolerance d'un franc : les arrondis peuvent differer d'une unite.
+if (abs($montantRecu - $montantDuXof) > 1) {
+    error_log(sprintf('[MONEYFUSION] Montant different pour %s : recu %.2f FCFA, attendu %.0f FCFA',
+        $order['order_number'], $montantRecu, $montantDuXof));
     exit;
 }
 

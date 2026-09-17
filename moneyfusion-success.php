@@ -29,10 +29,13 @@ if ($orderNumber !== '') {
 
         $infos = json_decode((string)$reponse, true)['data'] ?? [];
         $montantRecu = (float)($infos['Montant'] ?? 0);
+        // MoneyFusion raisonne en FCFA : la comparaison se fait dans cette
+        // devise, avec le meme taux qu'a la creation du paiement.
+        $montantDuXof = round((float)$order['total_amount'] * 655.957);
 
         // Meme exigence que le webhook : statut payé ET montant conforme.
         if (strtolower((string)($infos['statut'] ?? '')) === 'paid'
-            && abs($montantRecu - (float)$order['total_amount']) <= 0.01) {
+            && abs($montantRecu - $montantDuXof) <= 1) {
             $db->prepare("UPDATE orders SET payment_status='paid', status='confirmed', payment_method='moneyfusion' WHERE id=?")
                ->execute([$order['id']]);
             // Le panier n'est vide qu'au paiement effectif.
