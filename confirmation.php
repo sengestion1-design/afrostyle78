@@ -389,17 +389,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
   </div>
 </div>
 
-<?php if ($order && in_array($method, ['paydunya','carte','wave','orange_money','stripe']) && !$isPaid): ?>
 <script>
-// Affiche l'erreur dans la page, dans la charte du site, et amene le client
-// jusqu'au message plutot que de bloquer sur une fenetre systeme.
+// Hors de tout bloc conditionnel : chaque moyen de paiement a son propre bloc
+// (wave, paypal, stripe...), et la fonction doit exister pour tous. Enfermee
+// dans l'un d'eux, elle restait indefinie pour les autres — le bouton PayPal
+// restait alors bloque sur « Redirection... » sans afficher la moindre erreur.
 function afficherErreurPaiement(texte) {
     var bloc = document.getElementById('erreur-paiement');
+    if (!bloc) { alert(texte); return; }
     document.getElementById('erreur-paiement-texte').textContent = texte;
     bloc.hidden = false;
     bloc.scrollIntoView({behavior: 'smooth', block: 'center'});
 }
 </script>
+
+<?php if ($order && in_array($method, ['paydunya','carte','wave','orange_money','stripe']) && !$isPaid): ?>
 <script>
 function payWithPaydunya() {
     const btn = document.getElementById('paydunya-btn');
