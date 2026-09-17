@@ -302,10 +302,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // INSERT ... ON DUPLICATE KEY UPDATE et non un simple UPDATE : un reglage
+    // nouvellement ajoute au code n'a pas encore de ligne en base, et l'UPDATE
+    // ne modifiait alors rien — la saisie etait perdue sans aucun message.
     foreach ($allowedKeys as $key) {
         if (isset($_POST[$key])) {
-            $stmt = $db->prepare("UPDATE settings SET setting_value=? WHERE setting_key=?");
-            $stmt->execute([trim($_POST[$key]), $key]);
+            $stmt = $db->prepare(
+                "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
+            );
+            $stmt->execute([$key, trim($_POST[$key])]);
         }
     }
     // Upload photo "Tout voir"
@@ -582,9 +588,12 @@ require_once 'includes/admin_header.php';
                  value="<?= htmlspecialchars($mfUrl, ENT_QUOTES) ?>"
                  placeholder="https://api.moneyfusion.net/api/...">
           <small style="color:var(--muted);font-size:0.85rem;display:block;margin-top:6px;">
-            Propre à votre compte. Connectez-vous sur
-            <a href="https://moneyfusion.net" target="_blank" rel="noopener noreferrer" style="color:#c8921a;font-weight:700;">moneyfusion.net</a>,
-            créez une application dans votre tableau de bord et copiez l'URL générée.
+            <strong>L'adresse que MoneyFusion vous a générée</strong>, à copier depuis
+            <a href="https://moneyfusion.net/dashboard" target="_blank" rel="noopener noreferrer" style="color:#c8921a;font-weight:700;">votre tableau de bord</a>
+            → API de Paiement → colonne « Lien ». Elle commence par
+            <code style="background:#f2ede3;padding:1px 5px;">https://pay.moneyfusion.net/</code>
+            et doit être copiée en entier.
+            Ce n'est pas l'adresse de notification ci-dessous, qui va dans l'autre sens.
             Le moyen de paiement apparaît sur le site dès qu'elle est renseignée.
           </small>
         </div>
