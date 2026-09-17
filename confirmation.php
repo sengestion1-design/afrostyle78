@@ -385,7 +385,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
     <p style="margin:0 0 6px;color:#c0392b;font-size:0.78rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;">
       Paiement non abouti
     </p>
-    <p id="erreur-paiement-texte" style="margin:0;color:#7a3030;font-size:0.98rem;line-height:1.65;"></p>
+    <p id="erreur-paiement-texte" style="margin:0 0 14px;color:#7a3030;font-size:0.98rem;line-height:1.65;"></p>
+    <!-- Le message invite a nous contacter : le raccourci evite au client de
+         chercher le numero. Le texte pre-rempli porte le numero de commande,
+         pour repondre sans avoir a le demander. -->
+    <a href="https://wa.me/33644728730?text=<?= rawurlencode('Bonjour AfroStyle78, je rencontre un problème pour payer ma commande ' . $orderNumber . ' (' . number_format((float)($order['total_amount'] ?? 0), 2, ',', ' ') . ' €).') ?>"
+       target="_blank" rel="noopener noreferrer"
+       style="display:inline-flex;align-items:center;gap:8px;background:#25d366;color:#fff;
+              text-decoration:none;padding:11px 20px;font-size:0.9rem;font-weight:700;
+              letter-spacing:0.05em;border-radius:4px;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1.1-.2.2-.3.2-.6.1-1.6-.8-2.7-1.5-3.8-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5s-.6-1.5-.9-2c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.8.8-1 1.9-.7 3.1.4 1.2 1.2 2.4 1.3 2.6.2.2 2.3 3.6 5.7 4.9 2.1.8 2.9.9 3.9.8.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4z"/>
+        <path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 4.9L2 22l5.3-1.3C8.7 21.5 10.3 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 15 3.6 13.5 3.6 12 3.6 7.4 7.4 3.6 12 3.6s8.4 3.8 8.4 8.4-3.8 8.2-8.4 8.2z"/>
+      </svg>
+      Nous écrire sur WhatsApp
+    </a>
   </div>
 </div>
 
