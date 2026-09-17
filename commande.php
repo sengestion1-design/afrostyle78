@@ -174,6 +174,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'unit_price'   => $i['price'],
                 ], $cartItems);
                 emailOrderConfirmation($email, $firstName, $orderForEmail, $itemsForEmail);
+                // Le gerant doit savoir qu'une commande est arrivee sans avoir
+                // a consulter l'administration. L'echec d'envoi ne doit jamais
+                // interrompre la commande du client : erreur consignee, pas levee.
+                @emailAdminNewOrder($orderForEmail, $itemsForEmail, [
+                    'first_name' => $firstName,
+                    'last_name'  => $lastName ?? '',
+                    'email'      => $email,
+                    'phone'      => $phone ?? '',
+                ]);
             }
 
             // Clear cart & redirect

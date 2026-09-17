@@ -450,3 +450,131 @@ function emailPaymentConfirmedWithInvoice(string $email, string $firstName, arra
         return false;
     }
 }
+
+/**
+ * Previent le gerant qu'une commande vient d'arriver, ou qu'un paiement est confirme.
+ *
+ * Sans cette notification, une commande pouvait rester invisible jusqu'a la
+ * prochaine consultation de l'administration.
+ *
+ * @param array  $order  order_number, total_amount, delivery_fee, payment_method,
+ *                       delivery_address, delivery_city, sender_phone
+ * @param array  $items  product_name, size, quantity, unit_price
+ * @param array  $client first_name, last_name, email, phone
+ * @param bool   $paiementConfirme  true = notification de paiement recu,
+ *                                  false = nouvelle commande
+ */
+function emailAdminNewOrder(array $order, array $items, array $client, bool $paiementConfirme = false): bool {
+    $destinataire = defined('MAIL_FROM_EMAIL') ? MAIL_FROM_EMAIL : '';
+    if ($destinataire === '') {
+        error_log('emailAdminNewOrder : aucune adresse de destination configuree');
+        return false;
+    }
+
+    $e = fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+    $prix = fn($v) => number_format((float)$v, 2, ',', ' ') . ' €';
+
+    $numero  = $order['order_number'] ?? '—';
+    $total   = (float)($order['total_amount'] ?? 0);
+    $livr    = (float)($order['delivery_fee'] ?? 0);
+    $sousTot = $total - $livr;
+
+    $moyens = [
+        'wave' => '📱 Wave', 'orange_money' => '📱 Orange Money',
+        'virement' => '🏦 Virement', 'cash' => '💵 Espèces',
+        'carte' => '💳 Carte bancaire', 'paypal' => '💳 PayPal',
+    ];
+    $moyen = $moyens[$order['payment_method'] ?? ''] ?? ($order['payment_method'] ?? '—');
+
+    // Lignes d'articles
+    $lignes = '';
+    foreach ($items as $it) {
+        $detail = [];
+        if (!empty($it['size']))  $detail[] = 'Taille ' . $e($it['size']);
+        if (!empty($it['color'])) $detail[] = $e($it['color']);
+        $sousLigne = $detail ? '<br><span style="color:#8a7a62;font-size:13px;">' . implode(' · ', $detail) . '</span>' : '';
+        $lignes .= '<tr>'
+            . '<td style="padding:12px 0;border-bottom:1px solid #f0ebe0;color:#1a1008;font-size:15px;">'
+            . $e($it['product_name'] ?? '—') . $sousLigne . '</td>'
+            . '<td style="padding:12px 0;border-bottom:1px solid #f0ebe0;text-align:center;color:#555;font-size:15px;">×'
+            . (int)($it['quantity'] ?? 1) . '</td>'
+            . '<td style="padding:12px 0;border-bottom:1px solid #f0ebe0;text-align:right;color:#1a1008;font-size:15px;">'
+            . $prix(($it['unit_price'] ?? 0) * ($it['quantity'] ?? 1)) . '</td>'
+            . '</tr>';
+    }
+
+    // Adresse de livraison, si renseignee (le retrait en boutique n'en a pas)
+    $adresse = trim(($order['delivery_address'] ?? '') . ' ' . ($order['delivery_city'] ?? ''));
+    $blocLivraison = $adresse !== ''
+        ? '<p style="margin:0 0 4px;color:#555;font-size:14px;">📦 <strong>Livraison :</strong> ' . $e($adresse) . '</p>'
+        : '<p style="margin:0 0 4px;color:#555;font-size:14px;">📦 <strong>Livraison :</strong> Retrait</p>';
+
+    // Numero ayant paye, pour les paiements mobiles
+    $blocPayeur = !empty($order['sender_phone'])
+        ? '<p style="margin:0;color:#2b6cb0;font-size:14px;">📱 <strong>N° ayant payé :</strong> ' . $e($order['sender_phone']) . '</p>'
+        : '';
+
+    $titre  = $paiementConfirme ? 'Paiement confirmé' : 'Nouvelle commande';
+    $bandeau = $paiementConfirme ? '#276749' : '#c8921a';
+    $intro  = $paiementConfirme
+        ? 'Le paiement de cette commande vient d\'être confirmé. Elle peut passer en confection.'
+        : 'Une nouvelle commande vient d\'être passée sur la boutique.';
+
+    $lienAdmin = (defined('SITE_URL') ? SITE_URL : '') . '/admin/commandes.php';
+
+    $html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+      . '<meta name="viewport" content="width=device-width,initial-scale=1"></head>'
+      . '<body style="margin:0;padding:0;background:#f5f0e8;font-family:Georgia,serif;">'
+      . '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0e8;padding:32px 12px;">'
+      . '<tr><td align="center">'
+      . '<table cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">'
+
+      . '<tr><td style="background:#1a1008;padding:28px 40px;text-align:center;border-bottom:3px solid ' . $bandeau . ';">'
+      . '<p style="margin:0 0 6px;color:' . $bandeau . ';font-size:11px;letter-spacing:3px;text-transform:uppercase;">Administration</p>'
+      . '<h1 style="margin:0;color:#f5f0e8;font-size:24px;font-weight:400;">' . $titre . '</h1>'
+      . '<p style="margin:8px 0 0;color:rgba(245,240,232,0.6);font-size:14px;">' . $e($numero) . '</p>'
+      . '</td></tr>'
+
+      . '<tr><td style="background:#ffffff;padding:32px 40px;">'
+      . '<p style="margin:0 0 24px;color:#555;font-size:15px;line-height:1.7;">' . $intro . '</p>'
+
+      . '<div style="background:#faf6ef;border-left:3px solid ' . $bandeau . ';padding:16px 18px;margin-bottom:24px;">'
+      . '<p style="margin:0 0 6px;color:#1a1008;font-size:16px;"><strong>'
+      . $e(trim(($client['first_name'] ?? '') . ' ' . ($client['last_name'] ?? ''))) . '</strong></p>'
+      . (!empty($client['phone']) ? '<p style="margin:0 0 4px;color:#555;font-size:14px;">📞 <a href="tel:' . $e($client['phone']) . '" style="color:#c8921a;text-decoration:none;">' . $e($client['phone']) . '</a></p>' : '')
+      . (!empty($client['email']) ? '<p style="margin:0 0 4px;color:#555;font-size:14px;">✉️ <a href="mailto:' . $e($client['email']) . '" style="color:#c8921a;text-decoration:none;">' . $e($client['email']) . '</a></p>' : '')
+      . $blocLivraison
+      . '<p style="margin:0 0 4px;color:#555;font-size:14px;">💳 <strong>Paiement :</strong> ' . $moyen . '</p>'
+      . $blocPayeur
+      . '</div>'
+
+      . '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">' . $lignes . '</table>'
+
+      . '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">'
+      . '<tr><td style="padding:10px 0 4px;color:#8a7a62;font-size:14px;">Sous-total</td>'
+      . '<td style="padding:10px 0 4px;text-align:right;color:#555;font-size:14px;">' . $prix($sousTot) . '</td></tr>'
+      . '<tr><td style="padding:0 0 10px;color:#8a7a62;font-size:14px;">Livraison</td>'
+      . '<td style="padding:0 0 10px;text-align:right;color:#555;font-size:14px;">' . ($livr > 0 ? $prix($livr) : 'Offerte') . '</td></tr>'
+      . '<tr><td style="padding:12px 0 0;border-top:2px solid #1a1008;color:#1a1008;font-size:17px;"><strong>Total</strong></td>'
+      . '<td style="padding:12px 0 0;border-top:2px solid #1a1008;text-align:right;color:#1a1008;font-size:19px;"><strong>' . $prix($total) . '</strong></td></tr>'
+      . '</table>'
+
+      . '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">'
+      . '<a href="' . $lienAdmin . '" style="display:inline-block;background:#c8921a;color:#1a1008;'
+      . 'text-decoration:none;font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:15px 40px;">'
+      . 'Voir dans l\'administration</a>'
+      . '</td></tr></table>'
+      . '</td></tr>'
+
+      . '<tr><td style="background:#1a1008;padding:22px 40px;text-align:center;">'
+      . '<p style="margin:0;color:rgba(245,240,232,0.4);font-size:11px;">'
+      . 'Notification automatique &nbsp;|&nbsp; AfroStyle78 &nbsp;|&nbsp; Guyancourt (78)</p>'
+      . '</td></tr>'
+
+      . '</table></td></tr></table></body></html>';
+
+    $sujet = ($paiementConfirme ? '💰 Paiement reçu' : '🛍 Nouvelle commande')
+           . ' ' . $numero . ' — ' . $prix($total);
+
+    return sendMail($destinataire, 'AfroStyle Administration', $sujet, $html);
+}

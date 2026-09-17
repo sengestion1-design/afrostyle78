@@ -73,7 +73,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
             'payment_method'  => $method,
             'sender_phone'    => $senderPhone,
         ];
-        emailOrderConfirmation($order['email'], $order['first_name'], $orderForEmail, $items->fetchAll());
+        // fetchAll() vide le curseur : on conserve les lignes pour les deux emails.
+        $lignesEmail = $items->fetchAll();
+        emailOrderConfirmation($order['email'], $order['first_name'], $orderForEmail, $lignesEmail);
+        // Paiement declare par le client : le gerant doit pouvoir le verifier.
+        @emailAdminNewOrder($orderForEmail, $lignesEmail, [
+            'first_name' => $order['first_name'],
+            'last_name'  => $order['last_name'] ?? '',
+            'email'      => $order['email'],
+            'phone'      => $order['phone'] ?? '',
+        ]);
 
         $confirmMsg = 'success';
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

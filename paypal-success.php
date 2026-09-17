@@ -96,7 +96,16 @@ if ($clientId && $secret && $orderNumber) {
                     'payment_method'   => 'paypal',
                     'sender_phone'     => '',
                 ];
-                @emailOrderConfirmation($order['email'], $order['first_name'], $orderForEmail, $items->fetchAll());
+                // fetchAll() vide le curseur : on garde les lignes pour les deux emails.
+                $lignesEmail = $items->fetchAll();
+                @emailOrderConfirmation($order['email'], $order['first_name'], $orderForEmail, $lignesEmail);
+                // PayPal encaisse immediatement : la commande est payee d'emblee.
+                @emailAdminNewOrder($orderForEmail, $lignesEmail, [
+                    'first_name' => $order['first_name'],
+                    'last_name'  => $order['last_name'] ?? '',
+                    'email'      => $order['email'],
+                    'phone'      => $order['phone'] ?? '',
+                ], true);
             }
         }
     } elseif ($order && $order['payment_status'] === 'paid') {
