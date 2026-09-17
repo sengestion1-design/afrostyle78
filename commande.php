@@ -7,6 +7,10 @@ require_once 'config/mailer.php';
 $cart = $_SESSION['cart'] ?? [];
 if (empty($cart)) { header('Location: panier.php'); exit; }
 
+// MoneyFusion n'est propose que si son URL d'API est renseignee dans l'admin.
+$mfApiUrl = getDB()->query("SELECT setting_value FROM settings WHERE setting_key='moneyfusion_api_url'")->fetchColumn();
+$moneyFusionActif = !empty($mfApiUrl);
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -357,6 +361,19 @@ $total = $subtotal + $delivery;
                             </label>
                             <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
                         </div>
+                        <?php if ($moneyFusionActif): ?>
+                        <div class="payment-option">
+                            <input type="radio" name="payment_method" id="pay_moneyfusion" value="moneyfusion">
+                            <label for="pay_moneyfusion">
+                                <span class="pay-icon">📱</span>
+                                <span class="pay-details">
+                                    <strong>MoneyFusion</strong>
+                                    <small>Orange Money, MTN, Wave — 26 pays africains</small>
+                                </span>
+                            </label>
+                            <div class="check-icon" style="display:none; width:24px; height:24px; border-radius:50%; background:#38a169; color:#fff; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; margin-left:auto;">✓</div>
+                        </div>
+                        <?php endif; ?>
                         <div class="payment-option">
                             <input type="radio" name="payment_method" id="pay_paypal" value="paypal">
                             <label for="pay_paypal">

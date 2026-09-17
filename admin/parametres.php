@@ -84,6 +84,7 @@ $allowedKeys = [
     'wave_api_key',
     'stripe_public_key','stripe_secret_key','stripe_currency','stripe_fcfa_to_eur',
     'paydunya_master_key','paydunya_private_key','paydunya_token','paydunya_public_key',
+    'moneyfusion_api_url',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -557,6 +558,42 @@ require_once 'includes/admin_header.php';
 
 <!-- STRIPE + PAYDUNYA EN PLEINE LARGEUR -->
 <div style="display:flex; flex-direction:column; gap:24px; margin-top:24px;">
+
+    <!-- MONEYFUSION -->
+    <div class="admin-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #f0ebe0;">
+        <div style="background:#1d3f8f;color:#fff;padding:8px 14px;font-size:1.1rem;font-weight:700;border-radius:4px;">MF</div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--dark);">MoneyFusion</div>
+          <div style="font-size:0.88rem;color:var(--muted);">Orange Money, MTN, Wave — 26 pays africains</div>
+        </div>
+        <div style="margin-left:auto;">
+          <?php $mfUrl = $settings['moneyfusion_api_url']['setting_value'] ?? ''; ?>
+          <span style="padding:4px 14px;font-size:0.82rem;font-weight:700;border-radius:20px;
+            <?= $mfUrl ? 'background:rgba(29,63,143,0.1);color:#1d3f8f;' : 'background:rgba(200,200,200,0.2);color:#999;' ?>">
+            <?= $mfUrl ? '🟢 ACTIF' : '⚪ NON CONFIGURÉ' ?>
+          </span>
+        </div>
+      </div>
+      <div class="admin-form">
+        <div style="margin-bottom:16px;">
+          <label>URL de l'API MoneyFusion</label>
+          <input type="url" name="moneyfusion_api_url"
+                 value="<?= htmlspecialchars($mfUrl, ENT_QUOTES) ?>"
+                 placeholder="https://api.moneyfusion.net/api/...">
+          <small style="color:var(--muted);font-size:0.85rem;display:block;margin-top:6px;">
+            Propre à votre compte. Connectez-vous sur
+            <a href="https://moneyfusion.net" target="_blank" rel="noopener noreferrer" style="color:#c8921a;font-weight:700;">moneyfusion.net</a>,
+            créez une application dans votre tableau de bord et copiez l'URL générée.
+            Le moyen de paiement apparaît sur le site dès qu'elle est renseignée.
+          </small>
+        </div>
+        <div style="background:#f0f4ff;border:1px solid #c3d4f7;padding:14px 16px;font-size:0.88rem;color:#2c4a8c;">
+          🔗 URL de notification à déclarer chez MoneyFusion :<br>
+          <strong style="word-break:break-all;"><?= SITE_URL ?>/moneyfusion-webhook.php</strong>
+        </div>
+      </div>
+    </div>
 
     <!-- PAYDUNYA -->
     <div class="admin-card">

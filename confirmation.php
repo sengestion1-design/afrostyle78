@@ -291,6 +291,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
         <?php endif; ?>
 
         <!-- PAYPAL / CARTE BANCAIRE -->
+        <?php if ($method === 'moneyfusion'): ?>
+        <?php $mfUrl = $allSettings['moneyfusion_api_url'] ?? ''; ?>
+        <div style="border:2px solid #1d3f8f; border-radius:8px; overflow:hidden; margin-bottom:20px;">
+            <div style="background:#1d3f8f; padding:16px 24px; display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.8rem;">📱</span>
+                <span style="font-weight:700; color:#fff; font-size:1.1rem;">Payer par mobile money</span>
+            </div>
+            <div style="padding:24px;">
+                <?php if ($mfUrl): ?>
+                <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:16px;">
+                    Paiement sécurisé via MoneyFusion. Vous serez redirigé pour valider depuis votre téléphone.
+                </p>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Orange Money</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">MTN</span>
+                    <span style="background:#f8f9fa; border:1px solid #e0d8ce; padding:6px 12px; font-size:0.8rem; font-weight:600; border-radius:4px;">Wave</span>
+                </div>
+                <button onclick="payWithMoneyFusion()" id="moneyfusion-btn" style="background:#1d3f8f; color:#fff; border:none; padding:14px 28px; font-size:1rem; font-weight:700; cursor:pointer; width:100%; border-radius:4px;">
+                    🔒 Payer <?= number_format($order['total_amount'], 0, ',', ' ') ?> € via MoneyFusion
+                </button>
+                <?php else: ?>
+                <p style="color:var(--text-muted); font-size:0.95rem; margin:0;">
+                    Ce moyen de paiement n'est pas encore disponible. Contactez-nous par WhatsApp pour régler votre commande.
+                </p>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <?php if ($method === 'paypal'): ?>
         <div style="border:2px solid #003087; border-radius:8px; overflow:hidden; margin-bottom:20px;">
             <div style="background:#003087; padding:16px 24px; display:flex; align-items:center; gap:12px;">
@@ -496,6 +525,36 @@ function payWithStripe() {
             btn.textContent = '🔒 Payer par carte';
             btn.disabled = false;
         }
+    });
+}
+</script>
+<?php endif; ?>
+
+<?php if ($order && $method === 'moneyfusion' && !empty($allSettings['moneyfusion_api_url']) && !$isPaid): ?>
+<script>
+function payWithMoneyFusion() {
+    const btn = document.getElementById('moneyfusion-btn');
+    btn.textContent = '⏳ Redirection...';
+    btn.disabled = true;
+    fetch('<?= SITE_URL ?>/moneyfusion-checkout.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'order_number=<?= urlencode($orderNumber) ?>&confirm_token=<?= urlencode($order["confirm_token"] ?? "") ?>'
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            afficherErreurPaiement(data.error || 'Le paiement n\'a pas abouti. Merci de réessayer.');
+            btn.textContent = '🔒 Payer via MoneyFusion';
+            btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        afficherErreurPaiement('La connexion a été interrompue. Vérifiez votre connexion internet et réessayez.');
+        btn.textContent = '🔒 Payer via MoneyFusion';
+        btn.disabled = false;
     });
 }
 </script>
