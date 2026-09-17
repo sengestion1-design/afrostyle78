@@ -134,8 +134,23 @@ if (($createCode !== 200 && $createCode !== 201) || empty($createResp['id'])) {
     error_log('[PAYPAL] Create order HTTP ' . $createCode
         . ' mode=' . $mode . ' currency=' . $currency . ' value=' . number_format($amountEur, 2, '.', '')
         . ' resp=' . json_encode($createResp));
+    // Les codes PayPal sont en anglais et n'evoquent rien a un client. On les
+    // traduit en explication utile, avec une porte de sortie : les autres
+    // moyens de paiement restent disponibles.
     $detail = $createResp['details'][0]['issue'] ?? ($createResp['name'] ?? '');
-    echo json_encode(['error' => 'Création du paiement PayPal échouée.' . ($detail ? ' (' . $detail . ')' : '')]);
+    $explications = [
+        'PAYEE_ACCOUNT_RESTRICTED' => "Le paiement par carte est momentanément indisponible. "
+            . "Choisissez un autre moyen de paiement ci-dessous, ou contactez-nous par WhatsApp.",
+        'PAYEE_ACCOUNT_NOT_VERIFIED' => "Le paiement par carte est momentanément indisponible. "
+            . "Choisissez un autre moyen de paiement ci-dessous.",
+        'CURRENCY_NOT_SUPPORTED' => "Cette devise n'est pas acceptée par PayPal. Contactez-nous.",
+        'INSTRUMENT_DECLINED' => "Votre moyen de paiement a été refusé. Essayez une autre carte.",
+        'PAYER_CANNOT_PAY' => "Ce compte PayPal ne peut pas régler cette commande.",
+    ];
+    $message = $explications[$detail]
+        ?? "Le paiement par carte n'a pas pu être initialisé. Choisissez un autre moyen de paiement ci-dessous.";
+    // Le code technique reste dans les logs, pas devant le client.
+    echo json_encode(['error' => $message]);
     exit;
 }
 

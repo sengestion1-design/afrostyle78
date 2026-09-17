@@ -378,7 +378,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_mobile_paymen
     </div>
 </div>
 
+<!-- Zone d'erreur de paiement : remplace les alert() du navigateur, qui
+     affichaient des codes techniques bruts hors de la charte du site. -->
+<div id="erreur-paiement" hidden style="max-width:640px;margin:0 auto 24px;">
+  <div style="background:#fff5f5;border:1px solid #f5c6c6;border-left:4px solid #c0392b;padding:18px 22px;">
+    <p style="margin:0 0 6px;color:#c0392b;font-size:0.78rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;">
+      Paiement non abouti
+    </p>
+    <p id="erreur-paiement-texte" style="margin:0;color:#7a3030;font-size:0.98rem;line-height:1.65;"></p>
+  </div>
+</div>
+
 <?php if ($order && in_array($method, ['paydunya','carte','wave','orange_money','stripe']) && !$isPaid): ?>
+<script>
+// Affiche l'erreur dans la page, dans la charte du site, et amene le client
+// jusqu'au message plutot que de bloquer sur une fenetre systeme.
+function afficherErreurPaiement(texte) {
+    var bloc = document.getElementById('erreur-paiement');
+    document.getElementById('erreur-paiement-texte').textContent = texte;
+    bloc.hidden = false;
+    bloc.scrollIntoView({behavior: 'smooth', block: 'center'});
+}
+</script>
 <script>
 function payWithPaydunya() {
     const btn = document.getElementById('paydunya-btn');
@@ -394,13 +415,13 @@ function payWithPaydunya() {
         if (data.url) {
             window.location.href = data.url;
         } else {
-            alert('Erreur : ' + (data.error || 'Réessayez.'));
+            afficherErreurPaiement(data.error || 'Le paiement n\'a pas abouti. Merci de réessayer.');
             btn.textContent = '🌍 Payer via PayDunya';
             btn.disabled = false;
         }
     })
     .catch(() => {
-        alert('Erreur réseau. Réessayez.');
+        afficherErreurPaiement('La connexion a été interrompue. Vérifiez votre connexion internet et réessayez.');
         btn.textContent = '🌍 Payer via PayDunya';
         btn.disabled = false;
     });
@@ -426,7 +447,7 @@ function payWithWave() {
         if (data.url) {
             window.location.href = data.url;
         } else {
-            alert('Erreur : ' + (data.error || 'Réessayez.'));
+            afficherErreurPaiement(data.error || 'Le paiement n\'a pas abouti. Merci de réessayer.');
             btn.textContent = '📱 Payer avec Wave';
             btn.disabled = false;
         }
@@ -453,7 +474,7 @@ function payWithStripe() {
         if (data.url) {
             window.location.href = data.url;
         } else {
-            alert('Erreur : ' + (data.error || 'Réessayez.'));
+            afficherErreurPaiement(data.error || 'Le paiement n\'a pas abouti. Merci de réessayer.');
             btn.textContent = '🔒 Payer par carte';
             btn.disabled = false;
         }
@@ -480,7 +501,7 @@ function payWithPaypal() {
         if (data.url) {
             window.location.href = data.url;
         } else {
-            alert('Erreur : ' + (data.error || 'Réessayez.'));
+            afficherErreurPaiement(data.error || 'Le paiement n\'a pas abouti. Merci de réessayer.');
             btn.textContent = '🔒 Payer via PayPal';
             btn.disabled = false;
         }
