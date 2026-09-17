@@ -98,7 +98,7 @@ if ($step === 1 && $_SERVER['REQUEST_METHOD'] === 'POST') {
   <tr><td style="background:#1a1008;padding:36px 48px 28px;text-align:center;border-bottom:2px solid #c8921a;">
     <div style="margin-bottom:14px;">' . $logoTag . '</div>
     <h1 style="margin:0 0 4px;color:#f5f0e8;font-family:Georgia,serif;font-size:28px;font-weight:400;letter-spacing:2px;">AfroStyle</h1>
-    <p style="margin:0;color:rgba(245,240,232,0.5);font-size:12px;letter-spacing:3px;">✦ DAKAR, SÉNÉGAL ✦</p>
+    <p style="margin:0;color:rgba(245,240,232,0.5);font-size:12px;letter-spacing:3px;">✦ GUYANCOURT (78) ✦</p>
   </td></tr>
 
   <tr><td style="background:#ffffff;padding:48px 48px 40px;">
@@ -145,8 +145,8 @@ if ($step === 1 && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <tr><td style="background:#1a1008;padding:32px 48px;text-align:center;">
     <p style="margin:0 0 8px;color:#c8921a;font-size:12px;letter-spacing:2px;">AfroStyle Atelier</p>
-    <p style="margin:0 0 4px;color:rgba(245,240,232,0.5);font-size:12px;">📍 Dakar, Sénégal &nbsp;|&nbsp; 📞 +33 6 44 72 87 30</p>
-    <p style="margin:0;color:rgba(245,240,232,0.3);font-size:11px;">© 2024 AfroStyle — Tous droits réservés</p>
+    <p style="margin:0 0 4px;color:rgba(245,240,232,0.5);font-size:12px;">📍 Guyancourt, Yvelines (78) &nbsp;|&nbsp; 📞 +33 6 44 72 87 30</p>
+    <p style="margin:0;color:rgba(245,240,232,0.3);font-size:11px;">&copy; ' . date('Y') . ' AfroStyle — Tous droits réservés</p>
   </td></tr>
 
 </table></td></tr></table></body></html>';
