@@ -462,7 +462,16 @@ require_once 'includes/admin_header.php';
                     style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);">👁</button>
           </div>
           <small style="color:var(--muted);font-size:0.85rem;">
-            Générer sur <strong>myaccount.google.com</strong> → Sécurité → Mots de passe des applications.
+            <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer"
+               style="color:#c8921a;font-weight:700;text-decoration:underline;">
+              🔑 Générer un mot de passe d'application Google →
+            </a>
+            <span style="display:block;margin-top:4px;">
+              Le lien ouvre directement la page. Il faut être connecté au compte
+              <strong><?= htmlspecialchars($mailCfg['MAIL_USERNAME'] ?? 'Gmail', ENT_QUOTES) ?></strong>
+              et avoir activé la validation en deux étapes, sans laquelle Google
+              ne propose pas les mots de passe d'application.
+            </span>
           </small>
         </div>
         <div style="margin-bottom:0;">
